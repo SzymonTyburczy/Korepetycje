@@ -12,11 +12,19 @@ function injectNav(activePage) {
       <li><a href="cennik.html"        ${activePage==='cennik'        ?'class="active"':''}>Cennik</a></li>
       <li><a href="opinie.html"        ${activePage==='opinie'        ?'class="active"':''}>Opinie</a></li>
       <li class="nav-cta-li"><a href="index.html#contact">Kontakt</a></li>
+      <li class="nav-auth-li" id="navAuthBtn" style="display:none">
+        <a href="login.html" id="navAuthLink">🔐 Zaloguj się</a>
+      </li>
     </ul>
     <button class="hamburger" id="hamburger" aria-label="Otwórz menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
   `;
+
+
+// Sprawdź czy użytkownik jest zalogowany i zmień przycisk
+  _updateAuthButton();
+
 
   const hbg      = document.getElementById('hamburger');
   const navLinks = document.getElementById('navLinks');
@@ -93,3 +101,46 @@ function initReveal() {
   }, { threshold: 0.08 });
   els.forEach(el => obs.observe(el));
 }
+
+
+async function _updateAuthButton() {
+  const btn  = document.getElementById('navAuthBtn');
+  const link = document.getElementById('navAuthLink');
+  if (!btn || !link) return;
+
+  // Pokaż przycisk od razu (domyślnie: Zaloguj się)
+  btn.style.display = 'block';
+
+  // Jeśli Supabase nie jest zainicjowane — pomiń
+  if (typeof initSupabase !== 'function') return;
+
+  try {
+    await initSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      // Zalogowany — pobierz imię z profilu
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, role')
+        .eq('id', user.id)
+        .single();
+
+      const name  = profile?.full_name?.split(' ')[0] || 'Panel';
+      const emoji = profile?.role === 'admin' ? '🔑' : '👤';
+
+      link.href        = 'dashboard.html';
+      link.textContent = `${emoji} ${name}`;
+      link.style.cssText = 'background:rgba(201,168,76,.15)!important;border:1px solid var(--gold)!important;color:var(--gold-light)!important;border-radius:3px;padding:.35rem .9rem;';
+    } else {
+      link.href        = 'login.html';
+      link.textContent = '🔐 Zaloguj się';
+    }
+  } catch(e) {
+    // Supabase nie skonfigurowane — pokaż domyślny przycisk logowania
+    link.href        = 'login.html';
+    link.textContent = '🔐 Zaloguj się';
+  }
+}
+
+
