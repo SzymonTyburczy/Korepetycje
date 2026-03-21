@@ -196,6 +196,7 @@
     .forgot-link a { color: var(--gold); text-decoration: none; }
     .forgot-link a:hover { text-decoration: underline; }
   </style>
+
 </head>
 <body>
 <div class="login-page">
@@ -269,7 +270,7 @@
   </div>
 </div>
 
-<script src="supabase-config.js"></script>
+
 <script>
   // Init
   initSupabase().then(async () => {
@@ -292,7 +293,7 @@
     const errEl = document.getElementById('loginError');
     btn.textContent = 'Logowanie…'; btn.disabled = true; errEl.style.display = 'none';
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabaseClient.auth.signInWithPassword({
       email: document.getElementById('loginEmail').value,
       password: document.getElementById('loginPassword').value,
     });
@@ -315,7 +316,7 @@
     btn.textContent = 'Rejestracja…'; btn.disabled = true;
     errEl.style.display = 'none'; sucEl.style.display = 'none';
 
-    const { error } = await supabase.auth.signUp({
+    const { error } = await supabaseClient.auth.signUp({
       email: document.getElementById('regEmail').value,
       password: document.getElementById('regPassword').value,
       options: { data: { full_name: document.getElementById('regName').value } }
@@ -334,7 +335,7 @@
 
   // GOOGLE
   async function loginWithGoogle() {
-    await supabase.auth.signInWithOAuth({
+    await supabaseClient.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin + '/dashboard.html' }
     });
@@ -344,7 +345,7 @@
   function showForgot() {
     const email = prompt('Podaj swój adres e-mail:');
     if (!email) return;
-    supabase.auth.resetPasswordForEmail(email, {
+    supabaseClient.auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin + '/login.html'
     }).then(({ error }) => {
       if (!error) alert('✅ Link do resetowania hasła został wysłany na ' + email);

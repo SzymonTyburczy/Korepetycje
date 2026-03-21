@@ -366,7 +366,7 @@ function panelAllUsers(){
 
 async function saveProfile(){
   const msg=document.getElementById('profileMsg');
-  const {error}=await supabase.from('profiles').update({full_name:document.getElementById('profName').value,phone:document.getElementById('profPhone').value}).eq('id',currentProfile.id);
+  const {error}=await supabaseClient.from('profiles').update({full_name:document.getElementById('profName').value,phone:document.getElementById('profPhone').value}).eq('id',currentProfile.id);
   msg.textContent=error?'❌ Błąd zapisu.':'✅ Zapisano!';
 }
 

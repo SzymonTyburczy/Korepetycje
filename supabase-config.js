@@ -93,7 +93,7 @@ const SUPABASE_ANON_KEY =
 	"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpveGV6eHd3emVscG1xamF3d21iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMjU2MDYsImV4cCI6MjA4OTYwMTYwNn0.TOQNslNUVG9fiFytfHT8S61Zpowl0Il61_nXm6IYIEk"; // długi ciąg znaków
 
 // Inicjalizacja klienta Supabase
-let supabase;
+let supabaseClient;
 
 async function initSupabase() {
 	// Dynamicznie ładujemy bibliotekę Supabase
@@ -102,8 +102,8 @@ async function initSupabase() {
 			"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js",
 		);
 	}
-	supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-	return supabase;
+	let supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+	return supabaseClient;
 }
 
 function loadScript(src) {
@@ -121,14 +121,14 @@ function loadScript(src) {
 async function getCurrentUser() {
 	const {
 		data: { user },
-	} = await supabase.auth.getUser();
+	} = await supabaseClient.auth.getUser();
 	return user;
 }
 
 async function getCurrentProfile() {
 	const user = await getCurrentUser();
 	if (!user) return null;
-	const { data } = await supabase
+	const { data } = await supabaseClient
 		.from("profiles")
 		.select("*")
 		.eq("id", user.id)
@@ -137,7 +137,7 @@ async function getCurrentProfile() {
 }
 
 async function signOut() {
-	await supabase.auth.signOut();
+	await supabaseClient.auth.signOut();
 	window.location.href = "index.html";
 }
 
