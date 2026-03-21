@@ -124,7 +124,7 @@ function loadScript(src) {
 // ── AUTH HELPERS ──
 
 async function getCurrentUser() {
-	const db = await getSupabase(); // Upewniamy się, że klient jest gotowy
+	const db = await initSupabase(); // Upewniamy się, że klient jest gotowy
 	const {
 		data: { user },
 	} = await db.auth.getUser();
