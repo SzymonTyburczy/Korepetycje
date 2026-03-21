@@ -349,7 +349,7 @@
 
     // FACEBOOK
   async function loginWithFacebook() {
-    const db = await getSupabase(); // Zabezpieczenie!
+    const db = await initSupabase(); // Zabezpieczenie!
     await db.auth.signInWithOAuth({
       provider: 'facebook',
       options: { redirectTo: window.location.origin + '/dashboard.html' }
