@@ -339,13 +339,13 @@
   });
 
   // GOOGLE
-  async function loginWithGoogle() {
-    const db = await initSupabase(); // Zabezpieczenie!
-    await db.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin + '/dashboard.html' }
-    });
-  }
+  // async function loginWithGoogle() {
+  //   const db = await initSupabase(); // Zabezpieczenie!
+  //   await db.auth.signInWithOAuth({
+  //     provider: 'google',
+  //     options: { redirectTo: window.location.origin + '/dashboard.html' }
+  //   });
+  // }
 
   // FORGOT PASSWORD
   async function showForgot() {
