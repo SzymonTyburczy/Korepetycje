@@ -4,7 +4,7 @@ function injectNav(activePage) {
   const nav = document.getElementById('mainNav');
   if (!nav) return;
   nav.innerHTML = `
-    <a class="nav-logo" href="index.html"><span>Korepetycje</span> Kowalski</a>
+    <a class="nav-logo" href="index.html"><span>Korepetycje</span> Szymon Tyburczy</a>
     <ul class="nav-links" id="navLinks">
       <li><a href="index.html"         ${activePage==='home'          ?'class="active"':''}>Strona główna</a></li>
       <li><a href="o-mnie.html"        ${activePage==='o-mnie'        ?'class="active"':''}>O mnie</a></li>
@@ -61,8 +61,8 @@ function injectFooter() {
   ft.innerHTML = `
     <div class="footer-inner">
       <div class="footer-brand">
-        <a class="nav-logo" href="index.html"><span>Korepetycje</span> Kowalski</a>
-        <p>Profesjonalne korepetycje z matematyki i informatyki — online oraz stacjonarnie w Warszawie.</p>
+        <a class="nav-logo" href="index.html"><span>Korepetycje</span> Szymon Tyburczy</a>
+        <p>Profesjonalne korepetycje z matematyki i informatyki — online oraz stacjonarnie w Krakowie.</p>
       </div>
       <div class="footer-col">
         <h4>Nawigacja</h4>
@@ -77,14 +77,14 @@ function injectFooter() {
       <div class="footer-col">
         <h4>Kontakt</h4>
         <ul>
-          <li><a href="mailto:jan.kowalski@email.com">📧 jan.kowalski@email.com</a></li>
-          <li><a href="tel:+48600000000">📱 +48 600 000 000</a></li>
+          <li><a href="mailto:szymon.tyburczy@email.com">📧 szymon.tyburczy@email.com</a></li>
+          <li><a href="tel:+48789142398">📱 +48 789 142 398</a></li>
           <li><a href="login.html">🔐 Panel ucznia</a></li>
           <li><a href="index.html#contact">✉️ Formularz kontaktowy</a></li>
         </ul>
       </div>
     </div>
-    <div class="footer-bottom">© 2025 Korepetycje Kowalski · Wszelkie prawa zastrzeżone</div>
+    <div class="footer-bottom">© 2025 Korepetycje Szymon Tyburczy · Wszelkie prawa zastrzeżone</div>
   `;
 }
 

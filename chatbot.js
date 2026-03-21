@@ -14,11 +14,11 @@
     },
     {
       keywords: ['kontakt', 'telefon', 'email', 'napisać', 'zadzwonić', 'whatsapp'],
-      answer: '📞 Najłatwiej przez formularz na stronie <a href="index.html#contact" style="color:var(--gold)">Kontakt</a>. Możesz też napisać na <strong>jan.kowalski@email.com</strong> lub zadzwonić: <strong>+48 600 000 000</strong>. Odpiszemy najczęściej w ciągu kilku godzin!'
+      answer: '📞 Najłatwiej przez formularz na stronie <a href="index.html#contact" style="color:var(--gold)">Kontakt</a>. Możesz też napisać na <strong>szymon.tyburczy@email.com</strong> lub zadzwonić: <strong>+48 789 142 398</strong>. Odpiszemy najczęściej w ciągu kilku godzin!'
     },
     {
       keywords: ['korepetytor', 'nauczyciel', 'kto uczy', 'team', 'zespół'],
-      answer: '👨‍🏫 Mamy świetny zespół! Jan Kowalski (matematyka, matura), Anna Wiśniewska (informatyka, Python), Piotr Nowak (matematyka + fizyka) i Marta Kowalczyk (matematyka wyższa dla studentów). Szczegóły na stronie <a href="korepetytorzy.html" style="color:var(--gold)">Korepetytorzy</a>.'
+      answer: '👨‍🏫 Mamy świetny zespół! Szymon Tyburczy (matematyka, matura), Anna Wiśniewska (informatyka, Python), Piotr Nowak (matematyka + fizyka) i Marta Kowalczyk (matematyka wyższa dla studentów). Szczegóły na stronie <a href="korepetytorzy.html" style="color:var(--gold)">Korepetytorzy</a>.'
     },
     {
       keywords: ['przedmiot', 'czego', 'co uczysz', 'matematyka', 'informatyka', 'programowanie', 'python', 'java', 'fizyka'],
@@ -26,7 +26,7 @@
     },
     {
       keywords: ['online', 'zoom', 'stacjonarnie', 'gdzie', 'jak', 'forma'],
-      answer: '💻 Prowadzimy lekcje **online przez Zoom** oraz **stacjonarnie w Warszawie**. Każda forma ma taką samą jakość — używamy tablic online, udostępniania ekranu i notatek w czasie rzeczywistym.'
+      answer: '💻 Prowadzimy lekcje **online przez Zoom** oraz **stacjonarnie w Krakowie**. Każda forma ma taką samą jakość — używamy tablic online, udostępniania ekranu i notatek w czasie rzeczywistym.'
     },
     {
       keywords: ['matura', 'egzamin', 'przygotowanie', 'zdać', 'wynik'],
@@ -170,7 +170,7 @@
       <div class="cb-header">
         <div class="cb-avatar">🤖</div>
         <div class="cb-header-text">
-          <div class="cb-name">Asystent Kowalski</div>
+          <div class="cb-name">Asystent Tyburczy</div>
           <div class="cb-status"><span class="cb-online"></span>Online · odpowiada błyskawicznie</div>
         </div>
       </div>
@@ -201,7 +201,7 @@
     btn.classList.toggle('open');
     win.classList.toggle('open');
     if (win.classList.contains('open') && msgs.children.length === 0) {
-      addMsg('bot', 'Cześć! 👋 Jestem asystentem Korepetycji Kowalski. Mogę odpowiedzieć na pytania o <strong>ceny, przedmioty, korepetytorów i rezerwacje</strong>. O co chcesz zapytać?');
+      addMsg('bot', 'Cześć! 👋 Jestem asystentem Korepetycji Szymon Tyburczy. Mogę odpowiedzieć na pytania o <strong>ceny, przedmioty, korepetytorów i rezerwacje</strong>. O co chcesz zapytać?');
     }
     if (win.classList.contains('open')) { input.focus(); }
   });
@@ -252,7 +252,7 @@
     addTyping();
     await delay(800);
     removeTyping();
-    addMsg('bot', `Hmm, nie mam gotowej odpowiedzi na to pytanie 🤔 Najlepiej <a href="index.html#contact" style="color:#c9a84c">napisz do nas bezpośrednio</a> — odpowiemy w ciągu kilku godzin! Możesz też zadzwonić: <strong>+48 600 000 000</strong>`);
+    addMsg('bot', `Hmm, nie mam gotowej odpowiedzi na to pytanie 🤔 Najlepiej <a href="index.html#contact" style="color:#c9a84c">napisz do nas bezpośrednio</a> — odpowiemy w ciągu kilku godzin! Możesz też zadzwonić: <strong>+48 789 142 398</strong>`);
   }
 
   function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
