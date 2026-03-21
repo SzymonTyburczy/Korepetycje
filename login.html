@@ -296,7 +296,7 @@
     const errEl = document.getElementById('loginError');
     btn.textContent = 'Logowanie…'; btn.disabled = true; errEl.style.display = 'none';
 
-    const db = await getSupabase(); // Zabezpieczenie!
+    const db = await initSupabase(); // Zabezpieczenie!
     const { error } = await db.auth.signInWithPassword({
       email: document.getElementById('loginEmail').value,
       password: document.getElementById('loginPassword').value,
@@ -320,7 +320,7 @@
     btn.textContent = 'Rejestracja…'; btn.disabled = true;
     errEl.style.display = 'none'; sucEl.style.display = 'none';
 
-    const db = await getSupabase(); // Zabezpieczenie!
+    const db = await initSupabase(); // Zabezpieczenie!
     const { error } = await db.auth.signUp({
       email: document.getElementById('regEmail').value,
       password: document.getElementById('regPassword').value,
