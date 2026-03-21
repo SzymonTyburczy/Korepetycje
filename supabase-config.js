@@ -97,12 +97,17 @@ let supabaseClient;
 
 async function initSupabase() {
 	// Dynamicznie ładujemy bibliotekę Supabase
+	if (supabaseClient) return supabaseClient; // Jeśli już istnieje, po prostu go zwróć
+
 	if (!window.supabase) {
 		await loadScript(
 			"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js",
 		);
 	}
-	let supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+	supabaseClient = window.supabase.createClient(
+		SUPABASE_URL,
+		SUPABASE_ANON_KEY,
+	);
 	return supabaseClient;
 }
 
@@ -119,9 +124,10 @@ function loadScript(src) {
 // ── AUTH HELPERS ──
 
 async function getCurrentUser() {
+	const db = await getSupabase(); // Upewniamy się, że klient jest gotowy
 	const {
 		data: { user },
-	} = await supabaseClient.auth.getUser();
+	} = await db.auth.getUser();
 	return user;
 }
 

@@ -272,11 +272,14 @@
 
 <script src="supabase-config.js"></script>
 <script>
-  // Init
-  initSupabase().then(async () => {
-    // Jeśli już zalogowany → przekieruj do dashboardu
-    const user = await getCurrentUser();
-    if (user) window.location.href = 'dashboard.html';
+  // INIT - uproszczony i bezpieczny
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const user = await getCurrentUser();
+      if (user) window.location.href = 'dashboard.html';
+    } catch (err) {
+      console.log("Oczekiwano na zalogowanie: Brak aktywnej sesji.");
+    }
   });
 
   function switchTab(tab) {
@@ -293,7 +296,8 @@
     const errEl = document.getElementById('loginError');
     btn.textContent = 'Logowanie…'; btn.disabled = true; errEl.style.display = 'none';
 
-    const { error } = await supabaseClient.auth.signInWithPassword({
+    const db = await getSupabase(); // Zabezpieczenie!
+    const { error } = await db.auth.signInWithPassword({
       email: document.getElementById('loginEmail').value,
       password: document.getElementById('loginPassword').value,
     });
@@ -316,7 +320,8 @@
     btn.textContent = 'Rejestracja…'; btn.disabled = true;
     errEl.style.display = 'none'; sucEl.style.display = 'none';
 
-    const { error } = await supabaseClient.auth.signUp({
+    const db = await getSupabase(); // Zabezpieczenie!
+    const { error } = await db.auth.signUp({
       email: document.getElementById('regEmail').value,
       password: document.getElementById('regPassword').value,
       options: { data: { full_name: document.getElementById('regName').value } }
@@ -335,22 +340,25 @@
 
   // GOOGLE
   async function loginWithGoogle() {
-    await supabaseClient.auth.signInWithOAuth({
+    const db = await getSupabase(); // Zabezpieczenie!
+    await db.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin + '/dashboard.html' }
     });
   }
 
   // FORGOT PASSWORD
-  function showForgot() {
+  async function showForgot() {
     const email = prompt('Podaj swój adres e-mail:');
     if (!email) return;
-    supabaseClient.auth.resetPasswordForEmail(email, {
+    
+    const db = await getSupabase(); // Zabezpieczenie!
+    const { error } = await db.auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin + '/login.html'
-    }).then(({ error }) => {
-      if (!error) alert('✅ Link do resetowania hasła został wysłany na ' + email);
-      else alert('Błąd: ' + error.message);
     });
+    
+    if (!error) alert('✅ Link do resetowania hasła został wysłany na ' + email);
+    else alert('Błąd: ' + error.message);
   }
 </script>
 </body>
