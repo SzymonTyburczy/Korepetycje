@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>O mnie — Korepetycje Kowalski</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── BIO SECTION ── */
+    #bio { background: var(--white); }
+    .bio-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+
+    /* Photo card */
+    .photo-card {
+      position: sticky;
+      top: 90px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .photo-wrap {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: linear-gradient(160deg, var(--navy) 0%, var(--navy-light) 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 6rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .photo-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: none; /* pokaże się gdy dodasz src */
+    }
+    .photo-wrap img[src] { display: block; }
+    .photo-emoji { font-size: 6rem; }
+
+    /* Instrukcja zdjęcia */
+    .photo-hint {
+      background: var(--gold-pale);
+      border: 1px dashed var(--gold);
+      margin: 1rem;
+      border-radius: 3px;
+      padding: .8rem 1rem;
+      font-size: .82rem;
+      color: var(--navy);
+      line-height: 1.5;
+    }
+    .photo-hint strong { display: block; margin-bottom: .25rem; }
+
+    .photo-meta { padding: 1.4rem; }
+    .photo-meta h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--navy);
+      margin-bottom: .2rem;
+    }
+    .photo-meta .role {
+      font-size: .85rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 1rem;
+    }
+    .photo-badges { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .badge {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: .25rem .7rem;
+      font-size: .78rem;
+      color: var(--text-muted);
+    }
+
+    /* Bio text */
+    .bio-text .section-desc { max-width: 100%; }
+    .bio-lead {
+      font-size: 1.2rem;
+      color: var(--navy);
+      font-weight: 400;
+      line-height: 1.7;
+      border-left: 3px solid var(--gold);
+      padding-left: 1.5rem;
+      margin-bottom: 2rem;
+      font-style: italic;
+    }
+    .bio-body {
+      color: var(--text-muted);
+      line-height: 1.85;
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .bio-body p { margin-bottom: 1.2rem; }
+
+    /* Timeline */
+    .timeline { margin: 2.5rem 0; }
+    .timeline h3 {
+      font-family: 'Playfair Display', serif;
+      color: var(--navy);
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+    .tl-item {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .tl-item:last-child { border-bottom: none; }
+    .tl-year {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      color: var(--gold);
+      font-weight: 700;
+      padding-top: .15rem;
+    }
+    .tl-content strong {
+      display: block;
+      color: var(--navy);
+      margin-bottom: .2rem;
+      font-size: 1rem;
+    }
+    .tl-content span { font-size: .9rem; color: var(--text-muted); }
+
+    /* Skills */
+    #skills { background: var(--cream); }
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+    .skill-card {
+      padding: 1.8rem;
+      text-align: center;
+    }
+    .skill-card .icon { font-size: 2.2rem; margin-bottom: .8rem; }
+    .skill-card h4 {
+      font-family: 'Playfair Display', serif;
+      color: var(--navy);
+      font-size: 1.05rem;
+      margin-bottom: .4rem;
+    }
+    .skill-card p { font-size: .88rem; color: var(--text-muted); }
+    .skill-bar-wrap { margin-top: .8rem; background: var(--border); border-radius: 2px; height: 4px; }
+    .skill-bar { height: 4px; background: var(--gold); border-radius: 2px; }
+
+    /* Values */
+    #values { background: var(--navy); }
+    #values .section-title { color: var(--white); }
+    #values .section-tag { color: var(--gold-light); }
+    #values .section-desc { color: rgba(255,255,255,.6); }
+    .values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2rem; }
+    .value-card {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius);
+      padding: 2rem;
+      transition: border-color .2s;
+    }
+    .value-card:hover { border-color: var(--gold); }
+    .value-card .icon { font-size: 2rem; margin-bottom: 1rem; }
+    .value-card h4 { font-family:'Playfair Display',serif; color:var(--white); margin-bottom:.5rem; font-size:1.1rem; }
+    .value-card p { color:rgba(255,255,255,.55); font-size:.9rem; }
+
+    @media(max-width: 900px) {
+      .bio-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .photo-card { position: static; }
+    }
+  </style>
+</head>
+<body>
+<nav id="mainNav"></nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-tag">O mnie</div>
+    <h1>Cześć, jestem <em>Jan Kowalski</em></h1>
+    <p>Matematyk, informatyk i nauczyciel z pasją. Pomagam uczniom odkryć, że nauka może być fascynująca.</p>
+  </div>
+</div>
+
+<!-- BIO -->
+<section id="bio" class="section">
+  <div class="container">
+    <div class="bio-grid">
+
+      <!-- ZDJĘCIE -->
+      <div class="reveal">
+        <div class="photo-card">
+          <div class="photo-wrap">
+            <!--
+              ABY DODAĆ SWOJE ZDJĘCIE:
+              1. Umieść plik zdjęcia (np. zdjecie.jpg) w tym samym folderze co index.html
+              2. Odkomentuj linię poniżej i zmień nazwę pliku:
+            -->
+            <!-- <img src="zdjecie.jpg" alt="Jan Kowalski" /> -->
+            <span class="photo-emoji">👨‍🏫</span>
+          </div>
+          <div class="photo-hint">
+            <strong>📸 Jak dodać swoje zdjęcie:</strong>
+            Wgraj plik JPG/PNG do folderu ze stroną, następnie odkomentuj tag &lt;img&gt; w kodzie i podaj nazwę pliku.
+          </div>
+          <div class="photo-meta">
+            <h3>Jan Kowalski</h3>
+            <div class="role">Korepetytor · Założyciel</div>
+            <div class="photo-badges">
+              <span class="badge">Matematyka</span>
+              <span class="badge">Informatyka</span>
+              <span class="badge">Online</span>
+              <span class="badge">Warszawa</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEKST -->
+      <div class="bio-text reveal">
+        <span class="section-tag">Moja historia</span>
+        <h2 class="section-title">Dlaczego uczę?</h2>
+        <p class="bio-lead">
+          Wierzę, że każdy człowiek ma zdolność do rozumienia matematyki — potrzebuje tylko dobrego przewodnika.
+        </p>
+        <div class="bio-body">
+          <p>
+            Swoją przygodę z nauczaniem zacząłem jeszcze w czasie studiów, kiedy pomagałem kolegom z roku w przygotowaniu do egzaminów. Szybko okazało się, że mam do tego naturalny talent — potrafię wytłumaczyć trudne zagadnienia w prosty i przystępny sposób.
+          </p>
+          <p>
+            Po ukończeniu wydziału Matematyki i Informatyki na Politechnice Warszawskiej postanowiłem poświęcić się w pełni korepetycjom. Przez kilka lat zbudowałem zespół sprawdzonych nauczycieli, którzy podzielają moją filozofię nauczania.
+          </p>
+          <p>
+            Dziś z dumą mogę powiedzieć, że pomogłem ponad 500 uczniom — od tych, którzy bali się matematyki, po tych, którzy dostali się na wymarzone kierunki techniczne.
+          </p>
+        </div>
+
+        <!-- TIMELINE -->
+        <div class="timeline">
+          <h3>Moja droga zawodowa</h3>
+          <div class="tl-item">
+            <div class="tl-year">2019</div>
+            <div class="tl-content">
+              <strong>Pierwsze korepetycje</strong>
+              <span>Zacząłem udzielać korepetycji indywidualnych studentom i uczniom liceów.</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">2021</div>
+            <div class="tl-content">
+              <strong>Rozszerzenie oferty online</strong>
+              <span>Przeniesienie części lekcji do internetu — Zoom, tablice online, nagrania powtórkowe.</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">2023</div>
+            <div class="tl-content">
+              <strong>Zespół korepetytorów</strong>
+              <span>Dołączyło kilku sprawdzonych współpracowników z różnych dziedzin.</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">2024</div>
+            <div class="tl-content">
+              <strong>500+ uczniów</strong>
+              <span>Przekroczyliśmy 500 uczniów — ponad 95% zdawalność matur wśród naszych podopiecznych.</span>
+            </div>
+          </div>
+        </div>
+
+        <a href="index.html#contact" class="btn btn-primary">Umów bezpłatną konsultację →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills" class="section">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-tag">Kompetencje</span>
+      <h2 class="section-title">Co potrafię najlepiej</h2>
+    </div>
+    <div class="skills-grid">
+      <div class="card skill-card reveal">
+        <div class="icon">📐</div>
+        <h4>Matematyka</h4>
+        <p>Od poziomu podstawowego po analizę matematyczną.</p>
+        <div class="skill-bar-wrap"><div class="skill-bar" style="width:98%"></div></div>
+      </div>
+      <div class="card skill-card reveal">
+        <div class="icon">💻</div>
+        <h4>Programowanie</h4>
+        <p>Python, Java, C++, algorytmy i struktury danych.</p>
+        <div class="skill-bar-wrap"><div class="skill-bar" style="width:90%"></div></div>
+      </div>
+      <div class="card skill-card reveal">
+        <div class="icon">🗃️</div>
+        <h4>Bazy danych</h4>
+        <p>SQL, projektowanie baz danych, normalizacja.</p>
+        <div class="skill-bar-wrap"><div class="skill-bar" style="width:85%"></div></div>
+      </div>
+      <div class="card skill-card reveal">
+        <div class="icon">📊</div>
+        <h4>Statystyka</h4>
+        <p>Statystyka opisowa, rachunek prawdopodobieństwa.</p>
+        <div class="skill-bar-wrap"><div class="skill-bar" style="width:88%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUES -->
+<section id="values" class="section">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-tag">Moje podejście</span>
+      <h2 class="section-title">Jak pracuję z uczniami</h2>
+      <p class="section-desc">Kilka zasad, którymi kieruję się w każdej lekcji.</p>
+    </div>
+    <div class="values-grid">
+      <div class="value-card reveal">
+        <div class="icon">🎯</div>
+        <h4>Cel i plan</h4>
+        <p>Każda współpraca zaczyna się od ustalenia celów i stworzenia planu nauki dopasowanego do ucznia.</p>
+      </div>
+      <div class="value-card reveal">
+        <div class="icon">🧠</div>
+        <h4>Zrozumienie, nie pamięć</h4>
+        <p>Uczę ze zrozumieniem — wzory i reguły mają sens, gdy wiesz, skąd się biorą.</p>
+      </div>
+      <div class="value-card reveal">
+        <div class="icon">💬</div>
+        <h4>Bezpieczna przestrzeń</h4>
+        <p>Żadne pytanie nie jest głupie. Tworzyę atmosferę, w której uczniowie nie boją się pytać.</p>
+      </div>
+      <div class="value-card reveal">
+        <div class="icon">📬</div>
+        <h4>Kontakt między lekcjami</h4>
+        <p>Jestem dostępny przez WhatsApp między lekcjami — krótkie pytania nie muszą czekać.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="mainFooter"></footer>
+<script src="nav.js"></script>
+<script src="chatbot.js"></script>
+<script>
+  injectNav('o-mnie');
+  injectFooter();
+  initReveal();
+</script>
+</body>
+</html>

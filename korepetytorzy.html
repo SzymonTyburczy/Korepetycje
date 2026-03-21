@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nasi Korepetytorzy — Korepetycje Kowalski</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    #tutors-section { background: var(--white); }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      display: flex;
+      gap: .6rem;
+      flex-wrap: wrap;
+      margin-bottom: 3rem;
+    }
+    .filter-btn {
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: 2px;
+      padding: .45rem 1.2rem;
+      font-family: 'Source Serif 4', serif;
+      font-size: .85rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all .2s;
+      letter-spacing: .02em;
+    }
+    .filter-btn:hover { border-color: var(--navy); color: var(--navy); }
+    .filter-btn.active { background: var(--navy); border-color: var(--navy); color: var(--white); }
+
+    /* ── TUTORS GRID ── */
+    .tutors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    /* ── TUTOR CARD ── */
+    .tutor-card {
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--white);
+      border: 1px solid var(--border);
+      transition: box-shadow .25s, transform .25s, opacity .3s;
+      cursor: pointer;
+    }
+    .tutor-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-5px); }
+    .tutor-card.hidden { display: none; }
+
+    .tutor-photo {
+      width: 100%;
+      aspect-ratio: 1/1;
+      background: linear-gradient(145deg, var(--navy) 0%, var(--navy-light) 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .tutor-photo img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: none;
+    }
+    .tutor-photo img[src]:not([src=""]) { display: block; }
+    .tutor-photo .tutor-emoji { display: block; }
+    .tutor-photo img[src]:not([src=""]) + .tutor-emoji { display: none; }
+
+    .tutor-subjects-bar {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(26,39,68,.85);
+      backdrop-filter: blur(4px);
+      padding: .5rem .9rem;
+      display: flex; gap: .4rem; flex-wrap: wrap;
+    }
+    .subj-pill {
+      background: var(--gold);
+      color: var(--navy);
+      font-size: .7rem;
+      font-weight: 700;
+      padding: .18rem .6rem;
+      border-radius: 2px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .tutor-body { padding: 1.5rem; }
+    .tutor-body h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: var(--navy);
+      margin-bottom: .2rem;
+    }
+    .tutor-role {
+      font-size: .8rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: .8rem;
+    }
+    .tutor-body p { font-size: .9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.2rem; }
+    .tutor-meta {
+      display: flex;
+      gap: 1.2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: .82rem;
+      color: var(--text-muted);
+    }
+    .tutor-meta span { display: flex; gap: .3rem; align-items: center; }
+
+    .tutor-actions { display: flex; gap: .8rem; margin-top: 1.2rem; }
+    .tutor-actions .btn { padding: .55rem 1.2rem; font-size: .85rem; flex: 1; text-align: center; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(10,18,40,.75);
+      backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--white);
+      border-radius: 6px;
+      max-width: 700px; width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 24px 80px rgba(10,18,40,.35);
+    }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: var(--cream); border: 1px solid var(--border);
+      width: 36px; height: 36px; border-radius: 50%;
+      font-size: 1.1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s; z-index: 10;
+    }
+    .modal-close:hover { background: var(--cream-dark); }
+
+    .modal-header {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      background: var(--navy);
+    }
+    .modal-photo {
+      aspect-ratio: 1/1;
+      background: linear-gradient(145deg, var(--navy-light) 0%, var(--navy) 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem;
+    }
+    .modal-photo img { width:100%;height:100%;object-fit:cover; display:none; }
+    .modal-photo img[src]:not([src=""]) { display:block; }
+    .modal-info { padding: 2rem 1.8rem; }
+    .modal-info h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; color: var(--white); margin-bottom: .3rem;
+    }
+    .modal-info .role { color: var(--gold-light); font-size: .85rem; text-transform:uppercase; letter-spacing:.1em; margin-bottom: 1rem; }
+    .modal-pills { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+    .modal-body { padding: 2rem; }
+    .modal-body h4 {
+      font-family: 'Playfair Display', serif;
+      color: var(--navy); font-size: 1.05rem;
+      margin: 1.5rem 0 .6rem;
+    }
+    .modal-body h4:first-child { margin-top: 0; }
+    .modal-body p { font-size: 16px; color: var(--text-muted); line-height: 1.75; }
+    .modal-body ul {
+      padding-left: 1.2rem;
+      display: flex; flex-direction: column; gap: .35rem;
+    }
+    .modal-body ul li { font-size: .92rem; color: var(--text-muted); }
+    .modal-cta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; }
+
+    /* ── JOIN CTA ── */
+    #join { background: var(--cream); }
+    .join-box {
+      background: var(--navy);
+      border-radius: var(--radius);
+      padding: 3.5rem 3rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 2rem;
+    }
+    .join-box h3 { font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--white); margin-bottom:.6rem; }
+    .join-box p { color:rgba(255,255,255,.6); font-size:1rem; }
+
+    @media(max-width:768px){
+      .modal-header { grid-template-columns: 1fr; }
+      .modal-photo { aspect-ratio: 2/1; }
+      .join-box { grid-template-columns: 1fr; text-align:center; }
+    }
+  </style>
+</head>
+<body>
+<nav id="mainNav"></nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-tag">Nasz zespół</div>
+    <h1>Nasi <em>Korepetytorzy</em></h1>
+    <p>Poznaj nasz zespół sprawdzonych specjalistów. Każdy z nich to pasjonat swojej dziedziny z udokumentowanymi wynikami.</p>
+  </div>
+</div>
+
+<!-- TUTORS -->
+<section id="tutors-section" class="section">
+  <div class="container">
+    <!-- FILTER -->
+    <div class="filter-bar reveal" id="filterBar">
+      <button class="filter-btn active" data-filter="all">Wszyscy</button>
+      <button class="filter-btn" data-filter="matematyka">Matematyka</button>
+      <button class="filter-btn" data-filter="informatyka">Informatyka</button>
+      <button class="filter-btn" data-filter="matura">Matura</button>
+      <button class="filter-btn" data-filter="studia">Studia</button>
+      <button class="filter-btn" data-filter="online">Online</button>
+    </div>
+
+    <!-- GRID -->
+    <div class="tutors-grid" id="tutorsGrid">
+
+      <!-- TUTOR 1 -->
+      <div class="tutor-card reveal"
+        data-tags="matematyka matura studia online"
+        data-modal="jan">
+        <div class="tutor-photo">
+          <img src="" alt="" />
+          <span class="tutor-emoji">👨‍🏫</span>
+          <div class="tutor-subjects-bar">
+            <span class="subj-pill">Matematyka</span>
+            <span class="subj-pill">Matura</span>
+          </div>
+        </div>
+        <div class="tutor-body">
+          <h3>Jan Kowalski</h3>
+          <div class="tutor-role">Założyciel · Senior korepetytor</div>
+          <p>Absolwent Politechniki Warszawskiej. 5+ lat doświadczenia, ponad 300 uczniów. Specjalista od matur rozszerzonych.</p>
+          <div class="tutor-meta">
+            <span>⭐ 4.97</span>
+            <span>🕐 Online + Warszawa</span>
+            <span>👥 300+ uczniów</span>
+          </div>
+          <div class="tutor-actions">
+            <button class="btn btn-primary" onclick="openModal('jan')">Zobacz profil</button>
+            <a href="index.html#contact" class="btn btn-outline-gold">Kontakt</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- TUTOR 2 -->
+      <div class="tutor-card reveal"
+        data-tags="informatyka programowanie studia online"
+        data-modal="anna">
+        <div class="tutor-photo" style="background:linear-gradient(145deg,#1e3a5f,#2d5f8a)">
+          <img src="" alt="" />
+          <span class="tutor-emoji">👩‍💻</span>
+          <div class="tutor-subjects-bar">
+            <span class="subj-pill">Informatyka</span>
+            <span class="subj-pill">Python</span>
+          </div>
+        </div>
+        <div class="tutor-body">
+          <h3>Anna Wiśniewska</h3>
+          <div class="tutor-role">Informatyka · Programowanie</div>
+          <p>Inżynier oprogramowania z 4-letnim doświadczeniem w branży IT. Uczy Pythona, Javy i algorytmów od podstaw.</p>
+          <div class="tutor-meta">
+            <span>⭐ 4.94</span>
+            <span>🕐 Online</span>
+            <span>👥 120+ uczniów</span>
+          </div>
+          <div class="tutor-actions">
+            <button class="btn btn-primary" onclick="openModal('anna')">Zobacz profil</button>
+            <a href="index.html#contact" class="btn btn-outline-gold">Kontakt</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- TUTOR 3 -->
+      <div class="tutor-card reveal"
+        data-tags="matematyka matura online"
+        data-modal="piotr">
+        <div class="tutor-photo" style="background:linear-gradient(145deg,#2d4a1e,#3d6629)">
+          <img src="" alt="" />
+          <span class="tutor-emoji">👨‍🔬</span>
+          <div class="tutor-subjects-bar">
+            <span class="subj-pill">Matematyka</span>
+            <span class="subj-pill">Fizyka</span>
+          </div>
+        </div>
+        <div class="tutor-body">
+          <h3>Piotr Nowak</h3>
+          <div class="tutor-role">Matematyka · Fizyka</div>
+          <p>Doktorant na Wydziale Fizyki UW. Tłumaczy najtrudniejsze zagadnienia w przystępny sposób.</p>
+          <div class="tutor-meta">
+            <span>⭐ 4.98</span>
+            <span>🕐 Online + Warszawa</span>
+            <span>👥 80+ uczniów</span>
+          </div>
+          <div class="tutor-actions">
+            <button class="btn btn-primary" onclick="openModal('piotr')">Zobacz profil</button>
+            <a href="index.html#contact" class="btn btn-outline-gold">Kontakt</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- TUTOR 4 -->
+      <div class="tutor-card reveal"
+        data-tags="matematyka studia online"
+        data-modal="marta">
+        <div class="tutor-photo" style="background:linear-gradient(145deg,#4a1e2d,#662938)">
+          <img src="" alt="" />
+          <span class="tutor-emoji">👩‍🎓</span>
+          <div class="tutor-subjects-bar">
+            <span class="subj-pill">Matematyka wyższa</span>
+            <span class="subj-pill">Studia</span>
+          </div>
+        </div>
+        <div class="tutor-body">
+          <h3>Marta Kowalczyk</h3>
+          <div class="tutor-role">Matematyka wyższa · Studia</div>
+          <p>Absolwentka matematyki na UW, adiunkt. Specjalizuje się w pomocy studentom pierwszych lat kierunków technicznych.</p>
+          <div class="tutor-meta">
+            <span>⭐ 4.96</span>
+            <span>🕐 Online</span>
+            <span>👥 60+ uczniów</span>
+          </div>
+          <div class="tutor-actions">
+            <button class="btn btn-primary" onclick="openModal('marta')">Zobacz profil</button>
+            <a href="index.html#contact" class="btn btn-outline-gold">Kontakt</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- JOIN -->
+<section id="join" class="section">
+  <div class="container reveal">
+    <div class="join-box">
+      <div>
+        <h3>Jesteś nauczycielem lub studentem?</h3>
+        <p>Dołącz do naszego zespołu korepetytorów. Elastyczne godziny, własni uczniowie, wsparcie administracyjne.</p>
+      </div>
+      <a href="index.html#contact" class="btn btn-gold">Aplikuj do zespołu →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── MODALS ── -->
+
+<!-- Jan -->
+<div class="modal-overlay" id="modal-jan">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('jan')">✕</button>
+    <div class="modal-header">
+      <div class="modal-photo"><span>👨‍🏫</span></div>
+      <div class="modal-info">
+        <h2>Jan Kowalski</h2>
+        <div class="role">Założyciel · Senior korepetytor</div>
+        <div class="modal-pills">
+          <span class="subj-pill">Matematyka</span>
+          <span class="subj-pill">Matura</span>
+          <span class="subj-pill">Studia</span>
+          <span class="subj-pill">Online</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <h4>O mnie</h4>
+      <p>Absolwent Politechniki Warszawskiej (Matematyka i Informatyka). Od 2019 roku prowadzę korepetycje indywidualne. Założyciel platformy Korepetycje Kowalski. Specjalizuję się w maturze rozszerzonej i matematyce wyższej.</p>
+      <h4>Specjalizacje</h4>
+      <ul>
+        <li>Matura rozszerzona z matematyki</li>
+        <li>Analiza matematyczna (studia)</li>
+        <li>Algebra liniowa</li>
+        <li>Przygotowanie do olimpiad matematycznych</li>
+      </ul>
+      <h4>Wykształcenie i doświadczenie</h4>
+      <p>Mgr inż. Matematyki i Informatyki (PW, 2019). 5+ lat korepetycji, 300+ uczniów, 95% zdawalność matur wśród podopiecznych.</p>
+      <div class="modal-cta">
+        <a href="index.html#contact" class="btn btn-gold">Umów lekcję z Janem</a>
+        <button class="btn btn-outline" onclick="closeModal('jan')">Zamknij</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Anna -->
+<div class="modal-overlay" id="modal-anna">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('anna')">✕</button>
+    <div class="modal-header" style="background:linear-gradient(135deg,#1e3a5f,#2d5f8a)">
+      <div class="modal-photo" style="background:rgba(0,0,0,.2)"><span>👩‍💻</span></div>
+      <div class="modal-info">
+        <h2>Anna Wiśniewska</h2>
+        <div class="role">Informatyka · Programowanie</div>
+        <div class="modal-pills">
+          <span class="subj-pill">Python</span>
+          <span class="subj-pill">Java</span>
+          <span class="subj-pill">Algorytmy</span>
+          <span class="subj-pill">Online</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <h4>O mnie</h4>
+      <p>Inżynier oprogramowania z 4-letnim doświadczeniem w branży (React, Python, Java). Pasjonatka dydaktyki — wierzy, że programowania może nauczyć się każdy przy odpowiednim podejściu.</p>
+      <h4>Specjalizacje</h4>
+      <ul>
+        <li>Python — od podstaw do zaawansowanego</li>
+        <li>Java i programowanie obiektowe</li>
+        <li>Algorytmy i struktury danych</li>
+        <li>Bazy danych (SQL, PostgreSQL)</li>
+        <li>Matura z informatyki</li>
+      </ul>
+      <h4>Wykształcenie</h4>
+      <p>Mgr inż. Informatyki (PW, 2020). 4 lata pracy jako Software Developer, od 2022 roku korepetycje IT.</p>
+      <div class="modal-cta">
+        <a href="index.html#contact" class="btn btn-gold">Umów lekcję z Anną</a>
+        <button class="btn btn-outline" onclick="closeModal('anna')">Zamknij</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Piotr -->
+<div class="modal-overlay" id="modal-piotr">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('piotr')">✕</button>
+    <div class="modal-header" style="background:linear-gradient(135deg,#2d4a1e,#3d6629)">
+      <div class="modal-photo" style="background:rgba(0,0,0,.2)"><span>👨‍🔬</span></div>
+      <div class="modal-info">
+        <h2>Piotr Nowak</h2>
+        <div class="role">Matematyka · Fizyka</div>
+        <div class="modal-pills">
+          <span class="subj-pill">Matematyka</span>
+          <span class="subj-pill">Fizyka</span>
+          <span class="subj-pill">Matura</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <h4>O mnie</h4>
+      <p>Doktorant na Wydziale Fizyki Uniwersytetu Warszawskiego. Finalista olimpiady matematycznej. Tłumaczy najtrudniejsze zagadnienia w przystępny i logiczny sposób.</p>
+      <h4>Specjalizacje</h4>
+      <ul>
+        <li>Matematyka — szkoła średnia i liceum</li>
+        <li>Fizyka — matura podstawowa i rozszerzona</li>
+        <li>Mechanika i termodynamika (studia)</li>
+        <li>Przygotowanie do olimpiad</li>
+      </ul>
+      <h4>Wykształcenie</h4>
+      <p>Mgr Fizyki Teoretycznej (UW, 2022), aktualnie doktorant. Finał olimpiady matematycznej (2017).</p>
+      <div class="modal-cta">
+        <a href="index.html#contact" class="btn btn-gold">Umów lekcję z Piotrem</a>
+        <button class="btn btn-outline" onclick="closeModal('piotr')">Zamknij</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Marta -->
+<div class="modal-overlay" id="modal-marta">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('marta')">✕</button>
+    <div class="modal-header" style="background:linear-gradient(135deg,#4a1e2d,#662938)">
+      <div class="modal-photo" style="background:rgba(0,0,0,.2)"><span>👩‍🎓</span></div>
+      <div class="modal-info">
+        <h2>Marta Kowalczyk</h2>
+        <div class="role">Matematyka wyższa · Studia</div>
+        <div class="modal-pills">
+          <span class="subj-pill">Analiza</span>
+          <span class="subj-pill">Algebra</span>
+          <span class="subj-pill">Studia</span>
+          <span class="subj-pill">Online</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <h4>O mnie</h4>
+      <p>Adiunkt na Wydziale Matematyki UW. Specjalizuje się w pomocy studentom pierwszych lat kierunków technicznych i ekonomicznych, którzy mierzą się z matematyką wyższą.</p>
+      <h4>Specjalizacje</h4>
+      <ul>
+        <li>Analiza matematyczna I i II</li>
+        <li>Algebra liniowa</li>
+        <li>Rachunek całkowy i różniczkowy</li>
+        <li>Matematyka dyskretna</li>
+        <li>Statystyka i rachunek prawdopodobieństwa</li>
+      </ul>
+      <h4>Wykształcenie</h4>
+      <p>Dr nauk matematycznych (UW, 2023). Autorka artykułów naukowych z zakresu algebry.</p>
+      <div class="modal-cta">
+        <a href="index.html#contact" class="btn btn-gold">Umów lekcję z Martą</a>
+        <button class="btn btn-outline" onclick="closeModal('marta')">Zamknij</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer id="mainFooter"></footer>
+<script src="nav.js"></script>
+<script src="chatbot.js"></script>
+<script>
+  injectNav('korepetytorzy');
+  injectFooter();
+  initReveal();
+
+  // ── FILTER ──
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      document.querySelectorAll('.tutor-card').forEach(card => {
+        if (filter === 'all' || card.dataset.tags.includes(filter)) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+  });
+
+  // ── MODAL ──
+  function openModal(id) {
+    document.getElementById('modal-' + id).classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(id) {
+    document.getElementById('modal-' + id).classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => {
+      if (e.target === m) m.classList.remove('open'), document.body.style.overflow = '';
+    });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.open').forEach(m => {
+        m.classList.remove('open'); document.body.style.overflow = '';
+      });
+    }
+  });
+</script>
+</body>
+</html>

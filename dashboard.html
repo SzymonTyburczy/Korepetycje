@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel — Korepetycje Kowalski</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body { background:#f0f2f7; padding-bottom:72px; } /* bottom nav space on mobile */
+    @media(min-width:900px){ body { padding-bottom:0; } }
+
+    /* ── DASHBOARD NAV ── */
+    .dash-nav {
+      position:fixed; top:0; left:0; right:0; z-index:200;
+      background:var(--navy); border-bottom:2px solid var(--gold);
+      height:60px; display:flex; align-items:center; padding:0 1rem; gap:.8rem;
+    }
+    .dash-logo { font-family:'Playfair Display',serif; font-size:1rem; color:var(--gold-light); text-decoration:none; font-weight:700; margin-right:auto; }
+    .dash-logo span { color:var(--white); }
+    .user-chip { display:flex; align-items:center; gap:.6rem; }
+    .user-avatar { width:34px; height:34px; border-radius:50%; background:var(--gold); color:var(--navy); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; flex-shrink:0; }
+    .user-name { color:var(--white); font-size:.85rem; font-weight:600; display:none; }
+    @media(min-width:480px){ .user-name { display:block; } }
+    .role-badge { background:rgba(201,168,76,.2); color:var(--gold-light); border:1px solid rgba(201,168,76,.3); padding:.18rem .55rem; border-radius:2px; font-size:.68rem; text-transform:uppercase; letter-spacing:.07em; }
+    .btn-signout { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); color:rgba(255,255,255,.7); padding:.32rem .7rem; border-radius:3px; font-size:.78rem; cursor:pointer; font-family:'Source Serif 4',serif; min-height:36px; }
+    .btn-signout:hover { background:rgba(255,255,255,.15); }
+
+    /* ── BOTTOM NAV (mobile) ── */
+    .bottom-nav {
+      position:fixed; bottom:0; left:0; right:0; z-index:150;
+      background:var(--white); border-top:1px solid var(--border);
+      display:flex; height:64px;
+      box-shadow:0 -4px 20px rgba(0,0,0,.08);
+    }
+    @media(min-width:900px){ .bottom-nav { display:none; } }
+    .bnav-btn {
+      flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:3px; background:none; border:none; cursor:pointer;
+      color:var(--text-muted); font-family:'Source Serif 4',serif;
+      font-size:.65rem; letter-spacing:.02em; padding:.4rem;
+      transition:color .15s; border-top:2px solid transparent;
+      min-height:var(--touch);
+    }
+    .bnav-btn .bnav-icon { font-size:1.35rem; line-height:1; }
+    .bnav-btn.active { color:var(--navy); border-top-color:var(--gold); }
+
+    /* ── LAYOUT ── */
+    .dash-layout {
+      display:grid; grid-template-columns:1fr;
+      min-height:100vh; padding-top:60px;
+    }
+    @media(min-width:900px){
+      .dash-layout { grid-template-columns:220px 1fr; }
+    }
+
+    /* SIDEBAR (desktop only) */
+    .dash-sidebar {
+      display:none;
+      background:var(--white); border-right:1px solid var(--border);
+      padding:1.5rem 0;
+      position:sticky; top:60px;
+      height:calc(100vh - 60px); overflow-y:auto;
+    }
+    @media(min-width:900px){ .dash-sidebar { display:block; } }
+    .sidebar-link {
+      display:flex; align-items:center; gap:.75rem;
+      padding:.7rem 1.4rem; color:var(--text-muted);
+      text-decoration:none; font-size:.88rem;
+      transition:all .15s; cursor:pointer;
+      border:none; background:none; width:100%; text-align:left;
+      font-family:'Source Serif 4',serif; min-height:var(--touch);
+    }
+    .sidebar-link:hover { background:var(--cream); color:var(--navy); }
+    .sidebar-link.active { background:var(--gold-pale); color:var(--navy); font-weight:600; border-right:3px solid var(--gold); }
+    .sidebar-icon { font-size:1rem; width:18px; text-align:center; }
+    .sidebar-section-label { font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); padding:.3rem 1.4rem; margin-top:.8rem; display:block; }
+
+    /* MAIN */
+    .dash-main { padding:1.5rem 1rem; overflow-y:auto; }
+    @media(min-width:600px){ .dash-main { padding:2rem 1.5rem; } }
+    @media(min-width:900px){ .dash-main { padding:2.5rem 2rem; } }
+
+    .dash-panel { display:none; }
+    .dash-panel.active { display:block; }
+
+    .panel-header { margin-bottom:1.5rem; }
+    .panel-header h1 { font-family:'Playfair Display',serif; font-size:clamp(1.4rem,5vw,1.9rem); color:var(--navy); margin-bottom:.2rem; }
+    .panel-header p { color:var(--text-muted); font-size:.9rem; }
+
+    /* STATS */
+    .stats-row { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; margin-bottom:1.5rem; }
+    @media(min-width:600px){ .stats-row { grid-template-columns:repeat(4,1fr); gap:1rem; } }
+    .stat-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.1rem; }
+    .stat-card .s-label { font-size:.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:.3rem; }
+    .stat-card .s-val { font-family:'Playfair Display',serif; font-size:1.7rem; color:var(--navy); font-weight:700; line-height:1; }
+    .stat-card .s-sub { font-size:.74rem; color:var(--text-muted); margin-top:.2rem; }
+
+    /* DATA TABLE */
+    .data-wrap { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:1.2rem; }
+    .data-head { padding:1rem 1.2rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.5rem; }
+    .data-head h3 { font-family:'Playfair Display',serif; color:var(--navy); font-size:1.05rem; }
+
+    /* Mobile lesson cards (instead of table) */
+    .lesson-cards { display:flex; flex-direction:column; gap:.7rem; padding:1rem; }
+    @media(min-width:700px){ .lesson-cards { display:none; } }
+    .lesson-card { background:var(--cream); border:1px solid var(--border); border-radius:3px; padding:.9rem 1rem; }
+    .lesson-card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:.4rem; }
+    .lesson-card-subject { font-weight:600; color:var(--navy); font-size:.92rem; }
+    .lesson-card-meta { font-size:.8rem; color:var(--text-muted); display:flex; flex-direction:column; gap:.15rem; }
+
+    /* Desktop table */
+    .lesson-table-wrap { display:none; }
+    @media(min-width:700px){ .lesson-table-wrap { display:block; overflow-x:auto; } }
+    .lesson-table-wrap table { min-width:500px; }
+
+    /* Empty */
+    .empty-state { padding:3rem 1rem; text-align:center; color:var(--text-muted); }
+    .empty-state .icon { font-size:2.5rem; margin-bottom:.8rem; }
+    .empty-state p { font-size:.9rem; }
+
+    /* Reservation form */
+    .res-form { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; max-width:580px; }
+    .res-form h3 { font-family:'Playfair Display',serif; color:var(--navy); font-size:1.15rem; margin-bottom:1.2rem; }
+    .form-row-2 { display:grid; grid-template-columns:1fr; gap:0; }
+    @media(min-width:480px){ .form-row-2 { grid-template-columns:1fr 1fr; gap:.8rem; } }
+
+    /* Materials */
+    .material-item { display:flex; align-items:center; gap:.9rem; padding:.9rem 1.2rem; border-bottom:1px solid var(--border); }
+    .material-item:last-child { border-bottom:none; }
+    .mat-icon { font-size:1.4rem; flex-shrink:0; }
+    .mat-info { flex:1; min-width:0; }
+    .mat-title { font-size:.9rem; font-weight:600; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .mat-meta { font-size:.78rem; color:var(--text-muted); }
+    .mat-dl { color:var(--gold); text-decoration:none; font-size:.82rem; font-weight:600; white-space:nowrap; padding:.4rem; }
+
+    /* Profile */
+    .profile-wrap { max-width:520px; }
+    .profile-avatar-row { display:flex; align-items:center; gap:1.2rem; margin-bottom:2rem; }
+    .profile-avatar-big { width:80px; height:80px; border-radius:50%; background:var(--navy); color:var(--gold-light); font-size:2rem; font-family:'Playfair Display',serif; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+    /* Loading */
+    .loading { display:flex; align-items:center; justify-content:center; padding:4rem 1rem; color:var(--text-muted); gap:.7rem; }
+    .spinner { width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--navy); border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="dash-nav">
+  <a class="dash-logo" href="index.html"><span>Korepetycje</span> Kowalski</a>
+  <div class="user-chip">
+    <div class="user-avatar" id="userAvatar">?</div>
+    <div class="user-name" id="userName">Ładowanie…</div>
+    <div class="role-badge" id="userRole">—</div>
+  </div>
+  <button class="btn-signout" onclick="signOut()">Wyloguj</button>
+</nav>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav" id="bottomNav"></nav>
+
+<div class="dash-layout">
+  <!-- SIDEBAR (desktop) -->
+  <aside class="dash-sidebar" id="dashSidebar"></aside>
+  <!-- MAIN -->
+  <main class="dash-main" id="dashMain">
+    <div class="loading"><div class="spinner"></div> Ładowanie…</div>
+  </main>
+</div>
+
+<script src="supabase-config.js"></script>
+<script>
+const DEMO = {
+  lessons: [
+    { subject:'Matematyka — matura rozszerzona', tutor:'Jan Kowalski',    date:'2025-03-10 16:00', duration:60, status:'zaplanowana', price:120 },
+    { subject:'Matematyka — matura rozszerzona', tutor:'Jan Kowalski',    date:'2025-03-03 16:00', duration:60, status:'odbyta',      price:120 },
+    { subject:'Algorytmy (Python)',              tutor:'Anna Wiśniewska', date:'2025-02-24 18:00', duration:60, status:'odbyta',      price:110 },
+  ],
+  invoices: [
+    { subject:'Matematyka', amount:120, status:'oczekuje', date:'2025-03-03' },
+    { subject:'Algorytmy',  amount:110, status:'oplacona', date:'2025-02-24' },
+  ],
+  materials: [
+    { title:'Zadania — pochodne i całki',       tutor:'Jan Kowalski',    date:'2025-03-03', file:'zadania_01.pdf' },
+    { title:'Notatki — złożoność algorytmów',   tutor:'Anna Wiśniewska', date:'2025-02-24', file:'notatki_algo.pdf' },
+  ],
+};
+
+const sidebarItems = {
+  uczen:       [{id:'overview',icon:'🏠',label:'Przegląd'},{id:'lessons',icon:'📅',label:'Moje lekcje'},{id:'history',icon:'📖',label:'Historia'},{id:'materials',icon:'📁',label:'Materiały'},{id:'invoices',icon:'💳',label:'Faktury'},{id:'book',icon:'➕',label:'Nowa lekcja'},{id:'profile',icon:'👤',label:'Profil'}],
+  korepetytor: [{id:'overview',icon:'🏠',label:'Przegląd'},{id:'lessons',icon:'📅',label:'Moje lekcje'},{id:'students',icon:'👥',label:'Uczniowie'},{id:'materials',icon:'📁',label:'Materiały'},{id:'profile',icon:'👤',label:'Profil'}],
+  admin:       [{id:'overview',icon:'🏠',label:'Przegląd'},{id:'all-lessons',icon:'📅',label:'Wszystkie lekcje'},{id:'all-users',icon:'👥',label:'Użytkownicy'},{id:'all-invoices',icon:'💳',label:'Faktury'},{id:'profile',icon:'👤',label:'Profil'}],
+};
+
+function fmtDate(s){ return new Date(s).toLocaleString('pl-PL',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function fmtDateOnly(s){ return new Date(s).toLocaleDateString('pl-PL',{day:'2-digit',month:'2-digit',year:'numeric'}); }
+function badge(s){ return `<span class="status status-${s}">${s}</span>`; }
+
+// ─ PANELS ─
+function panelOverview(p){
+  const up=DEMO.lessons.filter(l=>l.status==='zaplanowana');
+  const pd=DEMO.invoices.filter(i=>i.status==='oczekuje');
+  return `
+  <div class="panel-header"><h1>Cześć, ${p.full_name?.split(' ')[0]||'Witaj'} 👋</h1><p>Oto podsumowanie Twojego konta.</p></div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="s-label">Nadchodzące</div><div class="s-val">${up.length}</div><div class="s-sub">lekcje</div></div>
+    <div class="stat-card"><div class="s-label">Odbyte</div><div class="s-val">${DEMO.lessons.filter(l=>l.status==='odbyta').length}</div><div class="s-sub">łącznie</div></div>
+    <div class="stat-card"><div class="s-label">Do zapłaty</div><div class="s-val">${pd.reduce((s,i)=>s+i.amount,0)} zł</div><div class="s-sub">${pd.length} faktura/y</div></div>
+    <div class="stat-card"><div class="s-label">Materiały</div><div class="s-val">${DEMO.materials.length}</div><div class="s-sub">pliki</div></div>
+  </div>
+  <div class="data-wrap">
+    <div class="data-head"><h3>Najbliższe lekcje</h3><button class="btn btn-gold" onclick="showPanel('book')" style="font-size:.8rem;padding:.4rem .9rem;">+ Zarezerwuj</button></div>
+    ${up.length ? `
+    <div class="lesson-cards">${up.map(l=>`<div class="lesson-card"><div class="lesson-card-top"><div class="lesson-card-subject">${l.subject}</div>${badge(l.status)}</div><div class="lesson-card-meta"><span>👨‍🏫 ${l.tutor}</span><span>📅 ${fmtDate(l.date)} · ${l.duration} min</span><span>💰 ${l.price} zł</span></div></div>`).join('')}</div>
+    <div class="lesson-table-wrap"><table><thead><tr><th>Przedmiot</th><th>Korepetytor</th><th>Data</th><th>Czas</th><th>Status</th></tr></thead><tbody>${up.map(l=>`<tr><td><strong>${l.subject}</strong></td><td>${l.tutor}</td><td>${fmtDate(l.date)}</td><td>${l.duration} min</td><td>${badge(l.status)}</td></tr>`).join('')}</tbody></table></div>
+    ` : `<div class="empty-state"><div class="icon">📅</div><p>Brak zaplanowanych lekcji.<br><br><button class="btn btn-primary" onclick="showPanel('book')">Zarezerwuj lekcję</button></p></div>`}
+  </div>`;
+}
+
+function panelLessons(){
+  const up=DEMO.lessons.filter(l=>l.status==='zaplanowana');
+  return `
+  <div class="panel-header"><h1>Moje lekcje</h1><p>Nadchodzące spotkania.</p></div>
+  <div class="data-wrap">
+    <div class="data-head"><h3>Zaplanowane</h3><button class="btn btn-gold" onclick="showPanel('book')" style="font-size:.8rem;padding:.4rem .9rem;">+ Nowa</button></div>
+    ${up.length ? `
+    <div class="lesson-cards">${up.map(l=>`<div class="lesson-card"><div class="lesson-card-top"><div class="lesson-card-subject">${l.subject}</div>${badge(l.status)}</div><div class="lesson-card-meta"><span>👨‍🏫 ${l.tutor}</span><span>📅 ${fmtDate(l.date)} · ${l.duration} min</span><span>💰 ${l.price} zł</span></div></div>`).join('')}</div>
+    <div class="lesson-table-wrap"><table><thead><tr><th>Przedmiot</th><th>Korepetytor</th><th>Data</th><th>Czas</th><th>Cena</th><th>Status</th></tr></thead><tbody>${up.map(l=>`<tr><td>${l.subject}</td><td>${l.tutor}</td><td>${fmtDate(l.date)}</td><td>${l.duration} min</td><td>${l.price} zł</td><td>${badge(l.status)}</td></tr>`).join('')}</tbody></table></div>
+    ` : `<div class="empty-state"><div class="icon">📅</div><p>Brak lekcji.</p></div>`}
+  </div>`;
+}
+
+function panelHistory(){
+  const done=DEMO.lessons.filter(l=>l.status!=='zaplanowana');
+  return `
+  <div class="panel-header"><h1>Historia lekcji</h1><p>Zakończone i odwołane lekcje.</p></div>
+  <div class="data-wrap">
+    <div class="data-head"><h3>Historia</h3></div>
+    <div class="lesson-cards">${done.map(l=>`<div class="lesson-card"><div class="lesson-card-top"><div class="lesson-card-subject">${l.subject}</div>${badge(l.status)}</div><div class="lesson-card-meta"><span>👨‍🏫 ${l.tutor}</span><span>📅 ${fmtDate(l.date)}</span><span>💰 ${l.price} zł</span></div></div>`).join('')}</div>
+    <div class="lesson-table-wrap"><table><thead><tr><th>Przedmiot</th><th>Korepetytor</th><th>Data</th><th>Czas</th><th>Cena</th><th>Status</th></tr></thead><tbody>${done.map(l=>`<tr><td>${l.subject}</td><td>${l.tutor}</td><td>${fmtDate(l.date)}</td><td>${l.duration} min</td><td>${l.price} zł</td><td>${badge(l.status)}</td></tr>`).join('')}</tbody></table></div>
+  </div>`;
+}
+
+function panelMaterials(){
+  return `
+  <div class="panel-header"><h1>Materiały</h1><p>Pliki i notatki od korepetytorów.</p></div>
+  <div class="data-wrap">
+    <div class="data-head"><h3>Twoje materiały</h3></div>
+    ${DEMO.materials.map(m=>`
+    <div class="material-item">
+      <div class="mat-icon">📄</div>
+      <div class="mat-info"><div class="mat-title">${m.title}</div><div class="mat-meta">${m.tutor} · ${fmtDateOnly(m.date)}</div></div>
+      <a href="#" class="mat-dl">📥 Pobierz</a>
+    </div>`).join('')}
+  </div>`;
+}
+
+function panelInvoices(){
+  return `
+  <div class="panel-header"><h1>Faktury</h1><p>Historia płatności.</p></div>
+  <div class="data-wrap">
+    <div class="data-head"><h3>Faktury</h3></div>
+    <div class="lesson-cards">${DEMO.invoices.map(i=>`<div class="lesson-card"><div class="lesson-card-top"><div class="lesson-card-subject">${i.subject}</div>${badge(i.status)}</div><div class="lesson-card-meta"><span>💰 ${i.amount} zł</span><span>📅 ${fmtDateOnly(i.date)}</span>${i.status==='oczekuje'?`<span><a href="index.html#contact" class="btn btn-gold" style="font-size:.78rem;padding:.3rem .7rem;margin-top:.3rem;">Zapłać</a></span>`:''}</div></div>`).join('')}</div>
+    <div class="lesson-table-wrap"><table><thead><tr><th>Przedmiot</th><th>Kwota</th><th>Data</th><th>Status</th><th>Akcja</th></tr></thead><tbody>${DEMO.invoices.map(i=>`<tr><td>${i.subject}</td><td><strong>${i.amount} zł</strong></td><td>${fmtDateOnly(i.date)}</td><td>${badge(i.status)}</td><td>${i.status==='oczekuje'?`<a href="index.html#contact" class="btn btn-gold" style="font-size:.78rem;padding:.3rem .7rem;">Zapłać</a>`:'—'}</td></tr>`).join('')}</tbody></table></div>
+  </div>`;
+}
+
+function panelBook(){
+  const hours=['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
+  return `
+  <div class="panel-header"><h1>Zarezerwuj lekcję</h1><p>Wybierz termin i korepetytora.</p></div>
+  <div class="res-form">
+    <h3>Nowa rezerwacja</h3>
+    <div class="form-row-2">
+      <div class="form-group"><label>Przedmiot</label><select id="bSubject"><option>Matematyka — szkoła podstawowa</option><option>Matematyka — liceum / matura</option><option>Matematyka wyższa</option><option>Informatyka / programowanie</option></select></div>
+      <div class="form-group"><label>Korepetytor</label><select id="bTutor"><option>Jan Kowalski</option><option>Anna Wiśniewska</option><option>Piotr Nowak</option><option>Marta Kowalczyk</option></select></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Data</label><input type="date" id="bDate" min="${new Date().toISOString().split('T')[0]}"/></div>
+      <div class="form-group"><label>Godzina</label><select id="bTime">${hours.map(h=>`<option>${h}</option>`).join('')}</select></div>
+    </div>
+    <div class="form-group"><label>Czas trwania</label><select id="bDur"><option value="60">60 minut</option><option value="90">90 minut</option></select></div>
+    <div class="form-group"><label>Uwagi (opcjonalne)</label><textarea id="bNotes" rows="3" placeholder="Temat, poziom, pytania..."></textarea></div>
+    <button class="btn btn-gold btn-full" onclick="submitBooking()">Wyślij prośbę o rezerwację →</button>
+    <p style="font-size:.78rem;color:var(--text-muted);margin-top:.7rem;text-align:center;">Potwierdzenie dostaniesz e-mailem w ciągu 24h.</p>
+  </div>`;
+}
+
+function panelProfile(p){
+  const init=(p.full_name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  return `
+  <div class="panel-header"><h1>Mój profil</h1><p>Zarządzaj swoimi danymi.</p></div>
+  <div class="profile-wrap">
+    <div class="profile-avatar-row">
+      <div class="profile-avatar-big">${init}</div>
+      <div><strong style="color:var(--navy)">${p.full_name||'—'}</strong><br><span style="font-size:.85rem;color:var(--text-muted)">${p.email||''}</span><br><span class="status status-${p.role}" style="margin-top:.3rem;display:inline-block;">${p.role}</span></div>
+    </div>
+    <div class="form-group"><label>Imię i nazwisko</label><input type="text" id="profName" value="${p.full_name||''}"/></div>
+    <div class="form-group"><label>E-mail (nie można zmienić)</label><input type="email" value="${p.email||''}" disabled style="opacity:.6"/></div>
+    <div class="form-group"><label>Telefon</label><input type="tel" id="profPhone" value="${p.phone||''}" placeholder="+48 600 000 000"/></div>
+    <button class="btn btn-primary" onclick="saveProfile()">Zapisz zmiany</button>
+    <div id="profileMsg" style="margin-top:.8rem;font-size:.88rem;color:var(--text-muted);"></div>
+  </div>`;
+}
+
+// ─ NAVIGATION ─
+let currentProfile = null;
+
+function buildNav(role){
+  const items = sidebarItems[role]||sidebarItems.uczen;
+  // Sidebar
+  document.getElementById('dashSidebar').innerHTML = items.map(i=>`
+    <button class="sidebar-link${i.id==='overview'?' active':''}" data-panel="${i.id}" onclick="showPanel('${i.id}')">
+      <span class="sidebar-icon">${i.icon}</span>${i.label}
+    </button>`).join('');
+  // Bottom nav (max 5 items)
+  const bn = items.slice(0,5);
+  document.getElementById('bottomNav').innerHTML = bn.map(i=>`
+    <button class="bnav-btn${i.id==='overview'?' active':''}" data-panel="${i.id}" onclick="showPanel('${i.id}')">
+      <span class="bnav-icon">${i.icon}</span>${i.label}
+    </button>`).join('');
+}
+
+function showPanel(id){
+  const p = currentProfile;
+  let html='';
+  switch(id){
+    case 'overview':    html=p.role==='admin'?panelAdminOverview():panelOverview(p); break;
+    case 'lessons':     html=panelLessons(); break;
+    case 'history':     html=panelHistory(); break;
+    case 'materials':   html=panelMaterials(); break;
+    case 'invoices':    html=panelInvoices(); break;
+    case 'book':        html=panelBook(); break;
+    case 'profile':     html=panelProfile(p); break;
+    case 'all-users':   html=panelAllUsers(); break;
+    case 'all-lessons': html=panelLessons(); break;
+    case 'all-invoices':html=panelInvoices(); break;
+    default:            html=panelOverview(p);
+  }
+  document.getElementById('dashMain').innerHTML=html;
+  document.querySelectorAll('.sidebar-link,.bnav-btn').forEach(el=>{
+    el.classList.toggle('active', el.dataset.panel===id);
+  });
+  window.scrollTo(0,0);
+}
+
+function panelAdminOverview(){
+  return `<div class="panel-header"><h1>Panel Admina 🔑</h1><p>Zarządzaj całą platformą.</p></div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="s-label">Uczniowie</div><div class="s-val">12</div></div>
+    <div class="stat-card"><div class="s-label">Korepetytorzy</div><div class="s-val">4</div></div>
+    <div class="stat-card"><div class="s-label">Lekcje (mies.)</div><div class="s-val">38</div></div>
+    <div class="stat-card"><div class="s-label">Przychód</div><div class="s-val">4200 zł</div></div>
+  </div>`;
+}
+
+function panelAllUsers(){
+  const users=[{name:'Anna Nowak',email:'anna@ex.com',role:'uczen',lessons:5},{name:'Bartosz K.',email:'b@ex.com',role:'uczen',lessons:12},{name:'Anna Wiśn.',email:'aw@ex.com',role:'korepetytor',lessons:45}];
+  return `<div class="panel-header"><h1>Użytkownicy</h1></div>
+  <div class="data-wrap"><div class="data-head"><h3>Lista</h3></div>
+  <div class="lesson-cards">${users.map(u=>`<div class="lesson-card"><div class="lesson-card-top"><div class="lesson-card-subject">${u.name}</div>${badge(u.role)}</div><div class="lesson-card-meta"><span>📧 ${u.email}</span><span>📚 ${u.lessons} lekcji</span></div></div>`).join('')}</div>
+  <div class="lesson-table-wrap"><table><thead><tr><th>Imię</th><th>E-mail</th><th>Rola</th><th>Lekcje</th></tr></thead><tbody>${users.map(u=>`<tr><td>${u.name}</td><td>${u.email}</td><td>${badge(u.role)}</td><td>${u.lessons}</td></tr>`).join('')}</tbody></table></div>
+  </div>`;
+}
+
+async function saveProfile(){
+  const msg=document.getElementById('profileMsg');
+  const {error}=await supabase.from('profiles').update({full_name:document.getElementById('profName').value,phone:document.getElementById('profPhone').value}).eq('id',currentProfile.id);
+  msg.textContent=error?'❌ Błąd zapisu.':'✅ Zapisano!';
+}
+
+function submitBooking(){ alert('✅ Prośba wysłana! Korepetytor potwierdzi w ciągu 24h.'); showPanel('lessons'); }
+
+async function init(){
+  await initSupabase();
+  const profile=await getCurrentProfile();
+  if(!profile){ window.location.href='login.html'; return; }
+  currentProfile=profile;
+  const init=(profile.full_name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('userAvatar').textContent=init;
+  document.getElementById('userName').textContent=profile.full_name||profile.email;
+  document.getElementById('userRole').textContent=profile.role;
+  buildNav(profile.role);
+  showPanel('overview');
+}
+init();
+</script>
+</body>
+</html>

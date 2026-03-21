@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cennik — Korepetycje Kowalski</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    /* ── INTRO ── */
+    #intro { background:var(--white); }
+    .highlights-grid { display:grid; grid-template-columns:1fr; gap:1rem; margin-bottom:3rem; }
+    @media(min-width:600px){ .highlights-grid { grid-template-columns:1fr 1fr; } }
+    .hl { display:flex; gap:.9rem; align-items:flex-start; background:var(--cream); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem; }
+    .hl-icon { font-size:1.4rem; flex-shrink:0; }
+    .hl-text strong { display:block; color:var(--navy); font-size:.92rem; margin-bottom:.15rem; }
+    .hl-text span { font-size:.84rem; color:var(--text-muted); }
+
+    /* ── PRICING CARDS (mobile-first, tables on desktop) ── */
+    .pricing-block { margin-bottom:3rem; }
+    .pricing-block h3 {
+      font-family:'Playfair Display',serif; font-size:1.25rem; color:var(--navy);
+      padding-bottom:.7rem; border-bottom:2px solid var(--gold);
+      display:inline-block; margin-bottom:1.2rem;
+    }
+
+    /* Mobile: stacked cards */
+    .price-cards { display:flex; flex-direction:column; gap:.8rem; }
+    .price-card {
+      background:var(--white); border:1px solid var(--border); border-radius:var(--radius);
+      padding:1.1rem 1.2rem; display:grid; grid-template-columns:1fr auto;
+      align-items:center; gap:.5rem;
+    }
+    .price-card.featured { border-color:var(--gold); background:var(--gold-pale); }
+    .price-card-name { font-size:.95rem; color:var(--navy); font-weight:600; }
+    .price-card-sub { font-size:.8rem; color:var(--text-muted); margin-top:.1rem; }
+    .price-card-price { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--navy); font-weight:700; text-align:right; white-space:nowrap; }
+    .price-card-note { font-size:.75rem; color:var(--text-muted); text-align:right; }
+    .best-badge { display:inline-block; background:var(--gold); color:var(--navy); font-size:.65rem; font-weight:700; padding:.15rem .5rem; border-radius:2px; text-transform:uppercase; letter-spacing:.06em; vertical-align:middle; margin-left:.4rem; }
+
+    /* Desktop: full table */
+    .price-table-wrap { display:none; }
+    @media(min-width:640px){
+      .price-cards { display:none; }
+      .price-table-wrap { display:block; }
+      .price-table-wrap table { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); }
+      .price-table-wrap thead { background:var(--navy); color:var(--white); }
+      .price-table-wrap thead th { padding:.85rem 1.2rem; color:rgba(255,255,255,.85); }
+      .price-table-wrap tbody tr.featured-row { background:var(--gold-pale); }
+      .price-table-wrap tbody td:nth-child(3) { font-family:'Playfair Display',serif; font-size:1.05rem; color:var(--navy); font-weight:700; }
+    }
+
+    /* ── PACKAGES ── */
+    #packages { background:var(--navy); }
+    #packages .section-title { color:var(--white); }
+    #packages .section-tag  { color:var(--gold-light); }
+    #packages .section-desc { color:rgba(255,255,255,.6); }
+    .pkg-grid { display:grid; grid-template-columns:1fr; gap:1.2rem; }
+    @media(min-width:600px){ .pkg-grid { grid-template-columns:1fr 1fr; } }
+    @media(min-width:900px){ .pkg-grid { grid-template-columns:repeat(3,1fr); } }
+    .pkg-card {
+      background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12);
+      border-radius:var(--radius); padding:2rem 1.5rem; text-align:center;
+      position:relative; transition:border-color .2s, transform .2s;
+    }
+    @media(hover:hover){ .pkg-card:hover { border-color:var(--gold); transform:translateY(-4px); } }
+    .pkg-card.featured { border-color:var(--gold); background:rgba(201,168,76,.08); }
+    .pkg-badge { position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:var(--gold); color:var(--navy); font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; padding:.2rem .9rem; border-radius:2px; font-weight:700; white-space:nowrap; }
+    .pkg-icon { font-size:1.8rem; margin-bottom:.8rem; }
+    .pkg-name { color:rgba(255,255,255,.5); font-size:.76rem; text-transform:uppercase; letter-spacing:.14em; margin-bottom:.7rem; }
+    .pkg-price { font-family:'Playfair Display',serif; font-size:2.5rem; color:var(--white); font-weight:700; line-height:1; }
+    .pkg-price sup { font-size:1rem; vertical-align:top; margin-top:.4rem; }
+    .pkg-unit { font-size:.78rem; color:rgba(255,255,255,.4); margin-bottom:.4rem; }
+    .pkg-saving { font-size:.78rem; color:var(--gold-light); margin-bottom:1.2rem; }
+    .pkg-features { list-style:none; margin-bottom:1.5rem; text-align:left; display:flex; flex-direction:column; gap:.45rem; }
+    .pkg-features li { font-size:.85rem; color:rgba(255,255,255,.7); padding-left:1.1rem; position:relative; }
+    .pkg-features li::before { content:'✓'; position:absolute; left:0; color:var(--gold); font-weight:700; }
+
+    /* ── FAQ ── */
+    #faq { background:var(--cream); }
+    .faq-list { display:flex; flex-direction:column; gap:.8rem; max-width:760px; }
+    .faq-item { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+    .faq-q {
+      width:100%; background:none; border:none; padding:1rem 1.2rem;
+      display:flex; justify-content:space-between; align-items:center;
+      cursor:pointer; font-family:'Source Serif 4',serif; font-size:.95rem;
+      color:var(--navy); font-weight:600; text-align:left; gap:1rem;
+      min-height:var(--touch);
+    }
+    .faq-q:hover { background:var(--cream); }
+    .faq-chevron { font-size:.75rem; transition:transform .3s; flex-shrink:0; }
+    .faq-item.open .faq-chevron { transform:rotate(180deg); }
+    .faq-a { display:none; padding:0 1.2rem 1rem; font-size:.9rem; color:var(--text-muted); line-height:1.75; }
+    .faq-item.open .faq-a { display:block; }
+  </style>
+</head>
+<body>
+<nav id="mainNav"></nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-tag">Cennik</div>
+    <h1>Przejrzyste, <em>uczciwe ceny</em></h1>
+    <p>Bez ukrytych opłat. Poniżej znajdziesz szczegółowy cennik wszystkich naszych usług.</p>
+  </div>
+</div>
+
+<!-- INTRO -->
+<section id="intro" class="section">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-tag">Co wliczone w cenę</span>
+      <h2 class="section-title">Więcej niż tylko lekcja</h2>
+      <p class="section-desc">W każdej lekcji dostajesz materiały, notatki i wsparcie między spotkaniami.</p>
+    </div>
+    <div class="highlights-grid reveal">
+      <div class="hl"><div class="hl-icon">📄</div><div class="hl-text"><strong>Materiały PDF gratis</strong><span>Autorskie materiały i zadania do każdej lekcji.</span></div></div>
+      <div class="hl"><div class="hl-icon">📝</div><div class="hl-text"><strong>Notatki po lekcji</strong><span>Podsumowanie — co było i co warto powtórzyć.</span></div></div>
+      <div class="hl"><div class="hl-icon">💬</div><div class="hl-text"><strong>WhatsApp między lekcjami</strong><span>Odpowiadamy na krótkie pytania w ciągu 24h.</span></div></div>
+      <div class="hl"><div class="hl-icon">🎁</div><div class="hl-text"><strong>Pierwsza konsultacja gratis</strong><span>15 min bez zobowiązań, żeby ustalić Twoje cele.</span></div></div>
+    </div>
+
+    <!-- MAT PODSTAWOWA -->
+    <div class="pricing-block reveal">
+      <h3>📐 Matematyka — szkoła podstawowa</h3>
+      <!-- MOBILE CARDS -->
+      <div class="price-cards">
+        <div class="price-card"><div><div class="price-card-name">Pojedyncza lekcja</div><div class="price-card-sub">60 min · bez zobowiązań</div></div><div><div class="price-card-price">90 zł</div></div></div>
+        <div class="price-card featured"><div><div class="price-card-name">Pakiet 5 lekcji <span class="best-badge">-11%</span></div><div class="price-card-sub">5 × 60 min · 80 zł/h</div></div><div><div class="price-card-price">400 zł</div></div></div>
+        <div class="price-card"><div><div class="price-card-name">Pakiet 10 lekcji</div><div class="price-card-sub">10 × 60 min · 70 zł/h</div></div><div><div class="price-card-price">700 zł</div></div></div>
+      </div>
+      <!-- DESKTOP TABLE -->
+      <div class="price-table-wrap table-scroll">
+        <table><thead><tr><th>Usługa</th><th>Czas</th><th>Cena</th><th>Uwagi</th></tr></thead>
+        <tbody>
+          <tr><td>Pojedyncza lekcja</td><td>60 min</td><td>90 zł</td><td>Bez zobowiązań</td></tr>
+          <tr class="featured-row"><td>Pakiet 5 lekcji <span class="best-badge">-11%</span></td><td>5 × 60 min</td><td>400 zł</td><td>80 zł/h</td></tr>
+          <tr><td>Pakiet 10 lekcji</td><td>10 × 60 min</td><td>700 zł</td><td>70 zł/h — oszczędzasz 200 zł</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <!-- MAT LICEUM -->
+    <div class="pricing-block reveal">
+      <h3>📊 Matematyka — liceum i matura</h3>
+      <div class="price-cards">
+        <div class="price-card"><div><div class="price-card-name">Poziom podstawowy</div><div class="price-card-sub">60 min</div></div><div><div class="price-card-price">100 zł</div></div></div>
+        <div class="price-card"><div><div class="price-card-name">Poziom rozszerzony</div><div class="price-card-sub">60 min</div></div><div><div class="price-card-price">120 zł</div></div></div>
+        <div class="price-card featured"><div><div class="price-card-name">Pakiet 5 lekcji (rozszerz.) <span class="best-badge">Polecamy</span></div><div class="price-card-sub">5 × 60 min · 108 zł/h</div></div><div><div class="price-card-price">540 zł</div></div></div>
+        <div class="price-card"><div><div class="price-card-name">Pakiet 10 lekcji (rozszerz.)</div><div class="price-card-sub">10 × 60 min · 95 zł/h</div></div><div><div class="price-card-price">950 zł</div></div></div>
+        <div class="price-card"><div><div class="price-card-name">Intensywny kurs przedmaturalny</div><div class="price-card-sub">5 × 90 min</div></div><div><div class="price-card-price">750 zł</div></div></div>
+      </div>
+      <div class="price-table-wrap table-scroll">
+        <table><thead><tr><th>Usługa</th><th>Czas</th><th>Cena</th><th>Uwagi</th></tr></thead>
+        <tbody>
+          <tr><td>Poziom podstawowy</td><td>60 min</td><td>100 zł</td><td>—</td></tr>
+          <tr><td>Poziom rozszerzony</td><td>60 min</td><td>120 zł</td><td>—</td></tr>
+          <tr class="featured-row"><td>Pakiet 5 lekcji (rozszerz.) <span class="best-badge">Polecamy</span></td><td>5 × 60 min</td><td>540 zł</td><td>108 zł/h</td></tr>
+          <tr><td>Pakiet 10 lekcji (rozszerz.)</td><td>10 × 60 min</td><td>950 zł</td><td>Oszczędzasz 250 zł</td></tr>
+          <tr><td>Kurs przedmaturalny</td><td>5 × 90 min</td><td>750 zł</td><td>Ostatni miesiąc przed maturą</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <!-- MAT WYŻSZA -->
+    <div class="pricing-block reveal">
+      <h3>🔢 Matematyka wyższa (studia)</h3>
+      <div class="price-cards">
+        <div class="price-card"><div><div class="price-card-name">Pojedyncza lekcja</div><div class="price-card-sub">60 min</div></div><div><div class="price-card-price">130 zł</div></div></div>
+        <div class="price-card featured"><div><div class="price-card-name">Pakiet 5 lekcji <span class="best-badge">-10%</span></div><div class="price-card-sub">5 × 60 min · 116 zł/h</div></div><div><div class="price-card-price">580 zł</div></div></div>
+        <div class="price-card"><div><div class="price-card-name">Pakiet 10 lekcji</div><div class="price-card-sub">10 × 60 min · 105 zł/h</div></div><div><div class="price-card-price">1050 zł</div></div></div>
+      </div>
+      <div class="price-table-wrap table-scroll">
+        <table><thead><tr><th>Usługa</th><th>Czas</th><th>Cena</th><th>Uwagi</th></tr></thead>
+        <tbody>
+          <tr><td>Pojedyncza lekcja</td><td>60 min</td><td>130 zł</td><td>—</td></tr>
+          <tr class="featured-row"><td>Pakiet 5 lekcji <span class="best-badge">-10%</span></td><td>5 × 60 min</td><td>580 zł</td><td>116 zł/h</td></tr>
+          <tr><td>Pakiet 10 lekcji</td><td>10 × 60 min</td><td>1050 zł</td><td>Oszczędzasz 250 zł</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <!-- INFORMATYKA -->
+    <div class="pricing-block reveal">
+      <h3>💻 Informatyka i programowanie</h3>
+      <div class="price-cards">
+        <div class="price-card"><div><div class="price-card-name">Programowanie — podstawy</div><div class="price-card-sub">60 min · Python / Java</div></div><div><div class="price-card-price">110 zł</div></div></div>
+        <div class="price-card"><div><div class="price-card-name">Algorytmy i struktury danych</div><div class="price-card-sub">60 min</div></div><div><div class="price-card-price">130 zł</div></div></div>
+        <div class="price-card featured"><div><div class="price-card-name">Pakiet 5 lekcji <span class="best-badge">Polecamy</span></div><div class="price-card-sub">5 × 60 min · 98 zł/h</div></div><div><div class="price-card-price">490 zł</div></div></div>
+        <div class="price-card"><div><div class="price-card-name">Pakiet 10 lekcji</div><div class="price-card-sub">10 × 60 min · 90 zł/h</div></div><div><div class="price-card-price">900 zł</div></div></div>
+      </div>
+      <div class="price-table-wrap table-scroll">
+        <table><thead><tr><th>Usługa</th><th>Czas</th><th>Cena</th><th>Uwagi</th></tr></thead>
+        <tbody>
+          <tr><td>Programowanie — podstawy (Python/Java)</td><td>60 min</td><td>110 zł</td><td>—</td></tr>
+          <tr><td>Algorytmy i struktury danych</td><td>60 min</td><td>130 zł</td><td>—</td></tr>
+          <tr class="featured-row"><td>Pakiet 5 lekcji <span class="best-badge">Polecamy</span></td><td>5 × 60 min</td><td>490 zł</td><td>98 zł/h</td></tr>
+          <tr><td>Pakiet 10 lekcji</td><td>10 × 60 min</td><td>900 zł</td><td>Oszczędzasz 200 zł</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PACKAGES -->
+<section id="packages" class="section">
+  <div class="container">
+    <div class="reveal"><span class="section-tag">Pakiety</span><h2 class="section-title">Wybierz pakiet</h2><p class="section-desc">Im więcej lekcji, tym niższy koszt godziny.</p></div>
+    <div class="pkg-grid">
+      <div class="pkg-card reveal"><div class="pkg-icon">🎯</div><div class="pkg-name">Starter</div><div class="pkg-price"><sup>od </sup>90</div><div class="pkg-unit">zł / 1 lekcja</div><div class="pkg-saving">Bez zobowiązań</div><ul class="pkg-features"><li>1 lekcja 60 min</li><li>Materiały PDF</li><li>Notatki po lekcji</li></ul><a href="index.html#contact" class="btn btn-outline-gold btn-full">Zacznij</a></div>
+      <div class="pkg-card featured reveal"><div class="pkg-badge">Najpopularniejszy</div><div class="pkg-icon">⭐</div><div class="pkg-name">Pakiet 5 lekcji</div><div class="pkg-price"><sup>od </sup>400</div><div class="pkg-unit">zł / 5 × 60 min</div><div class="pkg-saving">💰 Oszczędzasz do 11%</div><ul class="pkg-features"><li>5 lekcji 60 min</li><li>Priorytetowy termin</li><li>Materiały + zadania</li><li>Notatki i powtórki</li><li>Kontakt WhatsApp</li></ul><a href="index.html#contact" class="btn btn-gold btn-full">Wybierz</a></div>
+      <div class="pkg-card reveal"><div class="pkg-icon">🏆</div><div class="pkg-name">Pakiet 10 lekcji</div><div class="pkg-price"><sup>od </sup>700</div><div class="pkg-unit">zł / 10 × 60 min</div><div class="pkg-saving">💰 Oszczędzasz do 22%</div><ul class="pkg-features"><li>10 lekcji 60 min</li><li>Stały termin tygodniowy</li><li>Kompletne materiały</li><li>Testy próbne</li><li>WhatsApp 7 dni/tydz.</li><li>Raport postępów</li></ul><a href="index.html#contact" class="btn btn-outline-gold btn-full">Wybierz</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="section">
+  <div class="container">
+    <div class="reveal"><span class="section-tag">Pytania</span><h2 class="section-title">Często zadawane pytania</h2></div>
+    <div class="faq-list">
+      <div class="faq-item reveal"><button class="faq-q">Czy można odwołać lekcję? <span class="faq-chevron">▼</span></button><div class="faq-a">Tak — odwołanie jest bezpłatne przy 24-godzinnym wyprzedzeniu. Przy krótszym terminie lekcja jest traktowana jako odbyta.</div></div>
+      <div class="faq-item reveal"><button class="faq-q">Jak płacę za lekcje? <span class="faq-chevron">▼</span></button><div class="faq-a">Przyjmujemy płatności przelewem i przez BLIK. Przy pakietach wystawiamy fakturę.</div></div>
+      <div class="faq-item reveal"><button class="faq-q">Czy lekcje mogą być stacjonarne? <span class="faq-chevron">▼</span></button><div class="faq-a">Tak — lekcje stacjonarne prowadzimy w Warszawie. Dokładny zakres ustalamy przy rejestracji.</div></div>
+      <div class="faq-item reveal"><button class="faq-q">Ile czasu przed maturą powinienem zacząć? <span class="faq-chevron">▼</span></button><div class="faq-a">Optymalnie 3–6 miesięcy. Nawet przy 4–6 tygodniach intensywnego kursu możemy osiągnąć bardzo dobre wyniki.</div></div>
+      <div class="faq-item reveal"><button class="faq-q">Czy mogę wybrać konkretnego korepetytora? <span class="faq-chevron">▼</span></button><div class="faq-a">Oczywiście! W formularzu kontaktowym podaj preferencje. Jeśli wybrany korepetytor ma wolny termin — umówimy Cię bezpośrednio.</div></div>
+    </div>
+    <div style="margin-top:2.5rem;" class="reveal">
+      <a href="index.html#contact" class="btn btn-primary">Umów bezpłatną konsultację →</a>
+    </div>
+  </div>
+</section>
+
+<footer id="mainFooter"></footer>
+<script src="nav.js"></script>
+<script src="chatbot.js"></script>
+<script>
+  injectNav('cennik'); injectFooter(); initReveal();
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => btn.parentElement.classList.toggle('open'));
+  });
+</script>
+</body>
+</html>
