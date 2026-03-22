@@ -1,5 +1,7 @@
 /* nav.js — nawigacja i stopka dla wszystkich podstron */
 
+/* nav.js — nawigacja i stopka dla wszystkich podstron */
+
 function injectNav(activePage) {
   const nav = document.getElementById('mainNav');
   if (!nav) return;
@@ -11,6 +13,11 @@ function injectNav(activePage) {
       <li><a href="korepetytorzy.html" ${activePage==='korepetytorzy' ?'class="active"':''}>Korepetytorzy</a></li>
       <li><a href="cennik.html"        ${activePage==='cennik'        ?'class="active"':''}>Cennik</a></li>
       <li><a href="opinie.html"        ${activePage==='opinie'        ?'class="active"':''}>Opinie</a></li>
+      
+      <li id="navDashboardTab" style="display:none;">
+        <a href="dashboard.html" style="color: var(--gold); font-weight: 700;">🚀 Mój Panel</a>
+      </li>
+
       <li class="nav-cta-li"><a href="index.html#contact">Kontakt</a></li>
       <li class="nav-auth-li" id="navAuthBtn" style="display:none">
         <a href="login.html" id="navAuthLink">🔐 Zaloguj się</a>
@@ -21,10 +28,7 @@ function injectNav(activePage) {
     </button>
   `;
 
-
-// Sprawdź czy użytkownik jest zalogowany i zmień przycisk
   _updateAuthButton();
-
 
   const hbg      = document.getElementById('hamburger');
   const navLinks = document.getElementById('navLinks');
@@ -45,7 +49,6 @@ function injectNav(activePage) {
     });
   });
 
-  // Close on resize to desktop
   window.addEventListener('resize', () => {
     if (window.innerWidth >= 768) {
       navLinks.classList.remove('open');
@@ -55,6 +58,51 @@ function injectNav(activePage) {
   });
 }
 
+async function _updateAuthButton() {
+  const btn  = document.getElementById('navAuthBtn');
+  const link = document.getElementById('navAuthLink');
+  const dashboardTab = document.getElementById('navDashboardTab'); // Łapiemy nową zakładkę
+
+  if (!btn || !link) return;
+
+  btn.style.display = 'block';
+
+  if (typeof initSupabase !== 'function') return;
+
+  try {
+    await initSupabase();
+    // Używamy supabaseClient!
+    const { data: { user } } = await supabaseClient.auth.getUser();
+
+    if (user) {
+      // POKAŻ ZAKŁADKĘ "Mój Panel" W MENU
+      if (dashboardTab) dashboardTab.style.display = 'block';
+
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('full_name, role')
+        .eq('id', user.id)
+        .single();
+
+      const name  = profile?.full_name?.split(' ')[0] || 'Uczeń';
+      const emoji = profile?.role === 'admin' ? '🔑' : '👤';
+
+      link.href        = 'dashboard.html';
+      link.textContent = `${emoji} ${name}`;
+      link.style.cssText = 'background:rgba(201,168,76,.15)!important;border:1px solid var(--gold)!important;color:var(--gold-light)!important;border-radius:3px;padding:.35rem .9rem;';
+    } else {
+      // UKRYJ ZAKŁADKĘ JEŚLI UŻYTKOWNIK NIE JEST ZALOGOWANY
+      if (dashboardTab) dashboardTab.style.display = 'none';
+      link.href        = 'login.html';
+      link.textContent = '🔐 Zaloguj się';
+    }
+  } catch(e) {
+    if (dashboardTab) dashboardTab.style.display = 'none';
+    link.href        = 'login.html';
+    link.textContent = '🔐 Zaloguj się';
+  }
+}
+
 function injectFooter() {
   const ft = document.getElementById('mainFooter');
   if (!ft) return;
@@ -62,7 +110,7 @@ function injectFooter() {
     <div class="footer-inner">
       <div class="footer-brand">
         <a class="nav-logo" href="index.html"><span>Korepetycje</span> Szymon Tyburczy</a>
-        <p>Profesjonalne korepetycje z matematyki i informatyki i innych przedmiotów — online oraz stacjonarnie w Krakowie.</p>
+        <p>Profesjonalne korepetycje z matematyki i informatyki i innych — online oraz stacjonarnie w Krakowie.</p>
       </div>
       <div class="footer-col">
         <h4>Nawigacja</h4>
@@ -77,7 +125,7 @@ function injectFooter() {
       <div class="footer-col">
         <h4>Kontakt</h4>
         <ul>
-          <li><a href="mailto:szymon.tyburczy@email.com">📧 SzymonTyburczy@protonmail.com</a></li>
+          <li><a href="mailto:szymontyburczy@protonmail.com">📧 szymontyburczy@protonmail.com</a></li>
           <li><a href="tel:+48789142398">📱 +48 789 142 398</a></li>
           <li><a href="login.html">🔐 Panel ucznia</a></li>
           <li><a href="index.html#contact">✉️ Formularz kontaktowy</a></li>
@@ -103,44 +151,6 @@ function initReveal() {
 }
 
 
-async function _updateAuthButton() {
-  const btn  = document.getElementById('navAuthBtn');
-  const link = document.getElementById('navAuthLink');
-  if (!btn || !link) return;
 
-  // Pokaż przycisk od razu (domyślnie: Zaloguj się)
-  btn.style.display = 'block';
-
-  // Jeśli Supabase nie jest zainicjowane — pomiń
-  if (typeof initSupabase !== 'function') return;
-
-  try {
-    await initSupabase();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (user) {
-      // Zalogowany — pobierz imię z profilu
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name, role')
-        .eq('id', user.id)
-        .single();
-
-      const name  = profile?.full_name?.split(' ')[0] || 'Panel';
-      const emoji = profile?.role === 'admin' ? '🔑' : '👤';
-
-      link.href        = 'dashboard.html';
-      link.textContent = `${emoji} ${name}`;
-      link.style.cssText = 'background:rgba(201,168,76,.15)!important;border:1px solid var(--gold)!important;color:var(--gold-light)!important;border-radius:3px;padding:.35rem .9rem;';
-    } else {
-      link.href        = 'login.html';
-      link.textContent = '🔐 Zaloguj się';
-    }
-  } catch(e) {
-    // Supabase nie skonfigurowane — pokaż domyślny przycisk logowania
-    link.href        = 'login.html';
-    link.textContent = '🔐 Zaloguj się';
-  }
-}
 
 

@@ -95,21 +95,42 @@ const SUPABASE_ANON_KEY =
 // Inicjalizacja klienta Supabase
 let supabaseClient;
 
-async function initSupabase() {
-	// Dynamicznie ładujemy bibliotekę Supabase
-	if (supabaseClient) return supabaseClient; // Jeśli już istnieje, po prostu go zwróć
+// async function initSupabase() {
+// 	// Dynamicznie ładujemy bibliotekę Supabase
+// 	if (supabaseClient) return supabaseClient; // Jeśli już istnieje, po prostu go zwróć
 
-	if (!window.supabase) {
-		await loadScript(
-			"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js",
-		);
-	}
-	supabaseClient = window.supabase.createClient(
-		SUPABASE_URL,
-		SUPABASE_ANON_KEY,
-	);
-	return supabaseClient;
+// 	if (!window.supabase) {
+// 		await loadScript(
+// 			"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js",
+// 		);
+// 	}
+// 	supabaseClient = window.supabase.createClient(
+// 		SUPABASE_URL,
+// 		SUPABASE_ANON_KEY,
+// 	);
+// 	return supabaseClient;
+// }
+
+
+function initSupabase() {
+  if (supabaseClient) return Promise.resolve(supabaseClient); // już zainicjowane — nie rób tego dwa razy
+  if (!window.supabase?.createClient) {
+    console.error('Biblioteka Supabase nie jest załadowana. Dodaj tag <script> z CDN w <head>.');
+    return Promise.reject('Supabase not loaded');
+  }
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: true,          // sesja przeżywa przejścia między podstronami
+      storageKey:     'korepetycje-auth', // unikalna nazwa klucza w localStorage
+      autoRefreshToken: true,        // automatyczne odświeżanie tokenu w tle
+      detectSessionInUrl: true,      // wykrywa token z linku reset hasła
+    }
+  });
+  return Promise.resolve(supabaseClient);
 }
+
+
+
 
 function loadScript(src) {
 	return new Promise((resolve, reject) => {
