@@ -62,7 +62,7 @@ function injectFooter() {
     <div class="footer-inner">
       <div class="footer-brand">
         <a class="nav-logo" href="index.html"><span>Korepetycje</span> Szymon Tyburczy</a>
-        <p>Profesjonalne korepetycje z matematyki i informatyki — online oraz stacjonarnie w Krakowie.</p>
+        <p>Profesjonalne korepetycje z matematyki i informatyki i innych przedmiotów — online oraz stacjonarnie w Krakowie.</p>
       </div>
       <div class="footer-col">
         <h4>Nawigacja</h4>
@@ -77,7 +77,7 @@ function injectFooter() {
       <div class="footer-col">
         <h4>Kontakt</h4>
         <ul>
-          <li><a href="mailto:szymon.tyburczy@email.com">📧 szymon.tyburczy@email.com</a></li>
+          <li><a href="mailto:szymon.tyburczy@email.com">📧 SzymonTyburczy@protonmail.com</a></li>
           <li><a href="tel:+48789142398">📱 +48 789 142 398</a></li>
           <li><a href="login.html">🔐 Panel ucznia</a></li>
           <li><a href="index.html#contact">✉️ Formularz kontaktowy</a></li>
