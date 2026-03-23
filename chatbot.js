@@ -10,7 +10,7 @@
   const FAQ = [
     {
       keywords: ['cena', 'cennik', 'ile kosztuje', 'koszt', 'ile płacę', 'stawka', 'zł'],
-      answer: '💰 Nasze ceny zaczynają się od **90 zł/h** dla matematyki podstawowej. Matura rozszerzona to **120 zł/h**, a matematyka wyższa **130 zł/h**. Przy pakiecie 5 lub 10 lekcji cena jest niższa nawet o 22%! Szczegółowy cennik znajdziesz na stronie <a href="cennik.html" style="color:var(--gold)">Cennik</a>.'
+      answer: '💰 Nasze ceny zaczynają się od 100 zł/h dla matematyki podstawowej. Matura rozszerzona to 120 zł/h, a matematyka wyższa 140 zł/h. Szczegółowy cennik znajdziesz na stronie <a href="cennik.html" style="color:var(--gold)">Cennik</a>.'
     },
     {
       keywords: ['kontakt', 'telefon', 'email', 'napisać', 'zadzwonić', 'whatsapp'],

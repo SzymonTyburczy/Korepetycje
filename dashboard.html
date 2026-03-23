@@ -862,83 +862,72 @@
 
 			// ── POBIERANIE PRAWDZIWYCH DANYCH Z BAZY ──
 			async function loadRealData() {
-				// 1. Pobieranie lekcji z imionami
-				const { data: lessons } = await supabaseClient
-					.from("lessons")
-					.select(
-						"*, tutor:profiles!tutor_id(full_name), student:profiles!student_id(full_name)",
-					)
-					.order("date", { ascending: true });
+    // 1. Pobieranie lekcji
+    const { data: lessons } = await supabaseClient
+        .from("lessons")
+        .select("*, tutor:profiles!tutor_id(full_name), student:profiles!student_id(full_name)")
+        .order("date", { ascending: true });
 
-				// 2. Pobieranie faktur z imionami uczniów
-				const { data: invoices } = await supabaseClient
-					.from("invoices")
-					.select(
-						"*, lesson:lessons(subject), student:profiles!student_id(full_name)",
-					)
-					.order("issued_at", { ascending: false });
+    // --- NOWY KOD: AUTOMATYCZNE ZAKAŃCZANIE LEKCJI ---
+    const now = new Date();
+    // Szukamy lekcji, które są "zaplanowane", ale ich data + czas trwania już minęły
+    const pastLessonsIds = (lessons || [])
+        .filter(l => {
+            if (l.status !== 'zaplanowana') return false;
+            const lessonEnd = new Date(new Date(l.date).getTime() + (l.duration_minutes || 60) * 60000);
+            return lessonEnd < now;
+        })
+        .map(l => l.id);
 
-				// 3. Pobieranie materiałów
-				const { data: materials } = await supabaseClient
-					.from("materials")
-					.select("*, tutor:profiles!tutor_id(full_name)")
-					.order("created_at", { ascending: false });
+    // Jeśli znaleziono takie lekcje, aktualizujemy je w bazie jednym zapytaniem
+    if (pastLessonsIds.length > 0) {
+        await supabaseClient.from('lessons').update({ status: 'odbyta' }).in('id', pastLessonsIds);
+        // Aktualizujemy też lokalnie, żeby od razu wyświetliły się poprawnie
+        lessons.forEach(l => {
+            if (pastLessonsIds.includes(l.id)) l.status = 'odbyta';
+        });
+    }
+    // ------------------------------------------------
 
-				// 4. Pobieranie profili z uwzględnieniem ról i prywatności
-				if (currentProfile.role === "admin") {
-					// Admin widzi wszystkich
-					const { data: profiles } = await supabaseClient
-						.from("profiles")
-						.select("*")
-						.order("full_name", { ascending: true });
-					appData.users = profiles || [];
-				} else if (currentProfile.role === "korepetytor") {
-					// Korepetytor pobiera tylko uczniów (aby móc ich wybrać przy dodawaniu lekcji)
-					const { data: profiles } = await supabaseClient
-						.from("profiles")
-						.select("*")
-						.eq("role", "uczen")
-						.order("full_name", { ascending: true });
-					appData.users = profiles || [];
-				} else {
-					// Uczeń pobiera TYLKO i WYŁĄCZNIE korepetytorów i adminów
-					const { data: profiles } = await supabaseClient
-						.from("profiles")
-						.select("*")
-						.in("role", ["korepetytor", "admin"])
-						.order("full_name", { ascending: true });
-					appData.users = profiles || [];
-				}
+    // 2. Pobieranie materiałów
+    const { data: materials } = await supabaseClient
+        .from("materials")
+        .select("*, tutor:profiles!tutor_id(full_name)")
+        .order("created_at", { ascending: false });
 
-				// Mapowanie danych dla interfejsu
-				appData.lessons = (lessons || []).map((l) => ({
-					id: l.id,
-					subject: l.subject,
-					tutor: l.tutor?.full_name || "Nieprzypisany",
-					student: l.student?.full_name || "Nieznany Uczeń",
-					date: l.date,
-					duration: l.duration_minutes || 60,
-					status: l.status,
-					price: l.price || "—",
-				}));
+    // 3. Pobieranie profili z uwzględnieniem ról i prywatności
+    if (currentProfile.role === "admin") {
+        const { data: profiles } = await supabaseClient.from("profiles").select("*").order("full_name", { ascending: true });
+        appData.users = profiles || [];
+    } else if (currentProfile.role === "korepetytor") {
+        const { data: profiles } = await supabaseClient.from("profiles").select("*").eq("role", "uczen").order("full_name", { ascending: true });
+        appData.users = profiles || [];
+    } else {
+        const { data: profiles } = await supabaseClient.from("profiles").select("*").in("role", ["korepetytor", "admin"]).order("full_name", { ascending: true });
+        appData.users = profiles || [];
+    }
 
-				appData.invoices = (invoices || []).map((i) => ({
-					id: i.id,
-					subject: i.lesson?.subject || "Usługa edukacyjna",
-					student: i.student?.full_name || "Nieznany",
-					amount: i.amount || 0,
-					status: i.status,
-					date: i.issued_at,
-				}));
+    // Mapowanie danych dla interfejsu
+    appData.lessons = (lessons || []).map((l) => ({
+        id: l.id,
+        subject: l.subject,
+        tutor: l.tutor?.full_name || "Nieprzypisany",
+        student: l.student?.full_name || "Nieznany Uczeń",
+        date: l.date,
+        duration: l.duration_minutes || 60,
+        status: l.status,
+        price: l.price || "100",
+        paid: l.paid === true || String(l.paid) === "true",
+    }));
 
-				appData.materials = (materials || []).map((m) => ({
-					id: m.id,
-					title: m.title,
-					tutor: m.tutor?.full_name || "Korepetytor",
-					date: m.created_at,
-					file: m.file_url || "#",
-				}));
-			}
+    appData.materials = (materials || []).map((m) => ({
+        id: m.id,
+        title: m.title,
+        tutor: m.tutor?.full_name || "Korepetytor",
+        date: m.created_at,
+        file: m.file_url || "#",
+    }));
+}
 
 			// ── PANELS ──
 			function panelOverview(p) {
@@ -969,98 +958,126 @@ ${
 			}
 
 			function panelAllLessons() {
-				const pending = appData.lessons.filter((l) => l.status === "oczekuje");
-				const confirmed = appData.lessons.filter(
-					(l) => l.status === "zaplanowana",
-				);
-				const history = appData.lessons.filter(
-					(l) => l.status === "odbyta" || l.status === "odwolana",
-				);
+    const pending = appData.lessons.filter((l) => l.status === "oczekuje");
+    const confirmed = appData.lessons.filter((l) => l.status === "zaplanowana");
+    const history = appData.lessons.filter((l) => l.status === "odbyta" || l.status === "odwolana");
+    
+    // Sprawdzamy role
+    const isAdmin = currentProfile.role === "admin";
+    const isTutor = currentProfile.role === "korepetytor";
+    const canManage = isAdmin || isTutor; // Używane w oczekujących (bo korepetytor musi móc zatwierdzić)
 
-				return `
-<div class="panel-header"><h1>Wszystkie Lekcje</h1><p>Zarządzaj rezerwacjami i przeglądaj historię spotkań wszystkich uczniów.</p></div>
+    return `
+<div class="panel-header">
+    <h1>Wszystkie Lekcje</h1>
+    <p>Zarządzaj rezerwacjami i przeglądaj historię spotkań.</p>
+</div>
 
 <div class="data-wrap">
     <div class="data-head"><h3>Oczekujące prośby (${pending.length})</h3></div>
     ${
-			pending.length
-				? `
+        pending.length
+            ? `
     <div class="lesson-table-wrap" style="display:block">
         <table>
-            <thead><tr><th>Uczeń</th><th>Korepetytor</th><th>Przedmiot</th><th>Data</th><th>Akcja</th></tr></thead>
+            <thead><tr><th>Uczeń</th><th>Korepetytor</th><th>Przedmiot</th><th>Data</th><th>Status / Akcja</th></tr></thead>
             <tbody>
-                ${pending
-									.map(
-										(l) => `
+                ${pending.map((l) => `
                     <tr>
                         <td><strong>${l.student}</strong></td>
                         <td>${l.tutor}</td>
                         <td>${l.subject}</td>
                         <td>${fmtDate(l.date)}</td>
                         <td>
-                            <button class="btn btn-gold" style="padding: .3rem .7rem; font-size: .8rem;" onclick="approveLesson('${l.id}')">Potwierdź</button>
-                            <button class="btn btn-outline" style="padding: .3rem .7rem; font-size: .8rem; margin-left: .5rem;" onclick="rejectLesson('${l.id}')">Odrzuć</button>
+                            ${canManage ? `
+                                <button class="btn btn-gold" style="padding: .3rem .7rem; font-size: .8rem;" onclick="approveLesson('${l.id}')">Potwierdź</button>
+                                <button class="btn btn-outline" style="padding: .3rem .7rem; font-size: .8rem; margin-left: .5rem;" onclick="rejectLesson('${l.id}')">Odrzuć</button>
+                                ${isAdmin ? `<button class="btn btn-outline" style="color:red; border-color:red; padding:.3rem .7rem; font-size:.8rem; margin-left:.5rem;" onclick="deleteLesson('${l.id}')">Usuń z bazy</button>` : ''}
+                            ` : `
+                                <span style="font-size: 0.8rem; color: #d39e00; font-weight: 600;">⏳ Czeka na akceptację</span>
+                            `}
                         </td>
                     </tr>
-                `,
-									)
-									.join("")}
+                `).join("")}
             </tbody>
         </table>
     </div>
     `
-				: `<div class="empty-state"><p>Brak oczekujących próśb na ten moment.</p></div>`
-		}
+            : `<div class="empty-state"><p>Brak oczekujących próśb na ten moment.</p></div>`
+    }
 </div>
 
 <div class="data-wrap">
     <div class="data-head"><h3>Nadchodzące lekcje (${confirmed.length})</h3></div>
     ${
-			confirmed.length
-				? `
+        confirmed.length
+            ? `
     <div class="lesson-table-wrap" style="display:block">
         <table>
-            <thead><tr><th>Uczeń</th><th>Korepetytor</th><th>Przedmiot</th><th>Data</th><th>Status</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Uczeń</th><th>Korepetytor</th><th>Przedmiot</th><th>Data</th><th>Status</th>
+                    ${isAdmin ? '<th>Akcja</th>' : ''} </tr>
+            </thead>
             <tbody>
-                ${confirmed
-									.map(
-										(l) => `
-                    <tr><td><strong>${l.student}</strong></td><td>${l.tutor}</td><td>${l.subject}</td><td>${fmtDate(l.date)}</td><td>${badge(l.status)}</td></tr>
-                `,
-									)
-									.join("")}
+                ${confirmed.map((l) => `
+                    <tr>
+                        <td><strong>${l.student}</strong></td>
+                        <td>${l.tutor}</td>
+                        <td>${l.subject}</td>
+                        <td>${fmtDate(l.date)}</td>
+                        <td>${badge(l.status)}</td>
+                        ${isAdmin ? ` <td>
+                            <button class="btn btn-gold" style="padding:.3rem .7rem; font-size:.8rem; background:#2ecc71; border-color:#2ecc71; color:white;" onclick="markAsDone('${l.id}')">Zakończ</button>
+                            <button class="btn btn-outline" style="color:red; border-color:red; padding:.3rem .7rem; font-size:.8rem; margin-left:.5rem;" onclick="deleteLesson('${l.id}')">Usuń</button>
+                        </td>
+                        ` : ''}
+                    </tr>
+                `).join("")}
             </tbody>
         </table>
     </div>
     `
-				: `<div class="empty-state"><p>Brak zatwierdzonych, nadchodzących lekcji.</p></div>`
-		}
+            : `<div class="empty-state"><p>Brak zatwierdzonych, nadchodzących lekcji.</p></div>`
+    }
 </div>
 
 <div class="data-wrap">
     <div class="data-head"><h3>Historia i odwołane (${history.length})</h3></div>
     ${
-			history.length
-				? `
+        history.length
+            ? `
     <div class="lesson-table-wrap" style="display:block">
         <table>
-            <thead><tr><th>Uczeń</th><th>Korepetytor</th><th>Przedmiot</th><th>Data</th><th>Status</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Uczeń</th><th>Korepetytor</th><th>Przedmiot</th><th>Data</th><th>Status</th>
+                    ${isAdmin ? '<th>Akcja</th>' : ''}
+                </tr>
+            </thead>
             <tbody>
-                ${history
-									.map(
-										(l) => `
-                    <tr><td><strong>${l.student}</strong></td><td>${l.tutor}</td><td>${l.subject}</td><td>${fmtDate(l.date)}</td><td>${badge(l.status)}</td></tr>
-                `,
-									)
-									.join("")}
+                ${history.map((l) => `
+                    <tr>
+                        <td><strong>${l.student}</strong></td>
+                        <td>${l.tutor}</td>
+                        <td>${l.subject}</td>
+                        <td>${fmtDate(l.date)}</td>
+                        <td>${badge(l.status)}</td>
+                        ${isAdmin ? `
+                        <td>
+                            <button class="btn btn-outline" style="color:red; border-color:red; padding:.3rem .7rem; font-size:.8rem;" onclick="deleteLesson('${l.id}')">Usuń z bazy</button>
+                        </td>
+                        ` : ''}
+                    </tr>
+                `).join("")}
             </tbody>
         </table>
     </div>
     `
-				: `<div class="empty-state"><p>Historia jest pusta.</p></div>`
-		}
+            : `<div class="empty-state"><p>Historia jest pusta.</p></div>`
+    }
 </div>`;
-			}
+}
 
 			function panelHistory() {
 				const done = appData.lessons.filter(
@@ -1104,55 +1121,119 @@ ${
 			}
 
 			function panelpayments() {
-				return `
-<div class="panel-header"><h1>Opłaty</h1><p>Historia płatności.</p></div>
-<div class="data-wrap">
-<div class="data-head"><h3>Opłaty</h3></div>
-${
-	appData.payments.length
-		? `
-<div class="lesson-cards">${appData.payments.map((i) => `<div class="lesson-card"><div class="lesson-card-top"><div class="lesson-card-subject">${i.subject}</div>${badge(i.status)}</div><div class="lesson-card-meta"><span>💰 ${i.amount} zł</span><span>📅 ${fmtDateOnly(i.date)}</span>${i.status === "oczekuje" ? `<span><a href="index.html#contact" class="btn btn-gold" style="font-size:.78rem;padding:.3rem .7rem;margin-top:.3rem;">Skontaktuj się, by zapłacić</a></span>` : ""}</div></div>`).join("")}</div>
-<div class="lesson-table-wrap"><table><thead><tr><th>Przedmiot</th><th>Kwota</th><th>Data</th><th>Status</th><th>Akcja</th></tr></thead><tbody>${appData.payments.map((i) => `<tr><td>${i.subject}</td><td><strong>${i.amount} zł</strong></td><td>${fmtDateOnly(i.date)}</td><td>${badge(i.status)}</td><td>${i.status === "oczekuje" ? `<a href="index.html#contact" class="btn btn-gold" style="font-size:.78rem;padding:.3rem .7rem;">Zapłać</a>` : "—"}</td></tr>`).join("")}</tbody></table></div>
-`
-		: `<div class="empty-state"><div class="icon">💳</div><p>Nie masz jeszcze żadnych opłat.</p></div>`
-}
-</div>`;
-			}
-
-			function panelBook() {
-    const hours = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"];
-    
-    // Rozdzielamy użytkowników na role
-    const tutors = (appData.users || []).filter(u => u.role === 'korepetytor' || u.role === 'admin');
-    const students = (appData.users || []).filter(u => u.role === 'uczen');
-    
-    const role = currentProfile.role;
+    // Pobieramy TYLKO lekcje o statusie "odbyta"
+    const pastLessons = appData.lessons.filter(l => l.status === "odbyta");
+    const isAdmin = currentProfile.role === "admin";
+    const isTutor = currentProfile.role === "korepetytor";
 
     return `
+<div class="panel-header"><h1>Opłaty</h1><p>Rozliczenia za zrealizowane zajęcia.</p></div>
+<div class="data-wrap">
+    <div class="data-head"><h3>Odbyte lekcje</h3></div>
+    ${
+        pastLessons.length
+            ? `
+    <div class="lesson-table-wrap" style="display:block">
+        <table>
+            <thead>
+                <tr>
+                    <th>Przedmiot</th>
+                    ${isAdmin || isTutor ? '<th>Uczeń</th>' : '<th>Korepetytor</th>'}
+                    <th>Data</th>
+                    <th>Kwota</th>
+                    <th>Obecny status</th>
+                    ${isAdmin || isTutor ? '<th>Zmień status na...</th>' : ''}
+                </tr>
+            </thead>
+            <tbody>
+                ${pastLessons.map((l) => `
+                <tr>
+                    <td><strong>${l.subject}</strong></td>
+                    ${isAdmin || isTutor ? `<td>${l.student}</td>` : `<td>${l.tutor}</td>`}
+                    <td>${fmtDateOnly(l.date)}</td>
+                    <td><strong>${l.price} zł</strong></td>
+                    <td>
+                        ${l.paid 
+                            ? `<span style="background:#2ecc71; color:white; padding:2px 8px; border-radius:4px; font-size:0.75rem; text-transform:uppercase;">Opłacona</span>` 
+                            : `<span style="background:#e74c3c; color:white; padding:2px 8px; border-radius:4px; font-size:0.75rem; text-transform:uppercase;">Brak wpłaty</span>`}
+                    </td>
+                    ${isAdmin || isTutor ? `
+                    <td>
+                        <select onchange="changePaymentStatus('${l.id}', this)" style="padding: .3rem; font-size: .8rem; border-radius: 4px; border: 1px solid var(--border); background: var(--white); cursor: pointer;">
+                            <option value="false" ${!l.paid ? 'selected' : ''}>Brak wpłaty</option>
+                            <option value="true" ${l.paid ? 'selected' : ''}>Opłacona</option>
+                        </select>
+                    </td>
+                    ` : ''}
+                </tr>`).join("")}
+            </tbody>
+        </table>
+    </div>`
+            : `<div class="empty-state"><div class="icon">💳</div><p>Brak odbytych lekcji do rozliczenia.</p></div>`
+    }
+</div>`;
+}
+
+			function panelBook() {
+				const hours = [
+					"08:00",
+					"09:00",
+					"10:00",
+					"11:00",
+					"12:00",
+					"13:00",
+					"14:00",
+					"15:00",
+					"16:00",
+					"17:00",
+					"18:00",
+					"19:00",
+					"20:00",
+				];
+
+				// Rozdzielamy użytkowników na role
+				const tutors = (appData.users || []).filter(
+					(u) => u.role === "korepetytor" || u.role === "admin",
+				);
+				const students = (appData.users || []).filter(
+					(u) => u.role === "uczen",
+				);
+
+				const role = currentProfile.role;
+
+				return `
 <div class="panel-header"><h1>Zarezerwuj lekcję</h1><p>Wypełnij formularz, aby zaplanować spotkanie.</p></div>
 <div class="res-form">
     <h3>Szczegóły nowej lekcji</h3>
     
     <div class="form-row-2">
-        ${(role === 'admin' || role === 'korepetytor') ? `
+        ${
+					role === "admin" || role === "korepetytor"
+						? `
         <div class="form-group">
             <label>Wybierz ucznia</label>
             <select id="bStudentId">
                 <option value="">-- Wybierz ucznia --</option>
-                ${students.map(s => `<option value="${s.id}">${s.full_name || s.email}</option>`).join('')}
+                ${students.map((s) => `<option value="${s.id}">${s.full_name || s.email}</option>`).join("")}
             </select>
         </div>
-        ` : ''}
+        `
+						: ""
+				}
 
-        ${(role === 'admin' || role === 'uczen') ? `
+        ${
+					role === "admin" || role === "uczen"
+						? `
         <div class="form-group">
             <label>Wybierz korepetytora</label>
             <select id="bTutorId">
                 <option value="">-- Wybierz nauczyciela --</option>
-                ${tutors.map(t => `<option value="${t.id}">${t.full_name || t.email}</option>`).join('')}
+                ${tutors.map((t) => `<option value="${t.id}">${t.full_name || t.email}</option>`).join("")}
             </select>
         </div>
-        ` : ''}
+        `
+						: ""
+				}
     </div>
 
     <div class="form-row-2">
@@ -1178,10 +1259,10 @@ ${
     </div>
 
     <button class="btn btn-gold btn-full" onclick="submitBooking()" id="bBtn">
-        ${role === 'uczen' ? 'Wyślij prośbę o lekcję →' : 'Dodaj lekcję do grafiku →'}
+        ${role === "uczen" ? "Wyślij prośbę o lekcję →" : "Dodaj lekcję do grafiku →"}
     </button>
 </div>`;
-}
+			}
 
 			function panelProfile(p) {
 				const init = (p.full_name || "?")
@@ -1437,82 +1518,89 @@ ${
 			}
 
 			async function submitBooking() {
-			const dateVal = document.getElementById("bDate").value;
-			const timeVal = document.getElementById("bTime").value;
-			const subject = document.getElementById("bSubject").value;
+    const dateVal = document.getElementById("bDate").value;
+    const timeVal = document.getElementById("bTime").value;
+    const subject = document.getElementById("bSubject").value;
 
-			if (!dateVal || !subject) {
-				alert("Wybierz datę i określ przedmiot lekcji!");
-				return;
-			}
+    if (!dateVal || !subject) {
+        alert("Wybierz datę i określ przedmiot lekcji!");
+        return;
+    }
 
-			const btn = document.getElementById("bBtn");
-			btn.textContent = "Przetwarzanie...";
-			btn.disabled = true;
+    // --- NOWA WALIDACJA DATY ---
+    const selectedDate = new Date(dateVal);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Zerujemy godziny, minuty i sekundy, by porównać same dni
 
-			const role = currentProfile.role;
-			let finalStudentId = currentProfile.id;
-			let finalTutorId = null;
+    if (selectedDate < today) {
+        alert("⚠️ Nie możesz zaplanować lekcji z datą w przeszłości!");
+        return;
+    }
+    // ---------------------------
 
-			// --- LOGIKA PRZYPISYWANIA W ZALEŻNOŚCI OD ROLI ---
-			if (role === 'admin') {
-				finalStudentId = document.getElementById("bStudentId")?.value;
-				finalTutorId = document.getElementById("bTutorId")?.value;
-				if (!finalStudentId || !finalTutorId) {
-					alert("Jako admin musisz wybrać zarówno ucznia, jak i korepetytora z list!");
-					btn.textContent = "Dodaj lekcję do grafiku →";
-					btn.disabled = false; return;
-				}
-			} else if (role === 'korepetytor') {
-				finalTutorId = currentProfile.id;
-				finalStudentId = document.getElementById("bStudentId")?.value;
-				if (!finalStudentId) {
-					alert("Musisz wybrać ucznia z listy!");
-					btn.textContent = "Dodaj lekcję do grafiku →";
-					btn.disabled = false; return;
-				}
-			} else if (role === 'uczen') {
-				finalStudentId = currentProfile.id;
-				finalTutorId = document.getElementById("bTutorId")?.value;
-				if (!finalTutorId) {
-					alert("Musisz wybrać korepetytora z listy!");
-					btn.textContent = "Wyślij prośbę o lekcję →";
-					btn.disabled = false; return;
-				}
-			}
+    const btn = document.getElementById("bBtn");
+    btn.textContent = "Przetwarzanie...";
+    btn.disabled = true;
 
-			const dur = parseInt(document.getElementById("bDur")?.value || 60);
-			const notes = document.getElementById("bNotes")?.value || "";
-			const datetimeString = `${dateVal}T${timeVal}:00`;
-			
-			// Jeśli rezerwuje pracownik, od razu zatwierdzamy. Jeśli uczeń - czeka.
-			const status = (role === 'admin' || role === 'korepetytor') ? "zaplanowana" : "oczekuje";
-			
-			// Sztywne ceny - do ewentualnej poprawki w przyszłości (możesz przypiąć cenę do korepetytora)
-			const price = dur === 60 ? 100 : (dur === 90 ? 140 : 180);
+    const role = currentProfile.role;
+    let finalStudentId = currentProfile.id;
+    let finalTutorId = null;
 
-			// Wysyłamy do bazy do tabeli "lessons"
-			const { error } = await supabaseClient.from("lessons").insert({
-				student_id: finalStudentId,
-				tutor_id: finalTutorId, // Od razu zapisujemy wybranego nauczyciela
-				subject: subject,
-				date: datetimeString,
-				duration_minutes: dur,
-				status: status,
-				notes: notes,
-				price: price
-			});
+    // Logika przypisywania
+    if (role === 'admin') {
+        finalStudentId = document.getElementById("bStudentId")?.value;
+        finalTutorId = document.getElementById("bTutorId")?.value;
+        if (!finalStudentId || !finalTutorId) {
+            alert("Jako admin musisz wybrać zarówno ucznia, jak i korepetytora z list!");
+            btn.textContent = "Dodaj lekcję do grafiku →";
+            btn.disabled = false; return;
+        }
+    } else if (role === 'korepetytor') {
+        finalTutorId = currentProfile.id;
+        finalStudentId = document.getElementById("bStudentId")?.value;
+        if (!finalStudentId) {
+            alert("Musisz wybrać ucznia z listy!");
+            btn.textContent = "Dodaj lekcję do grafiku →";
+            btn.disabled = false; return;
+        }
+    } else if (role === 'uczen') {
+        finalStudentId = currentProfile.id;
+        finalTutorId = document.getElementById("bTutorId")?.value;
+        if (!finalTutorId) {
+            alert("Musisz wybrać korepetytora z listy!");
+            btn.textContent = "Wyślij prośbę o lekcję →";
+            btn.disabled = false; return;
+        }
+    }
 
-			if (error) {
-				alert("❌ Błąd rezerwacji: " + error.message);
-				btn.textContent = role === 'uczen' ? "Wyślij prośbę o lekcję →" : "Dodaj lekcję do grafiku →";
-				btn.disabled = false;
-			} else {
-				alert(status === "zaplanowana" ? "✅ Lekcja pomyślnie dodana do grafiku!" : "✅ Prośba wysłana! Pojawi się u korepetytora.");
-				await loadRealData(); // Odśwież dane z serwera
-				showPanel(role === 'uczen' ? "lessons" : "all-lessons"); // Przełącz na panel lekcji
-			}
-		}
+    const dur = parseInt(document.getElementById("bDur")?.value || 60);
+    const notes = document.getElementById("bNotes")?.value || "";
+    const datetimeString = `${dateVal}T${timeVal}:00`;
+    
+    const status = (role === 'admin' || role === 'korepetytor') ? "zaplanowana" : "oczekuje";
+    const price = dur === 60 ? 100 : (dur === 90 ? 140 : 180);
+
+    const { error } = await supabaseClient.from("lessons").insert({
+        student_id: finalStudentId,
+        tutor_id: finalTutorId,
+        subject: subject,
+        date: datetimeString,
+        duration_minutes: dur,
+        status: status,
+        notes: notes,
+        price: price
+    });
+
+    if (error) {
+        alert("❌ Błąd rezerwacji: " + error.message);
+        btn.textContent = role === 'uczen' ? "Wyślij prośbę o lekcję →" : "Dodaj lekcję do grafiku →";
+        btn.disabled = false;
+    } else {
+        alert(status === "zaplanowana" ? "✅ Lekcja pomyślnie dodana do grafiku!" : "✅ Prośba wysłana! Pojawi się u korepetytora.");
+        await loadRealData(); 
+        showPanel(role === 'uczen' ? "lessons" : "all-lessons"); 
+    }
+}
 
 			// ── INICJALIZACJA ──
 			async function init() {
@@ -1541,7 +1629,82 @@ ${
 				buildNav(profile.role);
 				showPanel("overview");
 			}
+			// --- NOWE FUNKCJE DO ZARZĄDZANIA LEKCJAMI I OPŁATAMI ---
 
+			// Zmiana statusu opłacenia lekcji
+			window.changePaymentStatus = async function (lessonId, selectElement) {
+				const isPaid = (selectElement.value === 'true');
+				selectElement.disabled = true;
+
+				const { data, error } = await supabaseClient
+					.from("lessons")
+					.update({ paid: isPaid })
+					.eq("id", lessonId)
+					.select();
+
+				if (error) {
+					alert("❌ Błąd aktualizacji: " + error.message);
+					selectElement.disabled = false;
+					selectElement.value = (!isPaid).toString();
+				} else if (!data || data.length === 0) {
+					alert("❌ Baza odrzuciła zapis (brak uprawnień RLS).");
+					selectElement.disabled = false;
+					selectElement.value = (!isPaid).toString();
+				} else {
+					// 🚀 NATYCHMIASTOWA AKTUALIZACJA WIDOKU (BEZ POBIERANIA CAŁEJ BAZY)
+					const lessonIndex = appData.lessons.findIndex(l => l.id === lessonId);
+					if (lessonIndex !== -1) {
+						appData.lessons[lessonIndex].paid = isPaid; // Aktualizujemy lokalnie
+					}
+					
+					showPanel("payments"); // Przeładowujemy sam widok (teraz na 100% użyje nowej wartości)
+				}
+			};
+
+			// Trwałe usuwanie lekcji z bazy (tylko dla admina)
+			window.deleteLesson = async function (lessonId) {
+				if (
+					!confirm(
+						"⚠️ UWAGA! Czy na pewno chcesz TRWALE USUNĄĆ tę lekcję z bazy danych? Tej operacji nie można cofnąć!",
+					)
+				)
+					return;
+
+				const { error } = await supabaseClient
+					.from("lessons")
+					.delete()
+					.eq("id", lessonId);
+
+				if (error) {
+					alert("❌ Błąd usuwania: " + error.message);
+				} else {
+					alert("✅ Lekcja została bezpowrotnie usunięta z bazy.");
+					await loadRealData();
+					showPanel("all-lessons"); // Odśwież widok wszystkich lekcji
+				}
+			};
+
+			// Oznaczanie lekcji jako "odbyta" (aby wpadła do zakładki Opłaty)
+			window.markAsDone = async function (lessonId) {
+				if (
+					!confirm(
+						"Oznaczyć tę lekcję jako zakończoną? Pojawi się wtedy w zakładce Opłaty.",
+					)
+				)
+					return;
+
+				const { error } = await supabaseClient
+					.from("lessons")
+					.update({ status: "odbyta" })
+					.eq("id", lessonId);
+
+				if (error) {
+					alert("❌ Błąd: " + error.message);
+				} else {
+					await loadRealData();
+					showPanel("all-lessons");
+				}
+			};
 			// Uruchomienie
 			init();
 		</script>
