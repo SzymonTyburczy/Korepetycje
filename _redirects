@@ -1,0 +1,6 @@
+# Czyste URL-e bez .html
+/cennik           /cennik.html          200
+/o-mnie           /o-mnie.html          200
+/korepetytorzy    /korepetytorzy.html  200
+/opinie           /opinie.html          200
+/index.html       /                     301

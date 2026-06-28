@@ -6,19 +6,19 @@ function injectNav(activePage) {
   const nav = document.getElementById('mainNav');
   if (!nav) return;
   nav.innerHTML = `
-    <a class="nav-logo" href="index.html"><span>Korepetycje</span> Szymon Tyburczy</a>
+    <a class="nav-logo" href="/"><span>Korepetycje</span> Szymon Tyburczy</a>
     <ul class="nav-links" id="navLinks">
-      <li><a href="index.html"         ${activePage==='home'          ?'class="active"':''}>Strona główna</a></li>
-      <li><a href="o-mnie.html"        ${activePage==='o-mnie'        ?'class="active"':''}>O mnie</a></li>
-      <li><a href="korepetytorzy.html" ${activePage==='korepetytorzy' ?'class="active"':''}>Korepetytorzy</a></li>
-      <li><a href="cennik.html"        ${activePage==='cennik'        ?'class="active"':''}>Cennik</a></li>
-      <li><a href="opinie.html"        ${activePage==='opinie'        ?'class="active"':''}>Opinie</a></li>
+      <li><a href="/"                  ${activePage==='home'          ?'class="active"':''}>Strona główna</a></li>
+      <li><a href="/o-mnie"            ${activePage==='o-mnie'        ?'class="active"':''}>O mnie</a></li>
+      <li><a href="/korepetytorzy"     ${activePage==='korepetytorzy' ?'class="active"':''}>Korepetytorzy</a></li>
+      <li><a href="/cennik"            ${activePage==='cennik'        ?'class="active"':''}>Cennik</a></li>
+      <li><a href="/opinie"            ${activePage==='opinie'        ?'class="active"':''}>Opinie</a></li>
       
       <li id="navDashboardTab" style="display:none;">
         <a href="dashboard.html" style="color: var(--gold); font-weight: 700;">🚀 Mój Panel</a>
       </li>
 
-      <li class="nav-cta-li"><a href="index.html#contact">Kontakt</a></li>
+      <li class="nav-cta-li"><a href="/#contact">Kontakt</a></li>
       <li class="nav-auth-li" id="navAuthBtn" style="display:none">
         <a href="login.html" id="navAuthLink">🔐 Zaloguj się</a>
       </li>
@@ -109,17 +109,17 @@ function injectFooter() {
   ft.innerHTML = `
     <div class="footer-inner">
       <div class="footer-brand">
-        <a class="nav-logo" href="index.html"><span>Korepetycje</span> Szymon Tyburczy</a>
+        <a class="nav-logo" href="/"><span>Korepetycje</span> Szymon Tyburczy</a>
         <p>Profesjonalne korepetycje z matematyki i informatyki i innych — online oraz stacjonarnie w Krakowie.</p>
       </div>
       <div class="footer-col">
         <h4>Nawigacja</h4>
         <ul>
-          <li><a href="index.html">Strona główna</a></li>
-          <li><a href="o-mnie.html">O mnie</a></li>
-          <li><a href="korepetytorzy.html">Korepetytorzy</a></li>
-          <li><a href="cennik.html">Cennik</a></li>
-          <li><a href="opinie.html">Opinie</a></li>
+          <li><a href="/">Strona główna</a></li>
+          <li><a href="/o-mnie">O mnie</a></li>
+          <li><a href="/korepetytorzy">Korepetytorzy</a></li>
+          <li><a href="/cennik">Cennik</a></li>
+          <li><a href="/opinie">Opinie</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -128,7 +128,7 @@ function injectFooter() {
           <li><a href="mailto:szymontyburczy@protonmail.com">📧 szymontyburczy@protonmail.com</a></li>
           <li><a href="tel:+48789142398">📱 +48 789 142 398</a></li>
           <li><a href="login.html">🔐 Panel ucznia</a></li>
-          <li><a href="index.html#contact">✉️ Formularz kontaktowy</a></li>
+          <li><a href="/#contact">✉️ Formularz kontaktowy</a></li>
         </ul>
       </div>
     </div>

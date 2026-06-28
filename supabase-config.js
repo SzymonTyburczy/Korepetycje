@@ -165,7 +165,7 @@ async function getCurrentProfile() {
 
 async function signOut() {
 	await supabaseClient.auth.signOut();
-	window.location.href = "index.html";
+	window.location.href = "/";
 }
 
 // ── REDIRECT GUARD ──

@@ -10,19 +10,19 @@
   const FAQ = [
     {
       keywords: ['cena', 'cennik', 'ile kosztuje', 'koszt', 'ile płacę', 'stawka', 'zł'],
-      answer: '💰 Nasze ceny zaczynają się od 100 zł/h dla matematyki podstawowej. Matura rozszerzona to 120 zł/h, a matematyka wyższa 140 zł/h. Szczegółowy cennik znajdziesz na stronie <a href="cennik.html" style="color:var(--gold)">Cennik</a>.'
+      answer: '💰 Nasze ceny zaczynają się od 100 zł/h dla matematyki podstawowej. Matura rozszerzona to 120 zł/h, a matematyka wyższa 140 zł/h. Szczegółowy cennik znajdziesz na stronie <a href="/cennik" style="color:var(--gold)">Cennik</a>.'
     },
     {
       keywords: ['kontakt', 'telefon', 'email', 'napisać', 'zadzwonić', 'whatsapp'],
-      answer: '📞 Najłatwiej przez formularz na stronie <a href="index.html#contact" style="color:var(--gold)">Kontakt</a>. Możesz też napisać na <strong>szymontyburczy@protonmail.com</strong> lub zadzwonić: <strong>+48 789 142 398</strong>. Odpiszemy najczęściej w ciągu kilku godzin!'
+      answer: '📞 Najłatwiej przez formularz na stronie <a href="/#contact" style="color:var(--gold)">Kontakt</a>. Możesz też napisać na <strong>szymontyburczy@protonmail.com</strong> lub zadzwonić: <strong>+48 789 142 398</strong>. Odpiszemy najczęściej w ciągu kilku godzin!'
     },
     {
       keywords: ['korepetytor', 'nauczyciel', 'kto uczy', 'team', 'zespół'],
-      answer: '👨‍🏫 Mamy świetny zespół! Szymon Tyburczy (matematyka, informatyka, matura) oraz Adam Szymanek (matematyka, fizyka). Szczegóły na stronie <a href="korepetytorzy.html" style="color:var(--gold)">Korepetytorzy</a>.'
+      answer: '👨‍🏫 Mamy świetny zespół! Szymon Tyburczy (matematyka, informatyka, matura) oraz Adam Szymanek (matematyka, fizyka). Szczegóły na stronie <a href="/korepetytorzy" style="color:var(--gold)">Korepetytorzy</a>.'
     },
     {
       keywords: ['przedmiot', 'czego', 'co uczysz', 'matematyka', 'informatyka', 'programowanie', 'python', 'java', 'fizyka'],
-      answer: '📚 Uczymy: matematyki podstawowej (kl. 4–8), matematyki licealnej i maturalnej, matematyki wyższej (analiza, algebra) oraz informatyki i programowania (Python, Java, C++, algorytmy, SQL). Więcej na stronie <a href="index.html#subjects" style="color:var(--gold)">Oferta</a>.'
+      answer: '📚 Uczymy: matematyki podstawowej (kl. 4–8), matematyki licealnej i maturalnej, matematyki wyższej (analiza, algebra) oraz informatyki i programowania (Python, Java, C++, algorytmy, SQL). Więcej na stronie <a href="/#subjects" style="color:var(--gold)">Oferta</a>.'
     },
     {
       keywords: ['online', 'zoom', 'stacjonarnie', 'gdzie', 'jak', 'forma'],
@@ -252,7 +252,7 @@
     addTyping();
     await delay(800);
     removeTyping();
-    addMsg('bot', `Hmm, nie mam gotowej odpowiedzi na to pytanie 🤔 Najlepiej <a href="index.html#contact" style="color:#c9a84c">napisz do nas bezpośrednio</a> — odpowiemy w ciągu kilku godzin! Możesz też zadzwonić: <strong>+48 789 142 398</strong>`);
+    addMsg('bot', `Hmm, nie mam gotowej odpowiedzi na to pytanie 🤔 Najlepiej <a href="/#contact" style="color:#c9a84c">napisz do nas bezpośrednio</a> — odpowiemy w ciągu kilku godzin! Możesz też zadzwonić: <strong>+48 789 142 398</strong>`);
   }
 
   function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
