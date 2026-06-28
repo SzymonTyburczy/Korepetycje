@@ -33,9 +33,35 @@
     localStorage.setItem(CONSENT_KEY, JSON.stringify(data));
   }
 
+  // ── Google Analytics (załaduj tylko po zgodzie) ──
+  function loadAnalytics() {
+    // Sprawdź czy już załadowane (unikaj duplikatów)
+    if (window._gaLoaded) return;
+    window._gaLoaded = true;
+
+    var GA_ID = 'G-KWTJSRZX5W';
+    var script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+    document.head.appendChild(script);
+
+    script.onload = function () {
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      window.gtag = gtag;
+      gtag('js', new Date());
+      gtag('config', GA_ID, { anonymize_ip: true });
+    };
+  }
+
+  // ── Globalna funkcja do resetowania zgody (link w stopce) ──
+  window.resetCookieConsent = function () {
+    localStorage.removeItem(CONSENT_KEY);
+    location.reload();
+  };
+
   // Jeśli zgoda już jest — nie pokazuj bannera
   if (getConsent()) {
-    // Jeśli zgoda na wszystkie — załaduj analitykę (gdy będzie)
     if (getConsent().level === 'all') {
       loadAnalytics();
     }
@@ -43,7 +69,7 @@
   }
 
   // ── INJECT CSS ──
-  const style = document.createElement('style');
+  var style = document.createElement('style');
   style.textContent = `
     .cookie-banner {
       position: fixed;
@@ -129,22 +155,11 @@
     .cookie-btn-necessary:hover {
       background: rgba(255,255,255,.18);
     }
-    .cookie-btn-settings {
-      background: none;
-      color: rgba(255,255,255,.5);
-      border: none;
-      font-size: .82rem;
-      padding: .6rem .8rem;
-      text-decoration: underline;
-    }
-    .cookie-btn-settings:hover {
-      color: #e8c97a;
-    }
   `;
   document.head.appendChild(style);
 
   // ── INJECT HTML ──
-  const banner = document.createElement('div');
+  var banner = document.createElement('div');
   banner.className = 'cookie-banner';
   banner.id = 'cookieBanner';
   banner.setAttribute('role', 'dialog');
@@ -154,7 +169,7 @@
       <div class="cookie-text">
         🍪 <strong>Szanujemy Twoją prywatność.</strong>
         Używamy plików cookies i technologii localStorage, aby zapewnić prawidłowe działanie strony
-        (m.in. logowanie, zapamiętywanie preferencji). Planujemy również wykorzystanie cookies analitycznych
+        (m.in. logowanie, zapamiętywanie preferencji). Wykorzystujemy również cookies analityczne
         (Google Analytics) do poprawy jakości serwisu.
         Więcej informacji znajdziesz w naszej
         <a href="/polityka-prywatnosci">Polityce Prywatności</a>.
@@ -180,38 +195,11 @@
   });
 
   function closeBanner() {
-    const b = document.getElementById('cookieBanner');
+    var b = document.getElementById('cookieBanner');
     if (b) {
       b.style.animation = 'cookieSlideUp .3s ease reverse forwards';
       setTimeout(function () { b.remove(); }, 300);
     }
   }
-
-  // ── Google Analytics (załaduj tylko po zgodzie) ──
-  function loadAnalytics() {
-    // Sprawdź czy już załadowane (unikaj duplikatów)
-    if (window._gaLoaded) return;
-    window._gaLoaded = true;
-
-    const GA_ID = 'G-KWTJSRZX5W';
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
-    document.head.appendChild(script);
-
-    script.onload = function () {
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){ dataLayer.push(arguments); }
-      window.gtag = gtag;
-      gtag('js', new Date());
-      gtag('config', GA_ID, { anonymize_ip: true });
-    };
-  }
-
-  // ── Globalna funkcja do resetowania zgody (link w stopce) ──
-  window.resetCookieConsent = function () {
-    localStorage.removeItem(CONSENT_KEY);
-    location.reload();
-  };
 
 })();

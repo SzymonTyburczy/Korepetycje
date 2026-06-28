@@ -237,6 +237,14 @@
     return null;
   }
 
+  function showQuickButtons() {
+    const quick = document.getElementById('cbQuick');
+    if (quick) {
+      quick.style.display = 'flex';
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+  }
+
   async function processMessage(text) {
     // 1. Najpierw sprawdź FAQ
     const faqAnswer = findFaqAnswer(text);
@@ -245,6 +253,7 @@
       await delay(600);
       removeTyping();
       addMsg('bot', faqAnswer);
+      showQuickButtons();
       return;
     }
 
@@ -253,6 +262,7 @@
     await delay(800);
     removeTyping();
     addMsg('bot', `Hmm, nie mam gotowej odpowiedzi na to pytanie 🤔 Najlepiej <a href="/#contact" style="color:#c9a84c">napisz do nas bezpośrednio</a> — odpowiemy w ciągu kilku godzin! Możesz też zadzwonić: <strong>+48 789 142 398</strong>`);
+    showQuickButtons();
   }
 
   function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
