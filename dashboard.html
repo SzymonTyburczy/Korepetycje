@@ -927,6 +927,16 @@
         date: m.created_at,
         file: m.file_url || "#",
     }));
+
+    // Opłaty wyliczane z odbytych lekcji (kwota + status na podstawie pola paid)
+    appData.payments = appData.lessons
+        .filter((l) => l.status === "odbyta")
+        .map((l) => ({
+            id: l.id,
+            amount: Number(l.price) || 0,
+            paid: l.paid,
+            status: l.paid ? "oplacona" : "oczekuje",
+        }));
 }
 
 			// ── PANELS ──

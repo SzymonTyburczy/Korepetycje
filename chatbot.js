@@ -14,11 +14,11 @@
     },
     {
       keywords: ['kontakt', 'telefon', 'email', 'napisać', 'zadzwonić', 'whatsapp'],
-      answer: '📞 Najłatwiej przez formularz na stronie <a href="index.html#contact" style="color:var(--gold)">Kontakt</a>. Możesz też napisać na <strong>szymon.tyburczy@email.com</strong> lub zadzwonić: <strong>+48 789 142 398</strong>. Odpiszemy najczęściej w ciągu kilku godzin!'
+      answer: '📞 Najłatwiej przez formularz na stronie <a href="index.html#contact" style="color:var(--gold)">Kontakt</a>. Możesz też napisać na <strong>szymontyburczy@protonmail.com</strong> lub zadzwonić: <strong>+48 789 142 398</strong>. Odpiszemy najczęściej w ciągu kilku godzin!'
     },
     {
       keywords: ['korepetytor', 'nauczyciel', 'kto uczy', 'team', 'zespół'],
-      answer: '👨‍🏫 Mamy świetny zespół! Szymon Tyburczy (matematyka, matura), Anna Wiśniewska (informatyka, Python), Piotr Nowak (matematyka + fizyka) i Marta Kowalczyk (matematyka wyższa dla studentów). Szczegóły na stronie <a href="korepetytorzy.html" style="color:var(--gold)">Korepetytorzy</a>.'
+      answer: '👨‍🏫 Mamy świetny zespół! Szymon Tyburczy (matematyka, informatyka, matura) oraz Adam Szymanek (matematyka, fizyka). Szczegóły na stronie <a href="korepetytorzy.html" style="color:var(--gold)">Korepetytorzy</a>.'
     },
     {
       keywords: ['przedmiot', 'czego', 'co uczysz', 'matematyka', 'informatyka', 'programowanie', 'python', 'java', 'fizyka'],
@@ -26,11 +26,11 @@
     },
     {
       keywords: ['online', 'zoom', 'stacjonarnie', 'gdzie', 'jak', 'forma'],
-      answer: '💻 Prowadzimy lekcje **online przez Zoom** oraz **stacjonarnie w Krakowie**. Każda forma ma taką samą jakość — używamy tablic online, udostępniania ekranu i notatek w czasie rzeczywistym.'
+      answer: '💻 Prowadzimy lekcje <strong>online przez Discord</strong> oraz <strong>stacjonarnie w Krakowie</strong>. Każda forma ma taką samą jakość — używamy tablic online, udostępniania ekranu i notatek w czasie rzeczywistym.'
     },
     {
       keywords: ['matura', 'egzamin', 'przygotowanie', 'zdać', 'wynik'],
-      answer: '🎯 Specjalizujemy się w przygotowaniu do matury! Mamy **95% zdawalność** wśród naszych uczniów. Oferujemy intensywne kursy przedmaturalne (5 × 90 min) — możesz zacząć nawet 4–6 tygodni przed maturą. Skontaktuj się, żeby ustalić plan!'
+      answer: '🎯 Specjalizujemy się w przygotowaniu do matury! Mamy <strong>100% zdawalność</strong> wśród naszych uczniów. Oferujemy intensywne kursy przedmaturalne (5 × 90 min) — możesz zacząć nawet 4–6 tygodni przed maturą. Skontaktuj się, żeby ustalić plan!'
     },
     {
       keywords: ['odwołanie', 'odwołać', 'przełożyć', 'zmienić termin', 'rezygnacja'],
