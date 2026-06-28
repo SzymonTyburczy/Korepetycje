@@ -1,953 +1,1048 @@
 <!doctype html>
 <html lang="pl">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Panel — Korepetycje Szymon Tyburczy</title>
-		<meta name="robots" content="noindex, nofollow" />
-		<link rel="stylesheet" href="style.css" />
-		<style>
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Panel — Korepetycje Szymon Tyburczy</title>
+	<meta name="robots" content="noindex, nofollow" />
+	<link rel="stylesheet" href="style.css" />
+	<style>
+		body {
+			background: #f0f2f7;
+			padding-bottom: 72px;
+		}
+
+		/* bottom nav space on mobile */
+		@media (min-width: 900px) {
 			body {
-				background: #f0f2f7;
-				padding-bottom: 72px;
-			} /* bottom nav space on mobile */
-			@media (min-width: 900px) {
-				body {
-					padding-bottom: 0;
-				}
+				padding-bottom: 0;
 			}
+		}
 
-			/* ── DASHBOARD NAV ── */
-			.dash-nav {
-				position: fixed;
-				top: 0;
-				left: 0;
-				right: 0;
-				z-index: 200;
-				background: var(--navy);
-				border-bottom: 2px solid var(--gold);
-				height: 60px;
-				display: flex;
-				align-items: center;
-				padding: 0 1rem;
-				gap: 0.8rem;
-			}
-			.dash-logo {
-				font-family: "Playfair Display", serif;
-				font-size: 1rem;
-				color: var(--gold-light);
-				text-decoration: none;
-				font-weight: 700;
-				margin-right: auto;
-			}
-			.dash-logo span {
-				color: var(--white);
-			}
-			.user-chip {
-				display: flex;
-				align-items: center;
-				gap: 0.6rem;
-			}
-			.user-avatar {
-				width: 34px;
-				height: 34px;
-				border-radius: 50%;
-				background: var(--gold);
-				color: var(--navy);
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-weight: 700;
-				font-size: 0.85rem;
-				flex-shrink: 0;
-			}
+		/* ── DASHBOARD NAV ── */
+		.dash-nav {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			z-index: 200;
+			background: var(--navy);
+			border-bottom: 2px solid var(--gold);
+			height: 60px;
+			display: flex;
+			align-items: center;
+			padding: 0 1rem;
+			gap: 0.8rem;
+		}
+
+		.dash-logo {
+			font-family: "Playfair Display", serif;
+			font-size: 1rem;
+			color: var(--gold-light);
+			text-decoration: none;
+			font-weight: 700;
+			margin-right: auto;
+		}
+
+		.dash-logo span {
+			color: var(--white);
+		}
+
+		.user-chip {
+			display: flex;
+			align-items: center;
+			gap: 0.6rem;
+		}
+
+		.user-avatar {
+			width: 34px;
+			height: 34px;
+			border-radius: 50%;
+			background: var(--gold);
+			color: var(--navy);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 700;
+			font-size: 0.85rem;
+			flex-shrink: 0;
+		}
+
+		.user-name {
+			color: var(--white);
+			font-size: 0.85rem;
+			font-weight: 600;
+			display: none;
+		}
+
+		@media (min-width: 480px) {
 			.user-name {
-				color: var(--white);
-				font-size: 0.85rem;
-				font-weight: 600;
-				display: none;
+				display: block;
 			}
-			@media (min-width: 480px) {
-				.user-name {
-					display: block;
-				}
-			}
-			.role-badge {
-				background: rgba(201, 168, 76, 0.2);
-				color: var(--gold-light);
-				border: 1px solid rgba(201, 168, 76, 0.3);
-				padding: 0.18rem 0.55rem;
-				border-radius: 2px;
-				font-size: 0.68rem;
-				text-transform: uppercase;
-				letter-spacing: 0.07em;
-			}
-			.btn-signout {
-				background: rgba(255, 255, 255, 0.08);
-				border: 1px solid rgba(255, 255, 255, 0.15);
-				color: rgba(255, 255, 255, 0.7);
-				padding: 0.32rem 0.7rem;
-				border-radius: 3px;
-				font-size: 0.78rem;
-				cursor: pointer;
-				font-family: "Source Serif 4", serif;
-				min-height: 36px;
-			}
-			.btn-signout:hover {
-				background: rgba(255, 255, 255, 0.15);
-			}
+		}
 
-			/* ── BOTTOM NAV (mobile) ── */
+		.role-badge {
+			background: rgba(201, 168, 76, 0.2);
+			color: var(--gold-light);
+			border: 1px solid rgba(201, 168, 76, 0.3);
+			padding: 0.18rem 0.55rem;
+			border-radius: 2px;
+			font-size: 0.68rem;
+			text-transform: uppercase;
+			letter-spacing: 0.07em;
+		}
+
+		.btn-signout {
+			background: rgba(255, 255, 255, 0.08);
+			border: 1px solid rgba(255, 255, 255, 0.15);
+			color: rgba(255, 255, 255, 0.7);
+			padding: 0.32rem 0.7rem;
+			border-radius: 3px;
+			font-size: 0.78rem;
+			cursor: pointer;
+			font-family: "Source Serif 4", serif;
+			min-height: 36px;
+		}
+
+		.btn-signout:hover {
+			background: rgba(255, 255, 255, 0.15);
+		}
+
+		/* ── BOTTOM NAV (mobile) ── */
+		.bottom-nav {
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			z-index: 150;
+			background: var(--white);
+			border-top: 1px solid var(--border);
+			display: flex;
+			height: 64px;
+			box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+		}
+
+		@media (min-width: 900px) {
 			.bottom-nav {
-				position: fixed;
-				bottom: 0;
-				left: 0;
-				right: 0;
-				z-index: 150;
-				background: var(--white);
-				border-top: 1px solid var(--border);
-				display: flex;
-				height: 64px;
-				box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+				display: none;
 			}
-			@media (min-width: 900px) {
-				.bottom-nav {
-					display: none;
-				}
-			}
-			.bnav-btn {
-				flex: 1;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-				gap: 3px;
-				background: none;
-				border: none;
-				cursor: pointer;
-				color: var(--text-muted);
-				font-family: "Source Serif 4", serif;
-				font-size: 0.65rem;
-				letter-spacing: 0.02em;
-				padding: 0.4rem;
-				transition: color 0.15s;
-				border-top: 2px solid transparent;
-				min-height: var(--touch);
-			}
-			.bnav-btn .bnav-icon {
-				font-size: 1.35rem;
-				line-height: 1;
-			}
-			.bnav-btn.active {
-				color: var(--navy);
-				border-top-color: var(--gold);
-			}
+		}
 
-			/* ── LAYOUT ── */
+		.bnav-btn {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 3px;
+			background: none;
+			border: none;
+			cursor: pointer;
+			color: var(--text-muted);
+			font-family: "Source Serif 4", serif;
+			font-size: 0.65rem;
+			letter-spacing: 0.02em;
+			padding: 0.4rem;
+			transition: color 0.15s;
+			border-top: 2px solid transparent;
+			min-height: var(--touch);
+		}
+
+		.bnav-btn .bnav-icon {
+			font-size: 1.35rem;
+			line-height: 1;
+		}
+
+		.bnav-btn.active {
+			color: var(--navy);
+			border-top-color: var(--gold);
+		}
+
+		/* ── LAYOUT ── */
+		.dash-layout {
+			display: grid;
+			grid-template-columns: 1fr;
+			min-height: 100vh;
+			padding-top: 60px;
+		}
+
+		@media (min-width: 900px) {
 			.dash-layout {
-				display: grid;
-				grid-template-columns: 1fr;
-				min-height: 100vh;
-				padding-top: 60px;
+				grid-template-columns: 220px 1fr;
 			}
-			@media (min-width: 900px) {
-				.dash-layout {
-					grid-template-columns: 220px 1fr;
-				}
-			}
+		}
 
-			/* SIDEBAR (desktop only) */
+		/* SIDEBAR (desktop only) */
+		.dash-sidebar {
+			display: none;
+			background: var(--white);
+			border-right: 1px solid var(--border);
+			padding: 1.5rem 0;
+			position: sticky;
+			top: 60px;
+			height: calc(100vh - 60px);
+			overflow-y: auto;
+		}
+
+		@media (min-width: 900px) {
 			.dash-sidebar {
-				display: none;
-				background: var(--white);
-				border-right: 1px solid var(--border);
-				padding: 1.5rem 0;
-				position: sticky;
-				top: 60px;
-				height: calc(100vh - 60px);
-				overflow-y: auto;
-			}
-			@media (min-width: 900px) {
-				.dash-sidebar {
-					display: block;
-				}
-			}
-			.sidebar-link {
-				display: flex;
-				align-items: center;
-				gap: 0.75rem;
-				padding: 0.7rem 1.4rem;
-				color: var(--text-muted);
-				text-decoration: none;
-				font-size: 0.88rem;
-				transition: all 0.15s;
-				cursor: pointer;
-				border: none;
-				background: none;
-				width: 100%;
-				text-align: left;
-				font-family: "Source Serif 4", serif;
-				min-height: var(--touch);
-			}
-			.sidebar-link:hover {
-				background: var(--cream);
-				color: var(--navy);
-			}
-			.sidebar-link.active {
-				background: var(--gold-pale);
-				color: var(--navy);
-				font-weight: 600;
-				border-right: 3px solid var(--gold);
-			}
-			.sidebar-icon {
-				font-size: 1rem;
-				width: 18px;
-				text-align: center;
-			}
-			.sidebar-section-label {
-				font-size: 0.68rem;
-				letter-spacing: 0.12em;
-				text-transform: uppercase;
-				color: var(--text-muted);
-				padding: 0.3rem 1.4rem;
-				margin-top: 0.8rem;
 				display: block;
 			}
+		}
 
-			/* MAIN */
+		.sidebar-link {
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+			padding: 0.7rem 1.4rem;
+			color: var(--text-muted);
+			text-decoration: none;
+			font-size: 0.88rem;
+			transition: all 0.15s;
+			cursor: pointer;
+			border: none;
+			background: none;
+			width: 100%;
+			text-align: left;
+			font-family: "Source Serif 4", serif;
+			min-height: var(--touch);
+		}
+
+		.sidebar-link:hover {
+			background: var(--cream);
+			color: var(--navy);
+		}
+
+		.sidebar-link.active {
+			background: var(--gold-pale);
+			color: var(--navy);
+			font-weight: 600;
+			border-right: 3px solid var(--gold);
+		}
+
+		.sidebar-icon {
+			font-size: 1rem;
+			width: 18px;
+			text-align: center;
+		}
+
+		.sidebar-section-label {
+			font-size: 0.68rem;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+			color: var(--text-muted);
+			padding: 0.3rem 1.4rem;
+			margin-top: 0.8rem;
+			display: block;
+		}
+
+		/* MAIN */
+		.dash-main {
+			padding: 1.5rem 1rem;
+			overflow-y: auto;
+		}
+
+		@media (min-width: 600px) {
 			.dash-main {
-				padding: 1.5rem 1rem;
-				overflow-y: auto;
+				padding: 2rem 1.5rem;
 			}
-			@media (min-width: 600px) {
-				.dash-main {
-					padding: 2rem 1.5rem;
-				}
-			}
-			@media (min-width: 900px) {
-				.dash-main {
-					padding: 2.5rem 2rem;
-				}
-			}
+		}
 
-			.dash-panel {
+		@media (min-width: 900px) {
+			.dash-main {
+				padding: 2.5rem 2rem;
+			}
+		}
+
+		.dash-panel {
+			display: none;
+		}
+
+		.dash-panel.active {
+			display: block;
+		}
+
+		.panel-header {
+			margin-bottom: 1.5rem;
+		}
+
+		.panel-header h1 {
+			font-family: "Playfair Display", serif;
+			font-size: clamp(1.4rem, 5vw, 1.9rem);
+			color: var(--navy);
+			margin-bottom: 0.2rem;
+		}
+
+		.panel-header p {
+			color: var(--text-muted);
+			font-size: 0.9rem;
+		}
+
+		/* STATS */
+		.stats-row {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 0.8rem;
+			margin-bottom: 1.5rem;
+		}
+
+		@media (min-width: 600px) {
+			.stats-row {
+				grid-template-columns: repeat(4, 1fr);
+				gap: 1rem;
+			}
+		}
+
+		.stat-card {
+			background: var(--white);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			padding: 1rem 1.1rem;
+		}
+
+		.stat-card .s-label {
+			font-size: 0.7rem;
+			color: var(--text-muted);
+			text-transform: uppercase;
+			letter-spacing: 0.07em;
+			margin-bottom: 0.3rem;
+		}
+
+		.stat-card .s-val {
+			font-family: "Playfair Display", serif;
+			font-size: 1.7rem;
+			color: var(--navy);
+			font-weight: 700;
+			line-height: 1;
+		}
+
+		.stat-card .s-sub {
+			font-size: 0.74rem;
+			color: var(--text-muted);
+			margin-top: 0.2rem;
+		}
+
+		/* DATA TABLE */
+		.data-wrap {
+			background: var(--white);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			overflow: hidden;
+			margin-bottom: 1.2rem;
+		}
+
+		.data-head {
+			padding: 1rem 1.2rem;
+			border-bottom: 1px solid var(--border);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+		}
+
+		.data-head h3 {
+			font-family: "Playfair Display", serif;
+			color: var(--navy);
+			font-size: 1.05rem;
+		}
+
+		/* Mobile lesson cards (instead of table) */
+		.lesson-cards {
+			display: flex;
+			flex-direction: column;
+			gap: 0.7rem;
+			padding: 1rem;
+		}
+
+		@media (min-width: 700px) {
+			.lesson-cards {
 				display: none;
 			}
-			.dash-panel.active {
+		}
+
+		.lesson-card {
+			background: var(--cream);
+			border: 1px solid var(--border);
+			border-radius: 3px;
+			padding: 0.9rem 1rem;
+		}
+
+		.lesson-card-top {
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-start;
+			margin-bottom: 0.4rem;
+		}
+
+		.lesson-card-subject {
+			font-weight: 600;
+			color: var(--navy);
+			font-size: 0.92rem;
+		}
+
+		.lesson-card-meta {
+			font-size: 0.8rem;
+			color: var(--text-muted);
+			display: flex;
+			flex-direction: column;
+			gap: 0.15rem;
+		}
+
+		/* Desktop table */
+		.lesson-table-wrap {
+			display: none;
+		}
+
+		@media (min-width: 700px) {
+			.lesson-table-wrap {
 				display: block;
+				overflow-x: auto;
 			}
+		}
 
-			.panel-header {
-				margin-bottom: 1.5rem;
-			}
-			.panel-header h1 {
-				font-family: "Playfair Display", serif;
-				font-size: clamp(1.4rem, 5vw, 1.9rem);
-				color: var(--navy);
-				margin-bottom: 0.2rem;
-			}
-			.panel-header p {
-				color: var(--text-muted);
-				font-size: 0.9rem;
-			}
+		.lesson-table-wrap table {
+			min-width: 500px;
+		}
 
-			/* STATS */
-			.stats-row {
-				display: grid;
+		/* Empty */
+		.empty-state {
+			padding: 3rem 1rem;
+			text-align: center;
+			color: var(--text-muted);
+		}
+
+		.empty-state .icon {
+			font-size: 2.5rem;
+			margin-bottom: 0.8rem;
+		}
+
+		.empty-state p {
+			font-size: 0.9rem;
+		}
+
+		/* Reservation form */
+		.res-form {
+			background: var(--white);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			padding: 1.5rem;
+			max-width: 580px;
+		}
+
+		.res-form h3 {
+			font-family: "Playfair Display", serif;
+			color: var(--navy);
+			font-size: 1.15rem;
+			margin-bottom: 1.2rem;
+		}
+
+		.form-row-2 {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 0;
+		}
+
+		@media (min-width: 480px) {
+			.form-row-2 {
 				grid-template-columns: 1fr 1fr;
 				gap: 0.8rem;
-				margin-bottom: 1.5rem;
 			}
-			@media (min-width: 600px) {
-				.stats-row {
-					grid-template-columns: repeat(4, 1fr);
-					gap: 1rem;
-				}
-			}
-			.stat-card {
-				background: var(--white);
-				border: 1px solid var(--border);
-				border-radius: var(--radius);
-				padding: 1rem 1.1rem;
-			}
-			.stat-card .s-label {
-				font-size: 0.7rem;
-				color: var(--text-muted);
-				text-transform: uppercase;
-				letter-spacing: 0.07em;
-				margin-bottom: 0.3rem;
-			}
-			.stat-card .s-val {
-				font-family: "Playfair Display", serif;
-				font-size: 1.7rem;
-				color: var(--navy);
-				font-weight: 700;
-				line-height: 1;
-			}
-			.stat-card .s-sub {
-				font-size: 0.74rem;
-				color: var(--text-muted);
-				margin-top: 0.2rem;
-			}
+		}
 
-			/* DATA TABLE */
-			.data-wrap {
-				background: var(--white);
+		/* Materials */
+		.material-item {
+			display: flex;
+			align-items: center;
+			gap: 0.9rem;
+			padding: 0.9rem 1.2rem;
+			border-bottom: 1px solid var(--border);
+		}
+
+		.material-item:last-child {
+			border-bottom: none;
+		}
+
+		.mat-icon {
+			font-size: 1.4rem;
+			flex-shrink: 0;
+		}
+
+		.mat-info {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.mat-title {
+			font-size: 0.9rem;
+			font-weight: 600;
+			color: var(--navy);
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.mat-meta {
+			font-size: 0.78rem;
+			color: var(--text-muted);
+		}
+
+		.mat-dl {
+			color: var(--gold);
+			text-decoration: none;
+			font-size: 0.82rem;
+			font-weight: 600;
+			white-space: nowrap;
+			padding: 0.4rem;
+		}
+
+		/* Profile */
+		.profile-wrap {
+			max-width: 520px;
+		}
+
+		.profile-avatar-row {
+			display: flex;
+			align-items: center;
+			gap: 1.2rem;
+			margin-bottom: 2rem;
+		}
+
+		.profile-avatar-big {
+			width: 80px;
+			height: 80px;
+			border-radius: 50%;
+			background: var(--navy);
+			color: var(--gold-light);
+			font-size: 2rem;
+			font-family: "Playfair Display", serif;
+			font-weight: 700;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+
+		/* Loading */
+		.loading {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 4rem 1rem;
+			color: var(--text-muted);
+			gap: 0.7rem;
+		}
+
+		.spinner {
+			width: 20px;
+			height: 20px;
+			border: 2px solid var(--border);
+			border-top-color: var(--navy);
+			border-radius: 50%;
+			animation: spin 0.7s linear infinite;
+		}
+
+		@keyframes spin {
+			to {
+				transform: rotate(360deg);
+			}
+		}
+
+		/* ── CHAT ── */
+		.chat-layout {
+			display: grid;
+			grid-template-columns: 1fr;
+			height: calc(100vh - 130px);
+			min-height: 480px;
+		}
+
+		@media (min-width: 700px) {
+			.chat-layout {
+				grid-template-columns: 240px 1fr;
 				border: 1px solid var(--border);
 				border-radius: var(--radius);
 				overflow: hidden;
-				margin-bottom: 1.2rem;
+				background: var(--white);
 			}
-			.data-head {
-				padding: 1rem 1.2rem;
-				border-bottom: 1px solid var(--border);
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				flex-wrap: wrap;
-				gap: 0.5rem;
-			}
-			.data-head h3 {
-				font-family: "Playfair Display", serif;
-				color: var(--navy);
-				font-size: 1.05rem;
-			}
+		}
 
-			/* Mobile lesson cards (instead of table) */
-			.lesson-cards {
-				display: flex;
-				flex-direction: column;
-				gap: 0.7rem;
-				padding: 1rem;
-			}
-			@media (min-width: 700px) {
-				.lesson-cards {
-					display: none;
-				}
-			}
-			.lesson-card {
-				background: var(--cream);
-				border: 1px solid var(--border);
-				border-radius: 3px;
-				padding: 0.9rem 1rem;
-			}
-			.lesson-card-top {
-				display: flex;
-				justify-content: space-between;
-				align-items: flex-start;
-				margin-bottom: 0.4rem;
-			}
-			.lesson-card-subject {
-				font-weight: 600;
-				color: var(--navy);
-				font-size: 0.92rem;
-			}
-			.lesson-card-meta {
-				font-size: 0.8rem;
-				color: var(--text-muted);
-				display: flex;
-				flex-direction: column;
-				gap: 0.15rem;
-			}
+		.chat-list {
+			background: var(--white);
+			border-right: 1px solid var(--border);
+			overflow-y: auto;
+			display: flex;
+			flex-direction: column;
+		}
 
-			/* Desktop table */
-			.lesson-table-wrap {
+		.chat-list-header {
+			padding: 0.9rem 1.2rem;
+			border-bottom: 1px solid var(--border);
+			font-family: "Playfair Display", serif;
+			font-size: 1rem;
+			color: var(--navy);
+			font-weight: 600;
+		}
+
+		.chat-conv {
+			display: flex;
+			align-items: center;
+			gap: 0.8rem;
+			padding: 0.85rem 1.2rem;
+			cursor: pointer;
+			border-bottom: 1px solid var(--border);
+			transition: background 0.15s;
+			min-height: var(--touch);
+		}
+
+		.chat-conv:hover {
+			background: var(--cream);
+		}
+
+		.chat-conv.active {
+			background: var(--gold-pale);
+			border-left: 3px solid var(--gold);
+		}
+
+		.chat-conv-avatar {
+			width: 36px;
+			height: 36px;
+			border-radius: 50%;
+			background: var(--navy);
+			color: var(--gold-light);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 700;
+			font-size: 0.85rem;
+			flex-shrink: 0;
+		}
+
+		.chat-conv-name {
+			font-size: 0.88rem;
+			font-weight: 600;
+			color: var(--navy);
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.chat-conv-preview {
+			font-size: 0.75rem;
+			color: var(--text-muted);
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			margin-top: 0.1rem;
+		}
+
+		.chat-conv-time {
+			font-size: 0.7rem;
+			color: var(--text-muted);
+			flex-shrink: 0;
+		}
+
+		.chat-window {
+			display: flex;
+			flex-direction: column;
+			background: #f7f8fc;
+		}
+
+		.chat-window-header {
+			background: var(--white);
+			border-bottom: 1px solid var(--border);
+			padding: 0.85rem 1.2rem;
+			display: flex;
+			align-items: center;
+			gap: 0.8rem;
+			flex-shrink: 0;
+		}
+
+		.back-btn {
+			background: none;
+			border: none;
+			cursor: pointer;
+			font-size: 1.2rem;
+			padding: 0.2rem;
+		}
+
+		@media (min-width: 700px) {
+			.back-btn {
 				display: none;
 			}
-			@media (min-width: 700px) {
-				.lesson-table-wrap {
-					display: block;
-					overflow-x: auto;
-				}
-			}
-			.lesson-table-wrap table {
-				min-width: 500px;
-			}
+		}
 
-			/* Empty */
-			.empty-state {
-				padding: 3rem 1rem;
-				text-align: center;
-				color: var(--text-muted);
-			}
-			.empty-state .icon {
-				font-size: 2.5rem;
-				margin-bottom: 0.8rem;
-			}
-			.empty-state p {
-				font-size: 0.9rem;
-			}
+		.chat-partner-name {
+			font-family: "Playfair Display", serif;
+			font-size: 0.95rem;
+			color: var(--navy);
+			font-weight: 600;
+		}
 
-			/* Reservation form */
-			.res-form {
-				background: var(--white);
-				border: 1px solid var(--border);
-				border-radius: var(--radius);
-				padding: 1.5rem;
-				max-width: 580px;
-			}
-			.res-form h3 {
-				font-family: "Playfair Display", serif;
-				color: var(--navy);
-				font-size: 1.15rem;
-				margin-bottom: 1.2rem;
-			}
-			.form-row-2 {
-				display: grid;
-				grid-template-columns: 1fr;
-				gap: 0;
-			}
-			@media (min-width: 480px) {
-				.form-row-2 {
-					grid-template-columns: 1fr 1fr;
-					gap: 0.8rem;
-				}
-			}
+		.chat-partner-sub {
+			font-size: 0.73rem;
+			color: var(--text-muted);
+		}
 
-			/* Materials */
-			.material-item {
-				display: flex;
-				align-items: center;
-				gap: 0.9rem;
-				padding: 0.9rem 1.2rem;
-				border-bottom: 1px solid var(--border);
-			}
-			.material-item:last-child {
-				border-bottom: none;
-			}
-			.mat-icon {
-				font-size: 1.4rem;
-				flex-shrink: 0;
-			}
-			.mat-info {
-				flex: 1;
-				min-width: 0;
-			}
-			.mat-title {
-				font-size: 0.9rem;
-				font-weight: 600;
-				color: var(--navy);
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-			}
-			.mat-meta {
-				font-size: 0.78rem;
-				color: var(--text-muted);
-			}
-			.mat-dl {
-				color: var(--gold);
-				text-decoration: none;
-				font-size: 0.82rem;
-				font-weight: 600;
-				white-space: nowrap;
-				padding: 0.4rem;
-			}
+		.chat-messages {
+			flex: 1;
+			overflow-y: auto;
+			padding: 1rem;
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+			scroll-behavior: smooth;
+		}
 
-			/* Profile */
-			.profile-wrap {
-				max-width: 520px;
-			}
-			.profile-avatar-row {
-				display: flex;
-				align-items: center;
-				gap: 1.2rem;
-				margin-bottom: 2rem;
-			}
-			.profile-avatar-big {
-				width: 80px;
-				height: 80px;
-				border-radius: 50%;
-				background: var(--navy);
-				color: var(--gold-light);
-				font-size: 2rem;
-				font-family: "Playfair Display", serif;
-				font-weight: 700;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				flex-shrink: 0;
-			}
+		.msg {
+			display: flex;
+			gap: 0.5rem;
+			align-items: flex-end;
+			max-width: 82%;
+		}
 
-			/* Loading */
-			.loading {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				padding: 4rem 1rem;
-				color: var(--text-muted);
-				gap: 0.7rem;
-			}
-			.spinner {
-				width: 20px;
-				height: 20px;
-				border: 2px solid var(--border);
-				border-top-color: var(--navy);
-				border-radius: 50%;
-				animation: spin 0.7s linear infinite;
-			}
-			@keyframes spin {
-				to {
-					transform: rotate(360deg);
-				}
-			}
+		.msg.mine {
+			align-self: flex-end;
+			flex-direction: row-reverse;
+		}
 
-			/* ── CHAT ── */
-			.chat-layout {
-				display: grid;
-				grid-template-columns: 1fr;
-				height: calc(100vh - 130px);
-				min-height: 480px;
-			}
-			@media (min-width: 700px) {
-				.chat-layout {
-					grid-template-columns: 240px 1fr;
-					border: 1px solid var(--border);
-					border-radius: var(--radius);
-					overflow: hidden;
-					background: var(--white);
-				}
-			}
-			.chat-list {
-				background: var(--white);
-				border-right: 1px solid var(--border);
-				overflow-y: auto;
-				display: flex;
-				flex-direction: column;
-			}
-			.chat-list-header {
-				padding: 0.9rem 1.2rem;
-				border-bottom: 1px solid var(--border);
-				font-family: "Playfair Display", serif;
-				font-size: 1rem;
-				color: var(--navy);
-				font-weight: 600;
-			}
-			.chat-conv {
-				display: flex;
-				align-items: center;
-				gap: 0.8rem;
-				padding: 0.85rem 1.2rem;
-				cursor: pointer;
-				border-bottom: 1px solid var(--border);
-				transition: background 0.15s;
-				min-height: var(--touch);
-			}
-			.chat-conv:hover {
-				background: var(--cream);
-			}
-			.chat-conv.active {
-				background: var(--gold-pale);
-				border-left: 3px solid var(--gold);
-			}
-			.chat-conv-avatar {
-				width: 36px;
-				height: 36px;
-				border-radius: 50%;
-				background: var(--navy);
-				color: var(--gold-light);
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-weight: 700;
-				font-size: 0.85rem;
-				flex-shrink: 0;
-			}
-			.chat-conv-name {
-				font-size: 0.88rem;
-				font-weight: 600;
-				color: var(--navy);
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-			}
-			.chat-conv-preview {
-				font-size: 0.75rem;
-				color: var(--text-muted);
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				margin-top: 0.1rem;
-			}
-			.chat-conv-time {
-				font-size: 0.7rem;
-				color: var(--text-muted);
-				flex-shrink: 0;
-			}
-			.chat-window {
-				display: flex;
-				flex-direction: column;
-				background: #f7f8fc;
-			}
-			.chat-window-header {
-				background: var(--white);
-				border-bottom: 1px solid var(--border);
-				padding: 0.85rem 1.2rem;
-				display: flex;
-				align-items: center;
-				gap: 0.8rem;
-				flex-shrink: 0;
-			}
-			.back-btn {
-				background: none;
-				border: none;
-				cursor: pointer;
-				font-size: 1.2rem;
-				padding: 0.2rem;
-			}
-			@media (min-width: 700px) {
-				.back-btn {
-					display: none;
-				}
-			}
-			.chat-partner-name {
-				font-family: "Playfair Display", serif;
-				font-size: 0.95rem;
-				color: var(--navy);
-				font-weight: 600;
-			}
-			.chat-partner-sub {
-				font-size: 0.73rem;
-				color: var(--text-muted);
-			}
-			.chat-messages {
-				flex: 1;
-				overflow-y: auto;
-				padding: 1rem;
-				display: flex;
-				flex-direction: column;
-				gap: 0.5rem;
-				scroll-behavior: smooth;
-			}
-			.msg {
-				display: flex;
-				gap: 0.5rem;
-				align-items: flex-end;
-				max-width: 82%;
-			}
-			.msg.mine {
-				align-self: flex-end;
-				flex-direction: row-reverse;
-			}
-			.msg.theirs {
-				align-self: flex-start;
-			}
-			.msg-av {
-				width: 26px;
-				height: 26px;
-				border-radius: 50%;
-				background: var(--navy);
-				color: var(--gold-light);
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-size: 0.62rem;
-				font-weight: 700;
-				flex-shrink: 0;
-			}
-			.msg.mine .msg-av {
-				background: var(--gold);
-				color: var(--navy);
-			}
-			.msg-bubble {
-				padding: 0.55rem 0.85rem;
-				border-radius: 16px;
-				font-size: 0.88rem;
-				line-height: 1.55;
-				word-break: break-word;
-			}
-			.msg.theirs .msg-bubble {
-				background: var(--white);
-				color: var(--text);
-				border-bottom-left-radius: 4px;
-				box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-			}
-			.msg.mine .msg-bubble {
-				background: var(--navy);
-				color: var(--white);
-				border-bottom-right-radius: 4px;
-			}
-			.msg-time {
-				font-size: 0.62rem;
-				color: var(--text-muted);
-				margin-top: 0.15rem;
-			}
-			.chat-day {
-				text-align: center;
-				font-size: 0.7rem;
-				color: var(--text-muted);
-				margin: 0.4rem 0;
-			}
-			.chat-empty-state {
-				flex: 1;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-				color: var(--text-muted);
-				gap: 0.5rem;
-				font-size: 0.9rem;
-			}
-			.chat-empty-state .icon {
-				font-size: 2.5rem;
-			}
-			.chat-no-sel {
-				flex: 1;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-				color: var(--text-muted);
-				gap: 0.8rem;
-			}
-			.chat-no-sel .icon {
-				font-size: 3rem;
-			}
-			.chat-input-bar {
-				background: var(--white);
-				border-top: 1px solid var(--border);
-				padding: 0.7rem 1rem;
-				display: flex;
-				gap: 0.6rem;
-				align-items: flex-end;
-				flex-shrink: 0;
-			}
-			.chat-input {
-				flex: 1;
-				padding: 0.6rem 1rem;
-				border: 1.5px solid var(--border);
-				border-radius: 20px;
-				font-family: "Source Serif 4", serif;
-				font-size: 16px;
-				outline: none;
-				resize: none;
-				max-height: 100px;
-				overflow-y: auto;
-				line-height: 1.5;
-				transition: border-color 0.2s;
-			}
-			.chat-input:focus {
-				border-color: var(--navy);
-			}
-			.chat-send {
-				width: 38px;
-				height: 38px;
-				border-radius: 50%;
-				background: var(--navy);
-				border: none;
-				cursor: pointer;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-size: 0.95rem;
-				color: var(--white);
-				flex-shrink: 0;
-				transition: background 0.2s;
-			}
-			.chat-send:hover {
-				background: var(--navy-light);
-			}
-			.chat-send:disabled {
-				background: var(--border);
-				cursor: not-allowed;
-			}
+		.msg.theirs {
+			align-self: flex-start;
+		}
+
+		.msg-av {
+			width: 26px;
+			height: 26px;
+			border-radius: 50%;
+			background: var(--navy);
+			color: var(--gold-light);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 0.62rem;
+			font-weight: 700;
+			flex-shrink: 0;
+		}
+
+		.msg.mine .msg-av {
+			background: var(--gold);
+			color: var(--navy);
+		}
+
+		.msg-bubble {
+			padding: 0.55rem 0.85rem;
+			border-radius: 16px;
+			font-size: 0.88rem;
+			line-height: 1.55;
+			word-break: break-word;
+		}
+
+		.msg.theirs .msg-bubble {
+			background: var(--white);
+			color: var(--text);
+			border-bottom-left-radius: 4px;
+			box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+		}
+
+		.msg.mine .msg-bubble {
+			background: var(--navy);
+			color: var(--white);
+			border-bottom-right-radius: 4px;
+		}
+
+		.msg-time {
+			font-size: 0.62rem;
+			color: var(--text-muted);
+			margin-top: 0.15rem;
+		}
+
+		.chat-day {
+			text-align: center;
+			font-size: 0.7rem;
+			color: var(--text-muted);
+			margin: 0.4rem 0;
+		}
+
+		.chat-empty-state {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			color: var(--text-muted);
+			gap: 0.5rem;
+			font-size: 0.9rem;
+		}
+
+		.chat-empty-state .icon {
+			font-size: 2.5rem;
+		}
+
+		.chat-no-sel {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			color: var(--text-muted);
+			gap: 0.8rem;
+		}
+
+		.chat-no-sel .icon {
+			font-size: 3rem;
+		}
+
+		.chat-input-bar {
+			background: var(--white);
+			border-top: 1px solid var(--border);
+			padding: 0.7rem 1rem;
+			display: flex;
+			gap: 0.6rem;
+			align-items: flex-end;
+			flex-shrink: 0;
+		}
+
+		.chat-input {
+			flex: 1;
+			padding: 0.6rem 1rem;
+			border: 1.5px solid var(--border);
+			border-radius: 20px;
+			font-family: "Source Serif 4", serif;
+			font-size: 16px;
+			outline: none;
+			resize: none;
+			max-height: 100px;
+			overflow-y: auto;
+			line-height: 1.5;
+			transition: border-color 0.2s;
+		}
+
+		.chat-input:focus {
+			border-color: var(--navy);
+		}
+
+		.chat-send {
+			width: 38px;
+			height: 38px;
+			border-radius: 50%;
+			background: var(--navy);
+			border: none;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 0.95rem;
+			color: var(--white);
+			flex-shrink: 0;
+			transition: background 0.2s;
+		}
+
+		.chat-send:hover {
+			background: var(--navy-light);
+		}
+
+		.chat-send:disabled {
+			background: var(--border);
+			cursor: not-allowed;
+		}
+
+		.mobile-hidden {
+			display: none !important;
+		}
+
+		@media (min-width: 700px) {
 			.mobile-hidden {
-				display: none !important;
+				display: flex !important;
 			}
-			@media (min-width: 700px) {
-				.mobile-hidden {
-					display: flex !important;
-				}
-			}
-		</style>
-		<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-	</head>
-	<body>
-		<!-- TOP NAV -->
-		<nav class="dash-nav">
-			<a class="dash-logo" href="/"
-				><span>Korepetycje</span> Szymon Tyburczy</a
-			>
-			<div class="user-chip">
-				<div class="user-avatar" id="userAvatar">?</div>
-				<div class="user-name" id="userName">Ładowanie…</div>
-				<div class="role-badge" id="userRole">—</div>
-			</div>
-			<button class="btn-signout" onclick="signOut()">Wyloguj</button>
-		</nav>
+		}
+	</style>
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
 
-		<!-- BOTTOM NAV (mobile) -->
-		<nav class="bottom-nav" id="bottomNav"></nav>
-
-		<div class="dash-layout">
-			<!-- SIDEBAR (desktop) -->
-			<aside class="dash-sidebar" id="dashSidebar"></aside>
-			<!-- MAIN -->
-			<main class="dash-main" id="dashMain">
-				<div class="loading">
-					<div class="spinner"></div>
-					Ładowanie…
-				</div>
-			</main>
+<body>
+	<!-- TOP NAV -->
+	<nav class="dash-nav">
+		<a class="dash-logo" href="/"><span>Korepetycje</span> Szymon Tyburczy</a>
+		<div class="user-chip">
+			<div class="user-avatar" id="userAvatar">?</div>
+			<div class="user-name" id="userName">Ładowanie…</div>
+			<div class="role-badge" id="userRole">—</div>
 		</div>
+		<button class="btn-signout" onclick="signOut()">Wyloguj</button>
+	</nav>
 
-		<script src="supabase-config.js"></script>
-		<script>
-			// ── ZMIENNE GLOBALNE I STAN APLIKACJI ──
-			let currentProfile = null;
-			let appData = {
-				lessons: [],
-				payments: [],
-				materials: [],
+	<!-- BOTTOM NAV (mobile) -->
+	<nav class="bottom-nav" id="bottomNav"></nav>
+
+	<div class="dash-layout">
+		<!-- SIDEBAR (desktop) -->
+		<aside class="dash-sidebar" id="dashSidebar"></aside>
+		<!-- MAIN -->
+		<main class="dash-main" id="dashMain">
+			<div class="loading">
+				<div class="spinner"></div>
+				Ładowanie…
+			</div>
+		</main>
+	</div>
+
+	<script src="supabase-config.js"></script>
+	<script>
+		// ── ZMIENNE GLOBALNE I STAN APLIKACJI ──
+		let currentProfile = null;
+		let appData = {
+			lessons: [],
+			payments: [],
+			materials: [],
+		};
+
+		const sidebarItems = {
+			uczen: [
+				{ id: "overview", icon: "🏠", label: "Przegląd" },
+				{ id: "lessons", icon: "📅", label: "Moje lekcje" },
+				{ id: "history", icon: "📖", label: "Historia" },
+				{ id: "materials", icon: "📁", label: "Materiały" },
+				{ id: "payments", icon: "💳", label: "Opłaty" },
+				{ id: "book", icon: "➕", label: "Nowa lekcja" },
+				{ id: "profile", icon: "👤", label: "Profil" },
+			],
+			korepetytor: [
+				{ id: "overview", icon: "🏠", label: "Przegląd" },
+				{ id: "lessons", icon: "📅", label: "Moje lekcje" },
+				{ id: "students", icon: "👥", label: "Uczniowie" },
+				{ id: "materials", icon: "📁", label: "Materiały" },
+				{ id: "profile", icon: "👤", label: "Profil" },
+			],
+			admin: [
+				{ id: "overview", icon: "🏠", label: "Przegląd" },
+				{ id: "all-lessons", icon: "📅", label: "Wszystkie lekcje" },
+				{ id: "all-users", icon: "👥", label: "Użytkownicy" },
+				{ id: "students", icon: "👥", label: "Uczniowie" },
+				{ id: "all-payments", icon: "💳", label: "Opłaty" },
+				{ id: "profile", icon: "👤", label: "Profil" },
+			],
+		};
+
+		// ── FORMATOWANIE ──
+		function fmtDate(s) {
+			if (!s) return "Brak daty";
+			return new Date(s).toLocaleString("pl-PL", {
+				day: "2-digit",
+				month: "2-digit",
+				year: "numeric",
+				hour: "2-digit",
+				minute: "2-digit",
+			});
+		}
+		function fmtDateOnly(s) {
+			if (!s) return "Brak daty";
+			return new Date(s).toLocaleDateString("pl-PL", {
+				day: "2-digit",
+				month: "2-digit",
+				year: "numeric",
+			});
+		}
+		function badge(status) {
+			const colors = {
+				zaplanowana: "#2ecc71", // zielony
+				oczekuje: "#f1c40f", // żółty
+				odbyta: "#3498db", // niebieski
+				odwolana: "#e74c3c", // czerwony
+				admin: "#9b59b6", // fioletowy (dla ról)
+				korepetytor: "#e67e22",
+				uczen: "#95a5a6",
 			};
+			const color = colors[status] || "#95a5a6";
+			return `<span style="background:${color}; color:white; padding:2px 8px; border-radius:4px; font-size:0.75rem; text-transform:uppercase;">${status}</span>`;
+		}
 
-			const sidebarItems = {
-				uczen: [
-					{ id: "overview", icon: "🏠", label: "Przegląd" },
-					{ id: "lessons", icon: "📅", label: "Moje lekcje" },
-					{ id: "history", icon: "📖", label: "Historia" },
-					{ id: "materials", icon: "📁", label: "Materiały" },
-					{ id: "payments", icon: "💳", label: "Opłaty" },
-					{ id: "book", icon: "➕", label: "Nowa lekcja" },
-					{ id: "profile", icon: "👤", label: "Profil" },
-				],
-				korepetytor: [
-					{ id: "overview", icon: "🏠", label: "Przegląd" },
-					{ id: "lessons", icon: "📅", label: "Moje lekcje" },
-					{ id: "students", icon: "👥", label: "Uczniowie" },
-					{ id: "materials", icon: "📁", label: "Materiały" },
-					{ id: "profile", icon: "👤", label: "Profil" },
-				],
-				admin: [
-					{ id: "overview", icon: "🏠", label: "Przegląd" },
-					{ id: "all-lessons", icon: "📅", label: "Wszystkie lekcje" },
-					{ id: "all-users", icon: "👥", label: "Użytkownicy" },
-					{ id: "students", icon: "👥", label: "Uczniowie" },
-					{ id: "all-payments", icon: "💳", label: "Opłaty" },
-					{ id: "profile", icon: "👤", label: "Profil" },
-				],
-			};
+		// ── POBIERANIE PRAWDZIWYCH DANYCH Z BAZY ──
+		async function loadRealData() {
+			// 1. Pobieranie lekcji
+			const { data: lessons } = await supabaseClient
+				.from("lessons")
+				.select("*, tutor:profiles!tutor_id(full_name), student:profiles!student_id(full_name)")
+				.order("date", { ascending: true });
 
-			// ── FORMATOWANIE ──
-			function fmtDate(s) {
-				if (!s) return "Brak daty";
-				return new Date(s).toLocaleString("pl-PL", {
-					day: "2-digit",
-					month: "2-digit",
-					year: "numeric",
-					hour: "2-digit",
-					minute: "2-digit",
+			// --- NOWY KOD: AUTOMATYCZNE ZAKAŃCZANIE LEKCJI ---
+			const now = new Date();
+			// Szukamy lekcji, które są "zaplanowane", ale ich data + czas trwania już minęły
+			const pastLessonsIds = (lessons || [])
+				.filter(l => {
+					if (l.status !== 'zaplanowana') return false;
+					const lessonEnd = new Date(new Date(l.date).getTime() + (l.duration_minutes || 60) * 60000);
+					return lessonEnd < now;
+				})
+				.map(l => l.id);
+
+			// Jeśli znaleziono takie lekcje, aktualizujemy je w bazie jednym zapytaniem
+			if (pastLessonsIds.length > 0) {
+				await supabaseClient.from('lessons').update({ status: 'odbyta' }).in('id', pastLessonsIds);
+				// Aktualizujemy też lokalnie, żeby od razu wyświetliły się poprawnie
+				lessons.forEach(l => {
+					if (pastLessonsIds.includes(l.id)) l.status = 'odbyta';
 				});
 			}
-			function fmtDateOnly(s) {
-				if (!s) return "Brak daty";
-				return new Date(s).toLocaleDateString("pl-PL", {
-					day: "2-digit",
-					month: "2-digit",
-					year: "numeric",
-				});
-			}
-			function badge(status) {
-				const colors = {
-					zaplanowana: "#2ecc71", // zielony
-					oczekuje: "#f1c40f", // żółty
-					odbyta: "#3498db", // niebieski
-					odwolana: "#e74c3c", // czerwony
-					admin: "#9b59b6", // fioletowy (dla ról)
-					korepetytor: "#e67e22",
-					uczen: "#95a5a6",
-				};
-				const color = colors[status] || "#95a5a6";
-				return `<span style="background:${color}; color:white; padding:2px 8px; border-radius:4px; font-size:0.75rem; text-transform:uppercase;">${status}</span>`;
+			// ------------------------------------------------
+
+			// 2. Pobieranie materiałów
+			const { data: materials } = await supabaseClient
+				.from("materials")
+				.select("*, tutor:profiles!tutor_id(full_name)")
+				.order("created_at", { ascending: false });
+
+			// 3. Pobieranie profili z uwzględnieniem ról i prywatności
+			if (currentProfile.role === "admin") {
+				const { data: profiles } = await supabaseClient.from("profiles").select("*").order("full_name", { ascending: true });
+				appData.users = profiles || [];
+			} else if (currentProfile.role === "korepetytor") {
+				const { data: profiles } = await supabaseClient.from("profiles").select("*").eq("role", "uczen").order("full_name", { ascending: true });
+				appData.users = profiles || [];
+			} else {
+				const { data: profiles } = await supabaseClient.from("profiles").select("*").in("role", ["korepetytor", "admin"]).order("full_name", { ascending: true });
+				appData.users = profiles || [];
 			}
 
-			// ── POBIERANIE PRAWDZIWYCH DANYCH Z BAZY ──
-			async function loadRealData() {
-    // 1. Pobieranie lekcji
-    const { data: lessons } = await supabaseClient
-        .from("lessons")
-        .select("*, tutor:profiles!tutor_id(full_name), student:profiles!student_id(full_name)")
-        .order("date", { ascending: true });
+			// Mapowanie danych dla interfejsu
+			appData.lessons = (lessons || []).map((l) => ({
+				id: l.id,
+				subject: l.subject,
+				tutor: l.tutor?.full_name || "Nieprzypisany",
+				student: l.student?.full_name || "Nieznany Uczeń",
+				date: l.date,
+				duration: l.duration_minutes || 60,
+				status: l.status,
+				price: l.price || "100",
+				paid: l.paid === true || String(l.paid) === "true",
+			}));
 
-    // --- NOWY KOD: AUTOMATYCZNE ZAKAŃCZANIE LEKCJI ---
-    const now = new Date();
-    // Szukamy lekcji, które są "zaplanowane", ale ich data + czas trwania już minęły
-    const pastLessonsIds = (lessons || [])
-        .filter(l => {
-            if (l.status !== 'zaplanowana') return false;
-            const lessonEnd = new Date(new Date(l.date).getTime() + (l.duration_minutes || 60) * 60000);
-            return lessonEnd < now;
-        })
-        .map(l => l.id);
+			appData.materials = (materials || []).map((m) => ({
+				id: m.id,
+				title: m.title,
+				tutor: m.tutor?.full_name || "Korepetytor",
+				date: m.created_at,
+				file: m.file_url || "#",
+			}));
 
-    // Jeśli znaleziono takie lekcje, aktualizujemy je w bazie jednym zapytaniem
-    if (pastLessonsIds.length > 0) {
-        await supabaseClient.from('lessons').update({ status: 'odbyta' }).in('id', pastLessonsIds);
-        // Aktualizujemy też lokalnie, żeby od razu wyświetliły się poprawnie
-        lessons.forEach(l => {
-            if (pastLessonsIds.includes(l.id)) l.status = 'odbyta';
-        });
-    }
-    // ------------------------------------------------
+			// Opłaty wyliczane z odbytych lekcji (kwota + status na podstawie pola paid)
+			appData.payments = appData.lessons
+				.filter((l) => l.status === "odbyta")
+				.map((l) => ({
+					id: l.id,
+					amount: Number(l.price) || 0,
+					paid: l.paid,
+					status: l.paid ? "oplacona" : "oczekuje",
+				}));
+		}
 
-    // 2. Pobieranie materiałów
-    const { data: materials } = await supabaseClient
-        .from("materials")
-        .select("*, tutor:profiles!tutor_id(full_name)")
-        .order("created_at", { ascending: false });
-
-    // 3. Pobieranie profili z uwzględnieniem ról i prywatności
-    if (currentProfile.role === "admin") {
-        const { data: profiles } = await supabaseClient.from("profiles").select("*").order("full_name", { ascending: true });
-        appData.users = profiles || [];
-    } else if (currentProfile.role === "korepetytor") {
-        const { data: profiles } = await supabaseClient.from("profiles").select("*").eq("role", "uczen").order("full_name", { ascending: true });
-        appData.users = profiles || [];
-    } else {
-        const { data: profiles } = await supabaseClient.from("profiles").select("*").in("role", ["korepetytor", "admin"]).order("full_name", { ascending: true });
-        appData.users = profiles || [];
-    }
-
-    // Mapowanie danych dla interfejsu
-    appData.lessons = (lessons || []).map((l) => ({
-        id: l.id,
-        subject: l.subject,
-        tutor: l.tutor?.full_name || "Nieprzypisany",
-        student: l.student?.full_name || "Nieznany Uczeń",
-        date: l.date,
-        duration: l.duration_minutes || 60,
-        status: l.status,
-        price: l.price || "100",
-        paid: l.paid === true || String(l.paid) === "true",
-    }));
-
-    appData.materials = (materials || []).map((m) => ({
-        id: m.id,
-        title: m.title,
-        tutor: m.tutor?.full_name || "Korepetytor",
-        date: m.created_at,
-        file: m.file_url || "#",
-    }));
-
-    // Opłaty wyliczane z odbytych lekcji (kwota + status na podstawie pola paid)
-    appData.payments = appData.lessons
-        .filter((l) => l.status === "odbyta")
-        .map((l) => ({
-            id: l.id,
-            amount: Number(l.price) || 0,
-            paid: l.paid,
-            status: l.paid ? "oplacona" : "oczekuje",
-        }));
-}
-
-			// ── PANELS ──
-			function panelOverview(p) {
-				const up = appData.lessons.filter(
-					(l) => l.status === "zaplanowana" || l.status === "oczekuje",
-				);
-				const done = appData.lessons.filter((l) => l.status === "odbyta");
-				const pd = appData.payments.filter((i) => i.status === "oczekuje");
-				return `
+		// ── PANELS ──
+		function panelOverview(p) {
+			const up = appData.lessons.filter(
+				(l) => l.status === "zaplanowana" || l.status === "oczekuje",
+			);
+			const done = appData.lessons.filter((l) => l.status === "odbyta");
+			const pd = appData.payments.filter((i) => i.status === "oczekuje");
+			return `
 <div class="panel-header"><h1>Cześć, ${p.full_name?.split(" ")[0] || "Witaj"} 👋</h1><p>Oto podsumowanie Twojego konta.</p></div>
 <div class="stats-row">
 <div class="stat-card"><div class="s-label">Nadchodzące</div><div class="s-val">${up.length}</div><div class="s-sub">lekcje</div></div>
@@ -957,28 +1052,27 @@
 </div>
 <div class="data-wrap">
 <div class="data-head"><h3>Najbliższe lekcje</h3><button class="btn btn-gold" onclick="showPanel('book')" style="font-size:.8rem;padding:.4rem .9rem;">+ Zarezerwuj</button></div>
-${
-	up.length
-		? `
+${up.length
+					? `
 <div class="lesson-cards">${up.map((l) => `<div class="lesson-card"><div class="lesson-card-top"><div class="lesson-card-subject">${l.subject}</div>${badge(l.status)}</div><div class="lesson-card-meta"><span>👨‍🏫 ${l.tutor}</span><span>📅 ${fmtDate(l.date)} · ${l.duration} min</span><span>💰 ${l.price} zł</span></div></div>`).join("")}</div>
 <div class="lesson-table-wrap"><table><thead><tr><th>Przedmiot</th><th>Korepetytor</th><th>Data</th><th>Czas</th><th>Status</th></tr></thead><tbody>${up.map((l) => `<tr><td><strong>${l.subject}</strong></td><td>${l.tutor}</td><td>${fmtDate(l.date)}</td><td>${l.duration} min</td><td>${badge(l.status)}</td></tr>`).join("")}</tbody></table></div>
 `
-		: `<div class="empty-state"><div class="icon">📅</div><p>Brak zaplanowanych lekcji.<br><br><button class="btn btn-primary" onclick="showPanel('book')">Zarezerwuj lekcję</button></p></div>`
-}
+					: `<div class="empty-state"><div class="icon">📅</div><p>Brak zaplanowanych lekcji.<br><br><button class="btn btn-primary" onclick="showPanel('book')">Zarezerwuj lekcję</button></p></div>`
+				}
 </div>`;
-			}
+		}
 
-			function panelAllLessons() {
-    const pending = appData.lessons.filter((l) => l.status === "oczekuje");
-    const confirmed = appData.lessons.filter((l) => l.status === "zaplanowana");
-    const history = appData.lessons.filter((l) => l.status === "odbyta" || l.status === "odwolana");
-    
-    // Sprawdzamy role
-    const isAdmin = currentProfile.role === "admin";
-    const isTutor = currentProfile.role === "korepetytor";
-    const canManage = isAdmin || isTutor; // Używane w oczekujących (bo korepetytor musi móc zatwierdzić)
+		function panelAllLessons() {
+			const pending = appData.lessons.filter((l) => l.status === "oczekuje");
+			const confirmed = appData.lessons.filter((l) => l.status === "zaplanowana");
+			const history = appData.lessons.filter((l) => l.status === "odbyta" || l.status === "odwolana");
 
-    return `
+			// Sprawdzamy role
+			const isAdmin = currentProfile.role === "admin";
+			const isTutor = currentProfile.role === "korepetytor";
+			const canManage = isAdmin || isTutor; // Używane w oczekujących (bo korepetytor musi móc zatwierdzić)
+
+			return `
 <div class="panel-header">
     <h1>Wszystkie Lekcje</h1>
     <p>Zarządzaj rezerwacjami i przeglądaj historię spotkań.</p>
@@ -986,9 +1080,8 @@ ${
 
 <div class="data-wrap">
     <div class="data-head"><h3>Oczekujące prośby (${pending.length})</h3></div>
-    ${
-        pending.length
-            ? `
+    ${pending.length
+					? `
     <div class="lesson-table-wrap" style="display:block">
         <table>
             <thead><tr><th>Uczeń</th><th>Korepetytor</th><th>Przedmiot</th><th>Data</th><th>Status / Akcja</th></tr></thead>
@@ -1014,15 +1107,14 @@ ${
         </table>
     </div>
     `
-            : `<div class="empty-state"><p>Brak oczekujących próśb na ten moment.</p></div>`
-    }
+					: `<div class="empty-state"><p>Brak oczekujących próśb na ten moment.</p></div>`
+				}
 </div>
 
 <div class="data-wrap">
     <div class="data-head"><h3>Nadchodzące lekcje (${confirmed.length})</h3></div>
-    ${
-        confirmed.length
-            ? `
+    ${confirmed.length
+					? `
     <div class="lesson-table-wrap" style="display:block">
         <table>
             <thead>
@@ -1049,15 +1141,14 @@ ${
         </table>
     </div>
     `
-            : `<div class="empty-state"><p>Brak zatwierdzonych, nadchodzących lekcji.</p></div>`
-    }
+					: `<div class="empty-state"><p>Brak zatwierdzonych, nadchodzących lekcji.</p></div>`
+				}
 </div>
 
 <div class="data-wrap">
     <div class="data-head"><h3>Historia i odwołane (${history.length})</h3></div>
-    ${
-        history.length
-            ? `
+    ${history.length
+					? `
     <div class="lesson-table-wrap" style="display:block">
         <table>
             <thead>
@@ -1085,65 +1176,62 @@ ${
         </table>
     </div>
     `
-            : `<div class="empty-state"><p>Historia jest pusta.</p></div>`
-    }
+					: `<div class="empty-state"><p>Historia jest pusta.</p></div>`
+				}
 </div>`;
-}
+		}
 
-			function panelHistory() {
-				const done = appData.lessons.filter(
-					(l) => l.status === "odbyta" || l.status === "odwolana",
-				);
-				return `
+		function panelHistory() {
+			const done = appData.lessons.filter(
+				(l) => l.status === "odbyta" || l.status === "odwolana",
+			);
+			return `
 <div class="panel-header"><h1>Historia lekcji</h1><p>Zakończone i odwołane lekcje.</p></div>
 <div class="data-wrap">
 <div class="data-head"><h3>Historia</h3></div>
-${
-	done.length
-		? `
+${done.length
+					? `
 <div class="lesson-cards">${done.map((l) => `<div class="lesson-card"><div class="lesson-card-top"><div class="lesson-card-subject">${l.subject}</div>${badge(l.status)}</div><div class="lesson-card-meta"><span>👨‍🏫 ${l.tutor}</span><span>📅 ${fmtDate(l.date)}</span><span>💰 ${l.price} zł</span></div></div>`).join("")}</div>
 <div class="lesson-table-wrap"><table><thead><tr><th>Przedmiot</th><th>Korepetytor</th><th>Data</th><th>Czas</th><th>Cena</th><th>Status</th></tr></thead><tbody>${done.map((l) => `<tr><td>${l.subject}</td><td>${l.tutor}</td><td>${fmtDate(l.date)}</td><td>${l.duration} min</td><td>${l.price} zł</td><td>${badge(l.status)}</td></tr>`).join("")}</tbody></table></div>
 `
-		: `<div class="empty-state"><div class="icon">📖</div><p>Historia lekcji jest jeszcze pusta.</p></div>`
-}
+					: `<div class="empty-state"><div class="icon">📖</div><p>Historia lekcji jest jeszcze pusta.</p></div>`
+				}
 </div>`;
-			}
+		}
 
-			function panelMaterials() {
-				return `
+		function panelMaterials() {
+			return `
 <div class="panel-header"><h1>Materiały</h1><p>Pliki i notatki od korepetytorów.</p></div>
 <div class="data-wrap">
 <div class="data-head"><h3>Twoje materiały</h3></div>
-${
-	appData.materials.length
-		? appData.materials
-				.map(
-					(m) => `
+${appData.materials.length
+					? appData.materials
+						.map(
+							(m) => `
 <div class="material-item">
 <div class="mat-icon">📄</div>
 <div class="mat-info"><div class="mat-title">${m.title}</div><div class="mat-meta">${m.tutor} · ${fmtDateOnly(m.date)}</div></div>
 <a href="${m.file}" class="mat-dl" target="_blank">📥 Pobierz</a>
 </div>`,
-				)
-				.join("")
-		: `<div class="empty-state"><div class="icon">📁</div><p>Nie masz jeszcze żadnych materiałów do pobrania.</p></div>`
-}
+						)
+						.join("")
+					: `<div class="empty-state"><div class="icon">📁</div><p>Nie masz jeszcze żadnych materiałów do pobrania.</p></div>`
+				}
 </div>`;
-			}
+		}
 
-			function panelpayments() {
-    // Pobieramy TYLKO lekcje o statusie "odbyta"
-    const pastLessons = appData.lessons.filter(l => l.status === "odbyta");
-    const isAdmin = currentProfile.role === "admin";
-    const isTutor = currentProfile.role === "korepetytor";
+		function panelpayments() {
+			// Pobieramy TYLKO lekcje o statusie "odbyta"
+			const pastLessons = appData.lessons.filter(l => l.status === "odbyta");
+			const isAdmin = currentProfile.role === "admin";
+			const isTutor = currentProfile.role === "korepetytor";
 
-    return `
+			return `
 <div class="panel-header"><h1>Opłaty</h1><p>Rozliczenia za zrealizowane zajęcia.</p></div>
 <div class="data-wrap">
     <div class="data-head"><h3>Odbyte lekcje</h3></div>
-    ${
-        pastLessons.length
-            ? `
+    ${pastLessons.length
+					? `
     <div class="lesson-table-wrap" style="display:block">
         <table>
             <thead>
@@ -1164,9 +1252,9 @@ ${
                     <td>${fmtDateOnly(l.date)}</td>
                     <td><strong>${l.price} zł</strong></td>
                     <td>
-                        ${l.paid 
-                            ? `<span style="background:#2ecc71; color:white; padding:2px 8px; border-radius:4px; font-size:0.75rem; text-transform:uppercase;">Opłacona</span>` 
-                            : `<span style="background:#e74c3c; color:white; padding:2px 8px; border-radius:4px; font-size:0.75rem; text-transform:uppercase;">Brak wpłaty</span>`}
+                        ${l.paid
+							? `<span style="background:#2ecc71; color:white; padding:2px 8px; border-radius:4px; font-size:0.75rem; text-transform:uppercase;">Opłacona</span>`
+							: `<span style="background:#e74c3c; color:white; padding:2px 8px; border-radius:4px; font-size:0.75rem; text-transform:uppercase;">Brak wpłaty</span>`}
                     </td>
                     ${isAdmin || isTutor ? `
                     <td>
@@ -1180,47 +1268,46 @@ ${
             </tbody>
         </table>
     </div>`
-            : `<div class="empty-state"><div class="icon">💳</div><p>Brak odbytych lekcji do rozliczenia.</p></div>`
-    }
+					: `<div class="empty-state"><div class="icon">💳</div><p>Brak odbytych lekcji do rozliczenia.</p></div>`
+				}
 </div>`;
-}
+		}
 
-			function panelBook() {
-				const hours = [
-					"08:00",
-					"09:00",
-					"10:00",
-					"11:00",
-					"12:00",
-					"13:00",
-					"14:00",
-					"15:00",
-					"16:00",
-					"17:00",
-					"18:00",
-					"19:00",
-					"20:00",
-				];
+		function panelBook() {
+			const hours = [
+				"08:00",
+				"09:00",
+				"10:00",
+				"11:00",
+				"12:00",
+				"13:00",
+				"14:00",
+				"15:00",
+				"16:00",
+				"17:00",
+				"18:00",
+				"19:00",
+				"20:00",
+			];
 
-				// Rozdzielamy użytkowników na role
-				const tutors = (appData.users || []).filter(
-					(u) => u.role === "korepetytor" || u.role === "admin",
-				);
-				const students = (appData.users || []).filter(
-					(u) => u.role === "uczen",
-				);
+			// Rozdzielamy użytkowników na role
+			const tutors = (appData.users || []).filter(
+				(u) => u.role === "korepetytor" || u.role === "admin",
+			);
+			const students = (appData.users || []).filter(
+				(u) => u.role === "uczen",
+			);
 
-				const role = currentProfile.role;
+			const role = currentProfile.role;
 
-				return `
+			return `
 <div class="panel-header"><h1>Zarezerwuj lekcję</h1><p>Wypełnij formularz, aby zaplanować spotkanie.</p></div>
 <div class="res-form">
     <h3>Szczegóły nowej lekcji</h3>
     
     <div class="form-row-2">
-        ${
-					role === "admin" || role === "korepetytor"
-						? `
+        ${role === "admin" || role === "korepetytor"
+					? `
         <div class="form-group">
             <label>Wybierz ucznia</label>
             <select id="bStudentId">
@@ -1229,12 +1316,11 @@ ${
             </select>
         </div>
         `
-						: ""
+					: ""
 				}
 
-        ${
-					role === "admin" || role === "uczen"
-						? `
+        ${role === "admin" || role === "uczen"
+					? `
         <div class="form-group">
             <label>Wybierz korepetytora</label>
             <select id="bTutorId">
@@ -1243,7 +1329,7 @@ ${
             </select>
         </div>
         `
-						: ""
+					: ""
 				}
     </div>
 
@@ -1273,16 +1359,16 @@ ${
         ${role === "uczen" ? "Wyślij prośbę o lekcję →" : "Dodaj lekcję do grafiku →"}
     </button>
 </div>`;
-			}
+		}
 
-			function panelProfile(p) {
-				const init = (p.full_name || "?")
-					.split(" ")
-					.map((w) => w[0])
-					.join("")
-					.slice(0, 2)
-					.toUpperCase();
-				return `
+		function panelProfile(p) {
+			const init = (p.full_name || "?")
+				.split(" ")
+				.map((w) => w[0])
+				.join("")
+				.slice(0, 2)
+				.toUpperCase();
+			return `
 <div class="panel-header"><h1>Mój profil</h1><p>Zarządzaj swoimi danymi.</p></div>
 <div class="profile-wrap">
 <div class="profile-avatar-row">
@@ -1295,92 +1381,91 @@ ${
 <button class="btn btn-primary" onclick="saveProfile()" style="margin-top: 1rem;">Zapisz zmiany</button>
 <div id="profileMsg" style="margin-top:.8rem;font-size:.88rem;color:var(--text-muted);"></div>
 </div>`;
-			}
+		}
 
-			// ── NAVIGATION ──
-			function buildNav(role) {
-				const items = sidebarItems[role] || sidebarItems.uczen;
-				document.getElementById("dashSidebar").innerHTML = items
-					.map(
-						(i) => `
+		// ── NAVIGATION ──
+		function buildNav(role) {
+			const items = sidebarItems[role] || sidebarItems.uczen;
+			document.getElementById("dashSidebar").innerHTML = items
+				.map(
+					(i) => `
 <button class="sidebar-link${i.id === "overview" ? " active" : ""}" data-panel="${i.id}" onclick="showPanel('${i.id}')">
 <span class="sidebar-icon">${i.icon}</span>${i.label}
 </button>`,
-					)
-					.join("");
+				)
+				.join("");
 
-				const bn = items.slice(0, 5);
-				document.getElementById("bottomNav").innerHTML = bn
-					.map(
-						(i) => `
+			const bn = items.slice(0, 5);
+			document.getElementById("bottomNav").innerHTML = bn
+				.map(
+					(i) => `
 <button class="bnav-btn${i.id === "overview" ? " active" : ""}" data-panel="${i.id}" onclick="showPanel('${i.id}')">
 <span class="bnav-icon">${i.icon}</span>${i.label}
 </button>`,
-					)
-					.join("");
-			}
+				)
+				.join("");
+		}
 
-			function showPanel(id) {
-				const p = currentProfile;
-				let html = "";
-				switch (id) {
-					case "overview":
-						html = p.role === "admin" ? panelAdminOverview() : panelOverview(p);
-						break;
-					case "lessons":
-						html = panelAllLessons();
-						break;
-					case "history":
-						html = panelHistory();
-						break;
-					case "materials":
-						html = panelMaterials();
-						break;
-					case "payments":
-						html = panelpayments();
-						break;
-					case "book":
-						html = panelBook();
-						break;
-					case "profile":
-						html = panelProfile(p);
-						break;
-					case "all-users":
-						html = panelAllUsers();
-						break;
-					case "all-lessons":
-						html = panelAllLessons();
-						break;
-					case "all-payments":
-						html = panelpayments();
-						break;
-					default:
-						html = panelOverview(p);
-				}
-				document.getElementById("dashMain").innerHTML = html;
-				document.querySelectorAll(".sidebar-link,.bnav-btn").forEach((el) => {
-					el.classList.toggle("active", el.dataset.panel === id);
-				});
-				window.scrollTo(0, 0);
+		function showPanel(id) {
+			const p = currentProfile;
+			let html = "";
+			switch (id) {
+				case "overview":
+					html = p.role === "admin" ? panelAdminOverview() : panelOverview(p);
+					break;
+				case "lessons":
+					html = panelAllLessons();
+					break;
+				case "history":
+					html = panelHistory();
+					break;
+				case "materials":
+					html = panelMaterials();
+					break;
+				case "payments":
+					html = panelpayments();
+					break;
+				case "book":
+					html = panelBook();
+					break;
+				case "profile":
+					html = panelProfile(p);
+					break;
+				case "all-users":
+					html = panelAllUsers();
+					break;
+				case "all-lessons":
+					html = panelAllLessons();
+					break;
+				case "all-payments":
+					html = panelpayments();
+					break;
+				default:
+					html = panelOverview(p);
 			}
+			document.getElementById("dashMain").innerHTML = html;
+			document.querySelectorAll(".sidebar-link,.bnav-btn").forEach((el) => {
+				el.classList.toggle("active", el.dataset.panel === id);
+			});
+			window.scrollTo(0, 0);
+		}
 
-			function panelAdminOverview() {
-				return `<div class="panel-header"><h1>Panel Admina 🔑</h1><p>Zarządzaj platformą.</p></div>
+		function panelAdminOverview() {
+			return `<div class="panel-header"><h1>Panel Admina 🔑</h1><p>Zarządzaj platformą.</p></div>
 <div class="stats-row">
 <div class="stat-card"><div class="s-label">Wszystkie lekcje</div><div class="s-val">${appData.lessons.length}</div></div>
 <div class="stat-card"><div class="s-label">Opłaty (suma)</div><div class="s-val">${appData.payments.reduce((s, i) => s + i.amount, 0)} zł</div></div>
 </div>
 <div class="empty-state"><p>Przejdź do innych zakładek po lewej stronie, aby zarządzać bazą.</p></div>`;
-			}
+		}
 
-			function panelAllUsers() {
-				return `
+		function panelAllUsers() {
+			return `
 <div class="panel-header"><h1>Użytkownicy</h1><p>Zarządzaj uprawnieniami i rolami kont.</p></div>
 <div class="data-wrap">
     <div class="data-head"><h3>Lista użytkowników (${appData.users.length})</h3></div>
-    ${
-			appData.users.length
-				? `
+    ${appData.users.length
+					? `
     <div class="lesson-table-wrap" style="display:block">
         <table>
             <thead>
@@ -1394,8 +1479,8 @@ ${
             </thead>
             <tbody>
                 ${appData.users
-									.map(
-										(u) => `
+						.map(
+							(u) => `
                     <tr>
                         <td><strong>${u.full_name || "—"}</strong></td>
                         <td>${u.email}</td>
@@ -1411,313 +1496,314 @@ ${
                         <td>${fmtDateOnly(u.created_at)}</td>
                     </tr>
                 `,
-									)
-									.join("")}
+						)
+						.join("")}
             </tbody>
         </table>
     </div>
     `
-				: `<div class="empty-state"><p>Brak zarejestrowanych użytkowników.</p></div>`
-		}
+					: `<div class="empty-state"><p>Brak zarejestrowanych użytkowników.</p></div>`
+				}
 </div>`;
+		}
+
+		// ── AKCJE ──
+
+		window.assignAndApprove = async function (lessonId) {
+			const tutorSelect = document.getElementById(`tutor-select-${lessonId}`);
+			const selectedTutorId = tutorSelect.value;
+
+			if (!selectedTutorId) {
+				alert("⚠️ Najpierw wybierz korepetytora z listy!");
+				return;
 			}
 
-			// ── AKCJE ──
-
-			window.assignAndApprove = async function (lessonId) {
-				const tutorSelect = document.getElementById(`tutor-select-${lessonId}`);
-				const selectedTutorId = tutorSelect.value;
-
-				if (!selectedTutorId) {
-					alert("⚠️ Najpierw wybierz korepetytora z listy!");
-					return;
-				}
-
-				if (
-					!confirm(
-						"Czy przypisać tę lekcję do wybranego nauczyciela i ją zatwierdzić?",
-					)
+			if (
+				!confirm(
+					"Czy przypisać tę lekcję do wybranego nauczyciela i ją zatwierdzić?",
 				)
-					return;
+			)
+				return;
 
-				const { error } = await supabaseClient
-					.from("lessons")
-					.update({
-						tutor_id: selectedTutorId,
-						status: "zaplanowana",
-					})
-					.eq("id", lessonId);
+			const { error } = await supabaseClient
+				.from("lessons")
+				.update({
+					tutor_id: selectedTutorId,
+					status: "zaplanowana",
+				})
+				.eq("id", lessonId);
 
-				if (error) {
-					alert("❌ Błąd: " + error.message);
-				} else {
-					alert("✅ Lekcja przypisana i zatwierdzona!");
-					await loadRealData(); // Odśwież dane
-					showPanel("all-lessons"); // Odśwież widok
-				}
-			};
-
-			window.changeUserRole = async function (userId, newRole) {
-				if (
-					!confirm(
-						`Czy na pewno chcesz zmienić rolę tego użytkownika na: ${newRole}?`,
-					)
-				)
-					return;
-
-				const { error } = await supabaseClient
-					.from("profiles")
-					.update({ role: newRole })
-					.eq("id", userId);
-
-				if (error) {
-					alert("❌ Błąd zmiany roli: " + error.message);
-				} else {
-					alert("✅ Rola została zmieniona pomyślnie!");
-					await loadRealData(); // Odświeżamy dane w tle
-					showPanel("all-users"); // Przeładowujemy widok użytkowników
-				}
-			};
-
-			window.approveLesson = async function (lessonId) {
-				if (!confirm("Czy na pewno chcesz POTWIERDZIĆ tę lekcję?")) return;
-
-				const { error } = await supabaseClient
-					.from("lessons")
-					.update({ status: "zaplanowana" })
-					.eq("id", lessonId);
-
-				if (error) {
-					alert("❌ Błąd: " + error.message);
-				} else {
-					alert("✅ Lekcja została zatwierdzona!");
-					await loadRealData(); // Odśwież dane
-					showPanel("all-lessons"); // Odśwież widok
-				}
-			};
-
-			window.rejectLesson = async function (lessonId) {
-				if (!confirm("Czy na pewno chcesz ODRZUCIĆ tę rezerwację?")) return;
-
-				const { error } = await supabaseClient
-					.from("lessons")
-					.update({ status: "odwolana" })
-					.eq("id", lessonId);
-
-				if (error) {
-					alert("❌ Błąd: " + error.message);
-				} else {
-					alert("❌ Lekcja została odrzucona.");
-					await loadRealData();
-					showPanel("all-lessons");
-				}
-			};
-
-			async function saveProfile() {
-				const msg = document.getElementById("profileMsg");
-				msg.textContent = "Zapisywanie...";
-				const { error } = await supabaseClient
-					.from("profiles")
-					.update({
-						full_name: document.getElementById("profName").value,
-						phone: document.getElementById("profPhone").value,
-					})
-					.eq("id", currentProfile.id);
-				msg.textContent = error
-					? "❌ Błąd zapisu: " + error.message
-					: "✅ Zapisano pomyślnie!";
+			if (error) {
+				alert("❌ Błąd: " + error.message);
+			} else {
+				alert("✅ Lekcja przypisana i zatwierdzona!");
+				await loadRealData(); // Odśwież dane
+				showPanel("all-lessons"); // Odśwież widok
 			}
+		};
 
-			async function submitBooking() {
-    const dateVal = document.getElementById("bDate").value;
-    const timeVal = document.getElementById("bTime").value;
-    const subject = document.getElementById("bSubject").value;
+		window.changeUserRole = async function (userId, newRole) {
+			if (
+				!confirm(
+					`Czy na pewno chcesz zmienić rolę tego użytkownika na: ${newRole}?`,
+				)
+			)
+				return;
 
-    if (!dateVal || !subject) {
-        alert("Wybierz datę i określ przedmiot lekcji!");
-        return;
-    }
+			const { error } = await supabaseClient
+				.from("profiles")
+				.update({ role: newRole })
+				.eq("id", userId);
 
-    // --- NOWA WALIDACJA DATY ---
-    const selectedDate = new Date(dateVal);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Zerujemy godziny, minuty i sekundy, by porównać same dni
+			if (error) {
+				alert("❌ Błąd zmiany roli: " + error.message);
+			} else {
+				alert("✅ Rola została zmieniona pomyślnie!");
+				await loadRealData(); // Odświeżamy dane w tle
+				showPanel("all-users"); // Przeładowujemy widok użytkowników
+			}
+		};
 
-    if (selectedDate < today) {
-        alert("⚠️ Nie możesz zaplanować lekcji z datą w przeszłości!");
-        return;
-    }
-    // ---------------------------
+		window.approveLesson = async function (lessonId) {
+			if (!confirm("Czy na pewno chcesz POTWIERDZIĆ tę lekcję?")) return;
 
-    const btn = document.getElementById("bBtn");
-    btn.textContent = "Przetwarzanie...";
-    btn.disabled = true;
+			const { error } = await supabaseClient
+				.from("lessons")
+				.update({ status: "zaplanowana" })
+				.eq("id", lessonId);
 
-    const role = currentProfile.role;
-    let finalStudentId = currentProfile.id;
-    let finalTutorId = null;
+			if (error) {
+				alert("❌ Błąd: " + error.message);
+			} else {
+				alert("✅ Lekcja została zatwierdzona!");
+				await loadRealData(); // Odśwież dane
+				showPanel("all-lessons"); // Odśwież widok
+			}
+		};
 
-    // Logika przypisywania
-    if (role === 'admin') {
-        finalStudentId = document.getElementById("bStudentId")?.value;
-        finalTutorId = document.getElementById("bTutorId")?.value;
-        if (!finalStudentId || !finalTutorId) {
-            alert("Jako admin musisz wybrać zarówno ucznia, jak i korepetytora z list!");
-            btn.textContent = "Dodaj lekcję do grafiku →";
-            btn.disabled = false; return;
-        }
-    } else if (role === 'korepetytor') {
-        finalTutorId = currentProfile.id;
-        finalStudentId = document.getElementById("bStudentId")?.value;
-        if (!finalStudentId) {
-            alert("Musisz wybrać ucznia z listy!");
-            btn.textContent = "Dodaj lekcję do grafiku →";
-            btn.disabled = false; return;
-        }
-    } else if (role === 'uczen') {
-        finalStudentId = currentProfile.id;
-        finalTutorId = document.getElementById("bTutorId")?.value;
-        if (!finalTutorId) {
-            alert("Musisz wybrać korepetytora z listy!");
-            btn.textContent = "Wyślij prośbę o lekcję →";
-            btn.disabled = false; return;
-        }
-    }
+		window.rejectLesson = async function (lessonId) {
+			if (!confirm("Czy na pewno chcesz ODRZUCIĆ tę rezerwację?")) return;
 
-    const dur = parseInt(document.getElementById("bDur")?.value || 60);
-    const notes = document.getElementById("bNotes")?.value || "";
-    const datetimeString = `${dateVal}T${timeVal}:00`;
-    
-    const status = (role === 'admin' || role === 'korepetytor') ? "zaplanowana" : "oczekuje";
-    const price = dur === 60 ? 100 : (dur === 90 ? 140 : 180);
+			const { error } = await supabaseClient
+				.from("lessons")
+				.update({ status: "odwolana" })
+				.eq("id", lessonId);
 
-    const { error } = await supabaseClient.from("lessons").insert({
-        student_id: finalStudentId,
-        tutor_id: finalTutorId,
-        subject: subject,
-        date: datetimeString,
-        duration_minutes: dur,
-        status: status,
-        notes: notes,
-        price: price
-    });
-
-    if (error) {
-        alert("❌ Błąd rezerwacji: " + error.message);
-        btn.textContent = role === 'uczen' ? "Wyślij prośbę o lekcję →" : "Dodaj lekcję do grafiku →";
-        btn.disabled = false;
-    } else {
-        alert(status === "zaplanowana" ? "✅ Lekcja pomyślnie dodana do grafiku!" : "✅ Prośba wysłana! Pojawi się u korepetytora.");
-        await loadRealData(); 
-        showPanel(role === 'uczen' ? "lessons" : "all-lessons"); 
-    }
-}
-
-			// ── INICJALIZACJA ──
-			async function init() {
-				await initSupabase();
-				const profile = await getCurrentProfile();
-				if (!profile) {
-					window.location.href = "login.html";
-					return;
-				}
-				currentProfile = profile;
-				const initStr = (profile.full_name || "?")
-					.split(" ")
-					.map((w) => w[0])
-					.join("")
-					.slice(0, 2)
-					.toUpperCase();
-
-				document.getElementById("userAvatar").textContent = initStr;
-				document.getElementById("userName").textContent =
-					profile.full_name || profile.email;
-				document.getElementById("userRole").textContent = profile.role;
-
-				// Pobranie prawdziwych danych z bazy zamiast DEMO!
+			if (error) {
+				alert("❌ Błąd: " + error.message);
+			} else {
+				alert("❌ Lekcja została odrzucona.");
 				await loadRealData();
-
-				buildNav(profile.role);
-				showPanel("overview");
+				showPanel("all-lessons");
 			}
-			// --- NOWE FUNKCJE DO ZARZĄDZANIA LEKCJAMI I OPŁATAMI ---
+		};
 
-			// Zmiana statusu opłacenia lekcji
-			window.changePaymentStatus = async function (lessonId, selectElement) {
-				const isPaid = (selectElement.value === 'true');
-				selectElement.disabled = true;
+		async function saveProfile() {
+			const msg = document.getElementById("profileMsg");
+			msg.textContent = "Zapisywanie...";
+			const { error } = await supabaseClient
+				.from("profiles")
+				.update({
+					full_name: document.getElementById("profName").value,
+					phone: document.getElementById("profPhone").value,
+				})
+				.eq("id", currentProfile.id);
+			msg.textContent = error
+				? "❌ Błąd zapisu: " + error.message
+				: "✅ Zapisano pomyślnie!";
+		}
 
-				const { data, error } = await supabaseClient
-					.from("lessons")
-					.update({ paid: isPaid })
-					.eq("id", lessonId)
-					.select();
+		async function submitBooking() {
+			const dateVal = document.getElementById("bDate").value;
+			const timeVal = document.getElementById("bTime").value;
+			const subject = document.getElementById("bSubject").value;
 
-				if (error) {
-					alert("❌ Błąd aktualizacji: " + error.message);
-					selectElement.disabled = false;
-					selectElement.value = (!isPaid).toString();
-				} else if (!data || data.length === 0) {
-					alert("❌ Baza odrzuciła zapis (brak uprawnień RLS).");
-					selectElement.disabled = false;
-					selectElement.value = (!isPaid).toString();
-				} else {
-					// 🚀 NATYCHMIASTOWA AKTUALIZACJA WIDOKU (BEZ POBIERANIA CAŁEJ BAZY)
-					const lessonIndex = appData.lessons.findIndex(l => l.id === lessonId);
-					if (lessonIndex !== -1) {
-						appData.lessons[lessonIndex].paid = isPaid; // Aktualizujemy lokalnie
-					}
-					
-					showPanel("payments"); // Przeładowujemy sam widok (teraz na 100% użyje nowej wartości)
+			if (!dateVal || !subject) {
+				alert("Wybierz datę i określ przedmiot lekcji!");
+				return;
+			}
+
+			// --- NOWA WALIDACJA DATY ---
+			const selectedDate = new Date(dateVal);
+			const today = new Date();
+			today.setHours(0, 0, 0, 0); // Zerujemy godziny, minuty i sekundy, by porównać same dni
+
+			if (selectedDate < today) {
+				alert("⚠️ Nie możesz zaplanować lekcji z datą w przeszłości!");
+				return;
+			}
+			// ---------------------------
+
+			const btn = document.getElementById("bBtn");
+			btn.textContent = "Przetwarzanie...";
+			btn.disabled = true;
+
+			const role = currentProfile.role;
+			let finalStudentId = currentProfile.id;
+			let finalTutorId = null;
+
+			// Logika przypisywania
+			if (role === 'admin') {
+				finalStudentId = document.getElementById("bStudentId")?.value;
+				finalTutorId = document.getElementById("bTutorId")?.value;
+				if (!finalStudentId || !finalTutorId) {
+					alert("Jako admin musisz wybrać zarówno ucznia, jak i korepetytora z list!");
+					btn.textContent = "Dodaj lekcję do grafiku →";
+					btn.disabled = false; return;
 				}
-			};
+			} else if (role === 'korepetytor') {
+				finalTutorId = currentProfile.id;
+				finalStudentId = document.getElementById("bStudentId")?.value;
+				if (!finalStudentId) {
+					alert("Musisz wybrać ucznia z listy!");
+					btn.textContent = "Dodaj lekcję do grafiku →";
+					btn.disabled = false; return;
+				}
+			} else if (role === 'uczen') {
+				finalStudentId = currentProfile.id;
+				finalTutorId = document.getElementById("bTutorId")?.value;
+				if (!finalTutorId) {
+					alert("Musisz wybrać korepetytora z listy!");
+					btn.textContent = "Wyślij prośbę o lekcję →";
+					btn.disabled = false; return;
+				}
+			}
 
-			// Trwałe usuwanie lekcji z bazy (tylko dla admina)
-			window.deleteLesson = async function (lessonId) {
-				if (
-					!confirm(
-						"⚠️ UWAGA! Czy na pewno chcesz TRWALE USUNĄĆ tę lekcję z bazy danych? Tej operacji nie można cofnąć!",
-					)
+			const dur = parseInt(document.getElementById("bDur")?.value || 60);
+			const notes = document.getElementById("bNotes")?.value || "";
+			const datetimeString = `${dateVal}T${timeVal}:00`;
+
+			const status = (role === 'admin' || role === 'korepetytor') ? "zaplanowana" : "oczekuje";
+			const price = dur === 60 ? 100 : (dur === 90 ? 140 : 180);
+
+			const { error } = await supabaseClient.from("lessons").insert({
+				student_id: finalStudentId,
+				tutor_id: finalTutorId,
+				subject: subject,
+				date: datetimeString,
+				duration_minutes: dur,
+				status: status,
+				notes: notes,
+				price: price
+			});
+
+			if (error) {
+				alert("❌ Błąd rezerwacji: " + error.message);
+				btn.textContent = role === 'uczen' ? "Wyślij prośbę o lekcję →" : "Dodaj lekcję do grafiku →";
+				btn.disabled = false;
+			} else {
+				alert(status === "zaplanowana" ? "✅ Lekcja pomyślnie dodana do grafiku!" : "✅ Prośba wysłana! Pojawi się u korepetytora.");
+				await loadRealData();
+				showPanel(role === 'uczen' ? "lessons" : "all-lessons");
+			}
+		}
+
+		// ── INICJALIZACJA ──
+		async function init() {
+			await initSupabase();
+			const profile = await getCurrentProfile();
+			if (!profile) {
+				window.location.href = "login.html";
+				return;
+			}
+			currentProfile = profile;
+			const initStr = (profile.full_name || "?")
+				.split(" ")
+				.map((w) => w[0])
+				.join("")
+				.slice(0, 2)
+				.toUpperCase();
+
+			document.getElementById("userAvatar").textContent = initStr;
+			document.getElementById("userName").textContent =
+				profile.full_name || profile.email;
+			document.getElementById("userRole").textContent = profile.role;
+
+			// Pobranie prawdziwych danych z bazy zamiast DEMO!
+			await loadRealData();
+
+			buildNav(profile.role);
+			showPanel("overview");
+		}
+		// --- NOWE FUNKCJE DO ZARZĄDZANIA LEKCJAMI I OPŁATAMI ---
+
+		// Zmiana statusu opłacenia lekcji
+		window.changePaymentStatus = async function (lessonId, selectElement) {
+			const isPaid = (selectElement.value === 'true');
+			selectElement.disabled = true;
+
+			const { data, error } = await supabaseClient
+				.from("lessons")
+				.update({ paid: isPaid })
+				.eq("id", lessonId)
+				.select();
+
+			if (error) {
+				alert("❌ Błąd aktualizacji: " + error.message);
+				selectElement.disabled = false;
+				selectElement.value = (!isPaid).toString();
+			} else if (!data || data.length === 0) {
+				alert("❌ Baza odrzuciła zapis (brak uprawnień RLS).");
+				selectElement.disabled = false;
+				selectElement.value = (!isPaid).toString();
+			} else {
+				// 🚀 NATYCHMIASTOWA AKTUALIZACJA WIDOKU (BEZ POBIERANIA CAŁEJ BAZY)
+				const lessonIndex = appData.lessons.findIndex(l => l.id === lessonId);
+				if (lessonIndex !== -1) {
+					appData.lessons[lessonIndex].paid = isPaid; // Aktualizujemy lokalnie
+				}
+
+				showPanel("payments"); // Przeładowujemy sam widok (teraz na 100% użyje nowej wartości)
+			}
+		};
+
+		// Trwałe usuwanie lekcji z bazy (tylko dla admina)
+		window.deleteLesson = async function (lessonId) {
+			if (
+				!confirm(
+					"⚠️ UWAGA! Czy na pewno chcesz TRWALE USUNĄĆ tę lekcję z bazy danych? Tej operacji nie można cofnąć!",
 				)
-					return;
+			)
+				return;
 
-				const { error } = await supabaseClient
-					.from("lessons")
-					.delete()
-					.eq("id", lessonId);
+			const { error } = await supabaseClient
+				.from("lessons")
+				.delete()
+				.eq("id", lessonId);
 
-				if (error) {
-					alert("❌ Błąd usuwania: " + error.message);
-				} else {
-					alert("✅ Lekcja została bezpowrotnie usunięta z bazy.");
-					await loadRealData();
-					showPanel("all-lessons"); // Odśwież widok wszystkich lekcji
-				}
-			};
+			if (error) {
+				alert("❌ Błąd usuwania: " + error.message);
+			} else {
+				alert("✅ Lekcja została bezpowrotnie usunięta z bazy.");
+				await loadRealData();
+				showPanel("all-lessons"); // Odśwież widok wszystkich lekcji
+			}
+		};
 
-			// Oznaczanie lekcji jako "odbyta" (aby wpadła do zakładki Opłaty)
-			window.markAsDone = async function (lessonId) {
-				if (
-					!confirm(
-						"Oznaczyć tę lekcję jako zakończoną? Pojawi się wtedy w zakładce Opłaty.",
-					)
+		// Oznaczanie lekcji jako "odbyta" (aby wpadła do zakładki Opłaty)
+		window.markAsDone = async function (lessonId) {
+			if (
+				!confirm(
+					"Oznaczyć tę lekcję jako zakończoną? Pojawi się wtedy w zakładce Opłaty.",
 				)
-					return;
+			)
+				return;
 
-				const { error } = await supabaseClient
-					.from("lessons")
-					.update({ status: "odbyta" })
-					.eq("id", lessonId);
+			const { error } = await supabaseClient
+				.from("lessons")
+				.update({ status: "odbyta" })
+				.eq("id", lessonId);
 
-				if (error) {
-					alert("❌ Błąd: " + error.message);
-				} else {
-					await loadRealData();
-					showPanel("all-lessons");
-				}
-			};
-			// Uruchomienie
-			init();
-		</script>
-	</body>
+			if (error) {
+				alert("❌ Błąd: " + error.message);
+			} else {
+				await loadRealData();
+				showPanel("all-lessons");
+			}
+		};
+		// Uruchomienie
+		init();
+	</script>
+</body>
+
 </html>

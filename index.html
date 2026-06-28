@@ -1,19 +1,22 @@
 <!doctype html>
 <html lang="pl">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Korepetycje z Matematyki i Informatyki Online | Szymon Tyburczy</title>
-		<meta name="description" content="Korepetycje z matematyki i informatyki w Krakowie i online. Szymon Tyburczy — matura, egzamin 8-klasisty, studia. Pierwsza konsultacja 15 min gratis. Tel. +48 789 142 398." />
-		<link rel="canonical" href="https://korepetycje-tyburczy.pl/" />
-		<meta property="og:type" content="website" />
-		<meta property="og:url" content="https://korepetycje-tyburczy.pl/" />
-		<meta property="og:title" content="Korepetycje Szymon Tyburczy — Matematyka i Informatyka" />
-		<meta property="og:description" content="Korepetycje z matematyki i informatyki w Krakowie i online. Matura, egzamin 8-klasisty, studia. Pierwsza konsultacja gratis." />
-		<meta property="og:image" content="https://korepetycje-tyburczy.pl/Szymon.jpg" />
-		<meta property="og:locale" content="pl_PL" />
-		<meta name="twitter:card" content="summary_large_image" />
-		<script type="application/ld+json">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Korepetycje z Matematyki i Informatyki Online | Szymon Tyburczy</title>
+	<meta name="description"
+		content="Korepetycje z matematyki i informatyki w Krakowie i online. Szymon Tyburczy — matura, egzamin 8-klasisty, studia. Pierwsza konsultacja 15 min gratis. Tel. +48 789 142 398." />
+	<link rel="canonical" href="https://korepetycje-tyburczy.pl/" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://korepetycje-tyburczy.pl/" />
+	<meta property="og:title" content="Korepetycje Szymon Tyburczy — Matematyka i Informatyka" />
+	<meta property="og:description"
+		content="Korepetycje z matematyki i informatyki w Krakowie i online. Matura, egzamin 8-klasisty, studia. Pierwsza konsultacja gratis." />
+	<meta property="og:image" content="https://korepetycje-tyburczy.pl/Szymon.jpg" />
+	<meta property="og:locale" content="pl_PL" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<script type="application/ld+json">
 		{
 			"@context": "https://schema.org",
 			"@graph": [
@@ -46,692 +49,704 @@
 			]
 		}
 		</script>
-		<link rel="stylesheet" href="style.css" />
-		<style>
-			/* ── HERO ── */
-			#hero {
-				min-height: 100svh;
-				background: var(--navy);
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				text-align: center;
-				padding: 80px 1.2rem 3rem;
-				position: relative;
-				overflow: hidden;
-			}
-			#hero::before {
-				content: "";
-				position: absolute;
-				inset: 0;
-				background:
-					radial-gradient(
-						ellipse 80% 60% at 50% 90%,
-						rgba(201, 168, 76, 0.08),
-						transparent 70%
-					),
-					repeating-linear-gradient(
-						45deg,
-						transparent,
-						transparent 40px,
-						rgba(255, 255, 255, 0.012) 40px,
-						rgba(255, 255, 255, 0.012) 41px
-					);
-			}
-			.hero-inner {
-				position: relative;
-				max-width: 800px;
-			}
-			.hero-badge {
-				display: inline-block;
-				border: 1px solid var(--gold);
-				color: var(--gold-light);
-				font-size: 0.7rem;
-				letter-spacing: 0.16em;
-				text-transform: uppercase;
-				padding: 0.3rem 1rem;
-				border-radius: 2px;
-				margin-bottom: 1.5rem;
-				animation: fadeUp 0.6s ease both;
-			}
-			.hero-title {
-				font-family: "Playfair Display", serif;
-				font-size: clamp(2.2rem, 8vw, 4rem);
-				color: var(--white);
-				line-height: 1.2;
-				font-weight: 700;
-				margin-bottom: 1.2rem;
-				animation: fadeUp 0.7s 0.1s ease both;
-			}
-			.hero-title em {
-				color: var(--gold-light);
-				font-style: italic;
-			}
-			.hero-sub {
-				font-size: clamp(0.9rem, 3vw, 1.1rem);
-				color: rgba(255, 255, 255, 0.68);
-				max-width: 520px;
-				margin: 0 auto 2rem;
-				font-weight: 300;
-				animation: fadeUp 0.7s 0.2s ease both;
-			}
-			.hero-buttons {
-				display: flex;
-				gap: 0.8rem;
-				justify-content: center;
-				flex-wrap: wrap;
-				animation: fadeUp 0.7s 0.3s ease both;
-			}
-			.hero-buttons .btn {
-				min-width: 160px;
-			}
+	<link rel="stylesheet" href="style.css" />
+	<style>
+		/* ── HERO ── */
+		#hero {
+			min-height: 100svh;
+			background: var(--navy);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			padding: 80px 1.2rem 3rem;
+			position: relative;
+			overflow: hidden;
+		}
+
+		#hero::before {
+			content: "";
+			position: absolute;
+			inset: 0;
+			background:
+				radial-gradient(ellipse 80% 60% at 50% 90%,
+					rgba(201, 168, 76, 0.08),
+					transparent 70%),
+				repeating-linear-gradient(45deg,
+					transparent,
+					transparent 40px,
+					rgba(255, 255, 255, 0.012) 40px,
+					rgba(255, 255, 255, 0.012) 41px);
+		}
+
+		.hero-inner {
+			position: relative;
+			max-width: 800px;
+		}
+
+		.hero-badge {
+			display: inline-block;
+			border: 1px solid var(--gold);
+			color: var(--gold-light);
+			font-size: 0.7rem;
+			letter-spacing: 0.16em;
+			text-transform: uppercase;
+			padding: 0.3rem 1rem;
+			border-radius: 2px;
+			margin-bottom: 1.5rem;
+			animation: fadeUp 0.6s ease both;
+		}
+
+		.hero-title {
+			font-family: "Playfair Display", serif;
+			font-size: clamp(2.2rem, 8vw, 4rem);
+			color: var(--white);
+			line-height: 1.2;
+			font-weight: 700;
+			margin-bottom: 1.2rem;
+			animation: fadeUp 0.7s 0.1s ease both;
+		}
+
+		.hero-title em {
+			color: var(--gold-light);
+			font-style: italic;
+		}
+
+		.hero-sub {
+			font-size: clamp(0.9rem, 3vw, 1.1rem);
+			color: rgba(255, 255, 255, 0.68);
+			max-width: 520px;
+			margin: 0 auto 2rem;
+			font-weight: 300;
+			animation: fadeUp 0.7s 0.2s ease both;
+		}
+
+		.hero-buttons {
+			display: flex;
+			gap: 0.8rem;
+			justify-content: center;
+			flex-wrap: wrap;
+			animation: fadeUp 0.7s 0.3s ease both;
+		}
+
+		.hero-buttons .btn {
+			min-width: 160px;
+		}
+
+		.hero-stats {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 1rem 2rem;
+			margin-top: 3rem;
+			padding-top: 2rem;
+			border-top: 1px solid rgba(255, 255, 255, 0.1);
+			animation: fadeUp 0.7s 0.4s ease both;
+		}
+
+		@media (min-width: 480px) {
 			.hero-stats {
-				display: grid;
-				grid-template-columns: 1fr 1fr;
-				gap: 1rem 2rem;
-				margin-top: 3rem;
-				padding-top: 2rem;
-				border-top: 1px solid rgba(255, 255, 255, 0.1);
-				animation: fadeUp 0.7s 0.4s ease both;
+				grid-template-columns: repeat(4, 1fr);
 			}
-			@media (min-width: 480px) {
-				.hero-stats {
-					grid-template-columns: repeat(4, 1fr);
-				}
-			}
-			.stat {
-				text-align: center;
-			}
-			.stat-num {
-				font-family: "Playfair Display", serif;
-				font-size: 1.8rem;
-				color: var(--gold-light);
-				display: block;
-				font-weight: 700;
-			}
-			.stat-label {
-				font-size: 0.72rem;
-				color: rgba(255, 255, 255, 0.5);
-				text-transform: uppercase;
-				letter-spacing: 0.08em;
-			}
+		}
 
-			/* ── ABOUT ── */
-			#about {
-				background: var(--white);
-			}
+		.stat {
+			text-align: center;
+		}
+
+		.stat-num {
+			font-family: "Playfair Display", serif;
+			font-size: 1.8rem;
+			color: var(--gold-light);
+			display: block;
+			font-weight: 700;
+		}
+
+		.stat-label {
+			font-size: 0.72rem;
+			color: rgba(255, 255, 255, 0.5);
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+		}
+
+		/* ── ABOUT ── */
+		#about {
+			background: var(--white);
+		}
+
+		.about-grid {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 2.5rem;
+		}
+
+		@media (min-width: 768px) {
 			.about-grid {
-				display: grid;
-				grid-template-columns: 1fr;
-				gap: 2.5rem;
-			}
-			@media (min-width: 768px) {
-				.about-grid {
-					grid-template-columns: 1fr 1fr;
-					gap: 4rem;
-					align-items: center;
-				}
-			}
-			.about-img-wrap {
-				position: relative;
-				max-width: 400px;
-				margin: 0 auto;
-				width: 100%;
-			}
-			.about-img {
-				width: 100%;
-				aspect-ratio: 4/5;
-				max-height: 400px;
-				background: linear-gradient(145deg, var(--navy), var(--navy-light));
-				border-radius: var(--radius);
-				display: flex;
+				grid-template-columns: 1fr 1fr;
+				gap: 4rem;
 				align-items: center;
-				justify-content: center;
-				font-size: 5rem;
-				overflow: hidden;
 			}
-			.about-img img {
-				width: 100%;
-				height: 100%;
-				object-fit: cover;
-			}
-			.about-accent {
-				position: absolute;
-				bottom: -12px;
-				right: -12px;
-				width: 60px;
-				height: 60px;
-				background: var(--gold);
-				border-radius: 3px;
-				z-index: -1;
-			}
-			.about-feat {
-				display: flex;
-				gap: 0.9rem;
-				align-items: flex-start;
-				margin-bottom: 0.9rem;
-			}
-			.feat-icon {
-				width: 36px;
-				height: 36px;
-				background: var(--cream);
-				border: 1px solid var(--border);
-				border-radius: 50%;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-size: 0.9rem;
-				flex-shrink: 0;
-				margin-top: 2px;
-			}
-			.feat-text strong {
-				display: block;
-				color: var(--navy);
-				margin-bottom: 0.1rem;
-				font-size: 0.95rem;
-			}
-			.feat-text span {
-				font-size: 0.88rem;
-				color: var(--text-muted);
-			}
+		}
 
-			/* ── SUBJECTS ── */
-			#subjects {
-				background: var(--cream);
-			}
+		.about-img-wrap {
+			position: relative;
+			max-width: 400px;
+			margin: 0 auto;
+			width: 100%;
+		}
+
+		.about-img {
+			width: 100%;
+			aspect-ratio: 4/5;
+			max-height: 400px;
+			background: linear-gradient(145deg, var(--navy), var(--navy-light));
+			border-radius: var(--radius);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 5rem;
+			overflow: hidden;
+		}
+
+		.about-img img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+
+		.about-accent {
+			position: absolute;
+			bottom: -12px;
+			right: -12px;
+			width: 60px;
+			height: 60px;
+			background: var(--gold);
+			border-radius: 3px;
+			z-index: -1;
+		}
+
+		.about-feat {
+			display: flex;
+			gap: 0.9rem;
+			align-items: flex-start;
+			margin-bottom: 0.9rem;
+		}
+
+		.feat-icon {
+			width: 36px;
+			height: 36px;
+			background: var(--cream);
+			border: 1px solid var(--border);
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 0.9rem;
+			flex-shrink: 0;
+			margin-top: 2px;
+		}
+
+		.feat-text strong {
+			display: block;
+			color: var(--navy);
+			margin-bottom: 0.1rem;
+			font-size: 0.95rem;
+		}
+
+		.feat-text span {
+			font-size: 0.88rem;
+			color: var(--text-muted);
+		}
+
+		/* ── SUBJECTS ── */
+		#subjects {
+			background: var(--cream);
+		}
+
+		.subjects-grid {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 1rem;
+		}
+
+		@media (min-width: 480px) {
 			.subjects-grid {
-				display: grid;
-				grid-template-columns: 1fr;
-				gap: 1rem;
+				grid-template-columns: 1fr 1fr;
 			}
-			@media (min-width: 480px) {
-				.subjects-grid {
-					grid-template-columns: 1fr 1fr;
-				}
-			}
-			@media (min-width: 900px) {
-				.subjects-grid {
-					grid-template-columns: repeat(4, 1fr);
-				}
-			}
-			.subj-card {
-				padding: 1.5rem;
-			}
-			.subj-icon {
-				font-size: 2rem;
-				margin-bottom: 0.8rem;
-			}
-			.subj-card h3 {
-				font-family: "Playfair Display", serif;
-				font-size: 1.1rem;
-				color: var(--navy);
-				margin-bottom: 0.4rem;
-			}
-			.subj-card p {
-				font-size: 0.88rem;
-				color: var(--text-muted);
-				line-height: 1.6;
-			}
+		}
 
-			/* ── CTA ── */
+		@media (min-width: 900px) {
+			.subjects-grid {
+				grid-template-columns: repeat(4, 1fr);
+			}
+		}
+
+		.subj-card {
+			padding: 1.5rem;
+		}
+
+		.subj-icon {
+			font-size: 2rem;
+			margin-bottom: 0.8rem;
+		}
+
+		.subj-card h3 {
+			font-family: "Playfair Display", serif;
+			font-size: 1.1rem;
+			color: var(--navy);
+			margin-bottom: 0.4rem;
+		}
+
+		.subj-card p {
+			font-size: 0.88rem;
+			color: var(--text-muted);
+			line-height: 1.6;
+		}
+
+		/* ── CTA ── */
+		#cta {
+			background: var(--navy);
+			text-align: center;
+			padding: 3.5rem 1.2rem;
+		}
+
+		#cta h2 {
+			font-family: "Playfair Display", serif;
+			font-size: clamp(1.6rem, 5vw, 2.5rem);
+			color: var(--white);
+			margin-bottom: 0.8rem;
+		}
+
+		#cta p {
+			color: rgba(255, 255, 255, 0.6);
+			margin-bottom: 2rem;
+			font-size: 1rem;
+			font-weight: 300;
+		}
+
+		@media (min-width: 768px) {
 			#cta {
-				background: var(--navy);
-				text-align: center;
-				padding: 3.5rem 1.2rem;
+				padding: 5rem 2rem;
 			}
-			#cta h2 {
-				font-family: "Playfair Display", serif;
-				font-size: clamp(1.6rem, 5vw, 2.5rem);
-				color: var(--white);
-				margin-bottom: 0.8rem;
-			}
-			#cta p {
-				color: rgba(255, 255, 255, 0.6);
-				margin-bottom: 2rem;
-				font-size: 1rem;
-				font-weight: 300;
-			}
-			@media (min-width: 768px) {
-				#cta {
-					padding: 5rem 2rem;
-				}
-			}
+		}
 
-			/* ── CONTACT ── */
-			#contact {
-				background: var(--cream-dark);
-			}
+		/* ── CONTACT ── */
+		#contact {
+			background: var(--cream-dark);
+		}
+
+		.contact-grid {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 2.5rem;
+		}
+
+		@media (min-width: 900px) {
 			.contact-grid {
-				display: grid;
-				grid-template-columns: 1fr;
-				gap: 2.5rem;
+				grid-template-columns: 1fr 1.5fr;
+				gap: 5rem;
+				align-items: start;
 			}
-			@media (min-width: 900px) {
-				.contact-grid {
-					grid-template-columns: 1fr 1.5fr;
-					gap: 5rem;
-					align-items: start;
-				}
-			}
-			.contact-info h3 {
-				font-family: "Playfair Display", serif;
-				font-size: 1.35rem;
-				color: var(--navy);
-				margin-bottom: 0.7rem;
-			}
-			.contact-info p {
-				color: var(--text-muted);
-				font-size: 0.92rem;
-				margin-bottom: 1.5rem;
-			}
-			.contact-items {
-				display: flex;
-				flex-direction: column;
-				gap: 1rem;
-			}
-			.contact-item {
-				display: flex;
-				gap: 0.9rem;
-				align-items: center;
-			}
-			.contact-icon {
-				width: 40px;
-				height: 40px;
-				background: var(--cream);
-				border: 1px solid var(--border);
-				border-radius: 50%;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-size: 1rem;
-				flex-shrink: 0;
-			}
-			.contact-item span {
-				font-size: 0.9rem;
-				color: var(--text-muted);
-			}
-			.contact-item strong {
-				display: block;
-				color: var(--navy);
-				font-size: 0.85rem;
-				margin-bottom: 0.05rem;
-			}
-			.contact-form {
-				display: flex;
-				flex-direction: column;
-				gap: 0.2rem;
-			}
+		}
+
+		.contact-info h3 {
+			font-family: "Playfair Display", serif;
+			font-size: 1.35rem;
+			color: var(--navy);
+			margin-bottom: 0.7rem;
+		}
+
+		.contact-info p {
+			color: var(--text-muted);
+			font-size: 0.92rem;
+			margin-bottom: 1.5rem;
+		}
+
+		.contact-items {
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
+		}
+
+		.contact-item {
+			display: flex;
+			gap: 0.9rem;
+			align-items: center;
+		}
+
+		.contact-icon {
+			width: 40px;
+			height: 40px;
+			background: var(--cream);
+			border: 1px solid var(--border);
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1rem;
+			flex-shrink: 0;
+		}
+
+		.contact-item span {
+			font-size: 0.9rem;
+			color: var(--text-muted);
+		}
+
+		.contact-item strong {
+			display: block;
+			color: var(--navy);
+			font-size: 0.85rem;
+			margin-bottom: 0.05rem;
+		}
+
+		.contact-form {
+			display: flex;
+			flex-direction: column;
+			gap: 0.2rem;
+		}
+
+		.form-row {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 0;
+		}
+
+		@media (min-width: 480px) {
 			.form-row {
-				display: grid;
-				grid-template-columns: 1fr;
-				gap: 0;
+				grid-template-columns: 1fr 1fr;
+				gap: 0.8rem;
 			}
-			@media (min-width: 480px) {
-				.form-row {
-					grid-template-columns: 1fr 1fr;
-					gap: 0.8rem;
-				}
-			}
-			.form-submit {
-				background: var(--navy);
-				color: var(--white);
-				border: none;
-				padding: 0.9rem;
-				border-radius: 3px;
-				font-family: "Source Serif 4", serif;
-				font-size: 1rem;
-				font-weight: 600;
-				cursor: pointer;
-				transition: background 0.2s;
-				width: 100%;
-				min-height: var(--touch);
-			}
-			.form-submit:hover {
-				background: var(--navy-light);
-			}
-			.form-success {
-				display: none;
-				background: #f0faf4;
-				border: 1px solid #86c9a2;
-				border-radius: 3px;
-				padding: 0.9rem 1rem;
-				color: #256541;
-				font-size: 0.9rem;
-				margin-top: 0.5rem;
+		}
+
+		.form-submit {
+			background: var(--navy);
+			color: var(--white);
+			border: none;
+			padding: 0.9rem;
+			border-radius: 3px;
+			font-family: "Source Serif 4", serif;
+			font-size: 1rem;
+			font-weight: 600;
+			cursor: pointer;
+			transition: background 0.2s;
+			width: 100%;
+			min-height: var(--touch);
+		}
+
+		.form-submit:hover {
+			background: var(--navy-light);
+		}
+
+		.form-success {
+			display: none;
+			background: #f0faf4;
+			border: 1px solid #86c9a2;
+			border-radius: 3px;
+			padding: 0.9rem 1rem;
+			color: #256541;
+			font-size: 0.9rem;
+			margin-top: 0.5rem;
+		}
+
+		/* ── CONSENT CHECKBOX ── */
+		.consent-label {
+			display: flex;
+			align-items: flex-start;
+			gap: 0.6rem;
+			font-size: 0.82rem;
+			color: var(--text-muted);
+			line-height: 1.55;
+			cursor: pointer;
+			margin: 0.3rem 0 0.5rem;
+		}
+
+		.consent-label input[type="checkbox"] {
+			width: 18px;
+			height: 18px;
+			accent-color: var(--navy);
+			cursor: pointer;
+			flex-shrink: 0;
+			margin-top: 2px;
+		}
+
+		.consent-label a {
+			color: var(--gold);
+			text-decoration: none;
+		}
+
+		.consent-label a:hover {
+			text-decoration: underline;
+		}
+
+		@keyframes fadeUp {
+			from {
+				opacity: 0;
+				transform: translateY(20px);
 			}
 
-			/* ── CONSENT CHECKBOX ── */
-			.consent-label {
-				display: flex;
-				align-items: flex-start;
-				gap: 0.6rem;
-				font-size: 0.82rem;
-				color: var(--text-muted);
-				line-height: 1.55;
-				cursor: pointer;
-				margin: 0.3rem 0 0.5rem;
+			to {
+				opacity: 1;
+				transform: none;
 			}
-			.consent-label input[type="checkbox"] {
-				width: 18px;
-				height: 18px;
-				accent-color: var(--navy);
-				cursor: pointer;
-				flex-shrink: 0;
-				margin-top: 2px;
-			}
-			.consent-label a {
-				color: var(--gold);
-				text-decoration: none;
-			}
-			.consent-label a:hover {
-				text-decoration: underline;
-			}
+		}
+	</style>
 
-			@keyframes fadeUp {
-				from {
-					opacity: 0;
-					transform: translateY(20px);
-				}
-				to {
-					opacity: 1;
-					transform: none;
-				}
-			}
-		</style>
-		
-		  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-	</head>
-	<body>
-		<nav id="mainNav"></nav>
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
 
-		<section id="hero">
-			<div class="hero-inner">
-				<div class="hero-badge">
-					Matematyka · Informatyka · Kraków &amp; Online
-				</div>
-				<h1 class="hero-title">
-					Zrozum matematykę<br />informatykę i inne<br /><em>raz na zawsze</em>
-				</h1>
-				<p class="hero-sub">
-					Indywidualne lekcje prowadzone przez sprawdzonych specjalistów. Dla
-					uczniów i studentów na każdym poziomie.
-				</p>
-				<div class="hero-buttons">
-					<a href="#contact" class="btn btn-gold">Umów lekcję</a>
-					<a
-						href="/korepetytorzy"
-						class="btn btn-outline"
-						style="
+<body>
+	<nav id="mainNav"></nav>
+
+	<section id="hero">
+		<div class="hero-inner">
+			<div class="hero-badge">
+				Matematyka · Informatyka · Kraków &amp; Online
+			</div>
+			<h1 class="hero-title">
+				Zrozum matematykę<br />informatykę i inne<br /><em>raz na zawsze</em>
+			</h1>
+			<p class="hero-sub">
+				Indywidualne lekcje prowadzone przez sprawdzonych specjalistów. Dla
+				uczniów i studentów na każdym poziomie.
+			</p>
+			<div class="hero-buttons">
+				<a href="#contact" class="btn btn-gold">Umów lekcję</a>
+				<a href="/korepetytorzy" class="btn btn-outline" style="
 							border-color: rgba(255, 255, 255, 0.4);
 							color: rgba(255, 255, 255, 0.9);
-						"
-						>Nasi korepetytorzy</a
-					>
+						">Nasi korepetytorzy</a>
+			</div>
+			<div class="hero-stats">
+				<div class="stat">
+					<span class="stat-num">3+</span><span class="stat-label">korepetytorów</span>
 				</div>
-				<div class="hero-stats">
-					<div class="stat">
-						<span class="stat-num">3+</span
-						><span class="stat-label">korepetytorów</span>
-					</div>
-					<div class="stat">
-						<span class="stat-num">100+</span
-						><span class="stat-label">uczniów</span>
-					</div>
-					<div class="stat">
-						<span class="stat-num">100%</span
-						><span class="stat-label">zdawalność</span>
-					</div>
-					<div class="stat">
-						<span class="stat-num">4 lata</span
-						><span class="stat-label">doświadczenia</span>
-					</div>
+				<div class="stat">
+					<span class="stat-num">100+</span><span class="stat-label">uczniów</span>
+				</div>
+				<div class="stat">
+					<span class="stat-num">100%</span><span class="stat-label">zdawalność</span>
+				</div>
+				<div class="stat">
+					<span class="stat-num">4 lata</span><span class="stat-label">doświadczenia</span>
 				</div>
 			</div>
-		</section>
+		</div>
+	</section>
 
-		<section id="about" class="section">
-			<div class="container">
-				<div class="about-grid">
-					<div class="about-img-wrap reveal">
-						<div class="about-img"><img src = "Szymon.jpg" alt="Szymon Tyburczy"></div>
-						<div class="about-accent"></div>
-					</div>
-					<div class="reveal">
-						<span class="section-tag">O nas</span>
-						<h2 class="section-title">Korepetycje z prawdziwą pasją</h2>
-						<p class="section-desc">
-							Tworzymy zespół doświadczonych nauczycieli, którzy wierzą, że
-							każdy dobrze poprowadzony uczeń może osiągnąć sukces.
-						</p>
-						<div class="about-feat">
-							<div class="feat-icon">🎯</div>
-							<div class="feat-text">
-								<strong>Indywidualne podejście</strong
-								><span>Każda lekcja dopasowana do tempa i poziomu ucznia.</span>
-							</div>
-						</div>
-						<div class="about-feat">
-							<div class="feat-icon">💻</div>
-							<div class="feat-text">
-								<strong>Online i stacjonarnie</strong
-								><span
-									>Discord lub alternatywnie inne lub osobiście w
-									Krakowie.</span
-								>
-							</div>
-						</div>
-						<div class="about-feat">
-							<div class="feat-icon">📈</div>
-							<div class="feat-text">
-								<strong>Mierzalne wyniki</strong
-								><span>Regularnie śledzimy postępy i dostosowujemy plan.</span>
-							</div>
-						</div>
-						<br />
-						<a href="/o-mnie" class="btn btn-primary">Więcej o mnie →</a>
-					</div>
+	<section id="about" class="section">
+		<div class="container">
+			<div class="about-grid">
+				<div class="about-img-wrap reveal">
+					<div class="about-img"><img src="Szymon.jpg" alt="Szymon Tyburczy"></div>
+					<div class="about-accent"></div>
 				</div>
-			</div>
-		</section>
-
-		<section id="subjects" class="section">
-			<div class="container">
 				<div class="reveal">
-					<span class="section-tag">Przedmioty</span>
-					<h2 class="section-title">Czego uczymy?</h2>
+					<span class="section-tag">O nas</span>
+					<h2 class="section-title">Korepetycje z prawdziwą pasją</h2>
 					<p class="section-desc">
-						Pełny zakres — od szkoły podstawowej po studia wyższe.
+						Tworzymy zespół doświadczonych nauczycieli, którzy wierzą, że
+						każdy dobrze poprowadzony uczeń może osiągnąć sukces.
+					</p>
+					<div class="about-feat">
+						<div class="feat-icon">🎯</div>
+						<div class="feat-text">
+							<strong>Indywidualne podejście</strong><span>Każda lekcja dopasowana do tempa i poziomu
+								ucznia.</span>
+						</div>
+					</div>
+					<div class="about-feat">
+						<div class="feat-icon">💻</div>
+						<div class="feat-text">
+							<strong>Online i stacjonarnie</strong><span>Discord lub alternatywnie inne lub osobiście w
+								Krakowie.</span>
+						</div>
+					</div>
+					<div class="about-feat">
+						<div class="feat-icon">📈</div>
+						<div class="feat-text">
+							<strong>Mierzalne wyniki</strong><span>Regularnie śledzimy postępy i dostosowujemy
+								plan.</span>
+						</div>
+					</div>
+					<br />
+					<a href="/o-mnie" class="btn btn-primary">Więcej o mnie →</a>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section id="subjects" class="section">
+		<div class="container">
+			<div class="reveal">
+				<span class="section-tag">Przedmioty</span>
+				<h2 class="section-title">Czego uczymy?</h2>
+				<p class="section-desc">
+					Pełny zakres — od szkoły podstawowej po studia wyższe.
+				</p>
+			</div>
+			<div class="subjects-grid">
+				<div class="card subj-card reveal">
+					<div class="subj-icon">📐</div>
+					<h3>Matematyka w szkołach podstawowych</h3>
+					<p>
+						Solidne fundamenty dla klas 4–8. Przygotowanie do egzaminu
+						8-klasisty.
 					</p>
 				</div>
-				<div class="subjects-grid">
-					<div class="card subj-card reveal">
-						<div class="subj-icon">📐</div>
-						<h3>Matematyka w szkołach podstawowych</h3>
-						<p>
-							Solidne fundamenty dla klas 4–8. Przygotowanie do egzaminu
-							8-klasisty.
-						</p>
-					</div>
-					<div class="card subj-card reveal">
-						<div class="subj-icon">📊</div>
-						<h3>Matematyka Podstawowa — liceum</h3>
-						<p>
-							Przygotowanie do matury na poziomie podstawowym oraz do lekcji w
-							liceum.
-						</p>
-					</div>
-					<div class="card subj-card reveal">
-						<div class="subj-icon">📈</div>
-						<h3>Matematyka Rozszerzona - liceum</h3>
-						<p>
-							Przygotowanie do matury na poziomie rozszerzonym oraz do lekcji w
-							liceum.
-						</p>
-					</div>
-					<div class="card subj-card reveal">
-						<div class="subj-icon">🔬</div>
-						<h3>Fizyka Podstawowa oraz Rozszerzona w liceum</h3>
-						<p>Przygotowanie do matury na poziomie podstawowym, rozszerzonym oraz do lekcji w
-							liceum.</p>
-					</div>
-					
-					<div class="card subj-card reveal">
-						<div class="subj-icon">💻</div>
-						<h3>Informatyka</h3>
-						<p>Python, C++, algorytmy, SQL i matura z informatyki.</p>
-					</div>
-					<div class="card subj-card reveal">
-						<div class="subj-icon">🔢</div>
-						<h3>Matematyka wyższa</h3>
-						<p>Analiza, algebra liniowa, rachunek całkowy dla studentów.</p>
-					</div>
-					<div class="card subj-card reveal">
-						<div class="subj-icon">📚</div>
-						<h3>Język Polski</h3>
-						<p>Przygotowanie do matury z języka polskiego oraz do lekcji w liceum.</p>
-					</div>
-
-					<div class="card subj-card reveal">
-						<div class="subj-icon">🌐</div>
-						<h3>Język Angielski</h3>
-						<p>Przygotowanie do matury z języka angielskiego oraz do lekcji w liceum.</p>
-					</div>
-
-					
+				<div class="card subj-card reveal">
+					<div class="subj-icon">📊</div>
+					<h3>Matematyka Podstawowa — liceum</h3>
+					<p>
+						Przygotowanie do matury na poziomie podstawowym oraz do lekcji w
+						liceum.
+					</p>
 				</div>
-				<div style="margin-top: 2rem" class="reveal">
-					<a
-						href="/cennik"
-						class="btn btn-primary"
-						style="margin-right: 0.8rem; margin-bottom: 0.8rem"
-						>Zobacz cennik →</a
-					>
-					<a href="/korepetytorzy" class="btn btn-outline"
-						>Nasi korepetytorzy →</a
-					>
+				<div class="card subj-card reveal">
+					<div class="subj-icon">📈</div>
+					<h3>Matematyka Rozszerzona - liceum</h3>
+					<p>
+						Przygotowanie do matury na poziomie rozszerzonym oraz do lekcji w
+						liceum.
+					</p>
 				</div>
+				<div class="card subj-card reveal">
+					<div class="subj-icon">🔬</div>
+					<h3>Fizyka Podstawowa oraz Rozszerzona w liceum</h3>
+					<p>Przygotowanie do matury na poziomie podstawowym, rozszerzonym oraz do lekcji w
+						liceum.</p>
+				</div>
+
+				<div class="card subj-card reveal">
+					<div class="subj-icon">💻</div>
+					<h3>Informatyka</h3>
+					<p>Python, C++, algorytmy, SQL i matura z informatyki.</p>
+				</div>
+				<div class="card subj-card reveal">
+					<div class="subj-icon">🔢</div>
+					<h3>Matematyka wyższa</h3>
+					<p>Analiza, algebra liniowa, rachunek całkowy dla studentów.</p>
+				</div>
+				<div class="card subj-card reveal">
+					<div class="subj-icon">📚</div>
+					<h3>Język Polski</h3>
+					<p>Przygotowanie do matury z języka polskiego oraz do lekcji w liceum.</p>
+				</div>
+
+				<div class="card subj-card reveal">
+					<div class="subj-icon">🌐</div>
+					<h3>Język Angielski</h3>
+					<p>Przygotowanie do matury z języka angielskiego oraz do lekcji w liceum.</p>
+				</div>
+
+
 			</div>
-		</section>
+			<div style="margin-top: 2rem" class="reveal">
+				<a href="/cennik" class="btn btn-primary" style="margin-right: 0.8rem; margin-bottom: 0.8rem">Zobacz
+					cennik →</a>
+				<a href="/korepetytorzy" class="btn btn-outline">Nasi korepetytorzy →</a>
+			</div>
+		</div>
+	</section>
 
-		<section id="cta">
+	<section id="cta">
+		<div class="reveal">
+			<h2>
+				Pierwsza konsultacja
+				<em style="color: var(--gold-light); font-style: italic">15 minut</em>
+			</h2>
+			<p>Chcemy porozmawiać z Tobą, zobaczyć Twoje potrzeby oraz cele i zaproponować najlepsze rozwiązanie.<br />
+				Bez zobowiązań, to krótka rozmowa przez telefon — sprawdź, czy my to rozwiązanie dla Ciebie.</p>
+			<a href="#contact" class="btn btn-gold">Umów się teraz</a>
+		</div>
+	</section>
+
+	<section id="contact" class="section">
+		<div class="container">
 			<div class="reveal">
-				<h2>
-					Pierwsza konsultacja
-					<em style="color: var(--gold-light); font-style: italic">15 minut</em>
-				</h2>
-				<p>Chcemy porozmawiać z Tobą, zobaczyć Twoje potrzeby oraz cele i zaproponować najlepsze rozwiązanie.<br />
-					Bez zobowiązań, to krótka rozmowa przez telefon — sprawdź, czy my to rozwiązanie dla Ciebie.</p>
-				<a href="#contact" class="btn btn-gold">Umów się teraz</a>
+				<span class="section-tag">Kontakt</span>
+				<h2 class="section-title">Napisz do nas</h2>
 			</div>
-		</section>
-
-		<section id="contact" class="section">
-			<div class="container">
-				<div class="reveal">
-					<span class="section-tag">Kontakt</span>
-					<h2 class="section-title">Napisz do nas</h2>
-				</div>
-				<div class="contact-grid">
-					<div class="contact-info reveal">
-						<h3>Masz pytania?</h3>
-						<p>Odpiszemy najczęściej w ciągu kilku godzin.</p>
-						<div class="contact-items">
-							<div class="contact-item">
-								<div class="contact-icon">📧</div>
-								<div>
-									<strong>E-mail</strong
-									><span>szymontyburczy@protonmail.com</span>
-								</div>
+			<div class="contact-grid">
+				<div class="contact-info reveal">
+					<h3>Masz pytania?</h3>
+					<p>Odpiszemy najczęściej w ciągu kilku godzin.</p>
+					<div class="contact-items">
+						<div class="contact-item">
+							<div class="contact-icon">📧</div>
+							<div>
+								<strong>E-mail</strong><span>szymontyburczy@protonmail.com</span>
 							</div>
-							<div class="contact-item">
-								<div class="contact-icon">📱</div>
-								<div>
-									<strong>Telefon / WhatsApp</strong
-									><span>+48 789 142 398</span>
-								</div>
+						</div>
+						<div class="contact-item">
+							<div class="contact-icon">📱</div>
+							<div>
+								<strong>Telefon / WhatsApp</strong><span>+48 789 142 398</span>
 							</div>
-							<div class="contact-item">
-								<div class="contact-icon">🕐</div>
-								<div>
-									<strong>Dostępność</strong><span>Pon–Sob, 8:00–21:00</span>
-								</div>
+						</div>
+						<div class="contact-item">
+							<div class="contact-icon">🕐</div>
+							<div>
+								<strong>Dostępność</strong><span>Pon–Sob, 8:00–21:00</span>
 							</div>
-							<div class="contact-item">
-								<div class="contact-icon">📍</div>
-								<div>
-									<strong>Lokalizacja</strong><span>Online lub Kraków </span>
-								</div>
+						</div>
+						<div class="contact-item">
+							<div class="contact-icon">📍</div>
+							<div>
+								<strong>Lokalizacja</strong><span>Online lub Kraków </span>
 							</div>
 						</div>
 					</div>
-					<form
-						class="contact-form reveal"
-						id="contactForm"
-						action="https://formspree.io/f/mqeyokwl"
-						method="POST"
-					>
-						<div class="form-row">
-							<div class="form-group">
-								<label>Imię i nazwisko</label
-								><input
-									type="text"
-									name="name"
-									placeholder="Anna Nowak"
-									required
-								/>
-							</div>
-							<div class="form-group">
-								<label>E-mail</label
-								><input
-									type="email"
-									name="email"
-									placeholder="anna@email.com"
-									required
-								/>
-							</div>
-						</div>
-						<div class="form-row">
-							<div class="form-group">
-								<label>Telefon (opcjonalne)</label
-								><input type="tel" name="phone" placeholder="+48 600 000 000" />
-							</div>
-							<div class="form-group">
-								<label>Przedmiot</label>
-								<select name="subject" required>
-									<option value="">Wybierz przedmiot</option>
-									<option>Matematyka — szkoła podstawowa</option>
-									<option>Matematyka — liceum / matura</option>
-									<option>Matematyka wyższa</option>
-									<option>Informatyka / programowanie</option>
-									<option>Inne</option>
-								</select>
-							</div>
+				</div>
+				<form class="contact-form reveal" id="contactForm" action="https://formspree.io/f/mqeyokwl"
+					method="POST">
+					<div class="form-row">
+						<div class="form-group">
+							<label>Imię i nazwisko</label><input type="text" name="name" placeholder="Anna Nowak"
+								required />
 						</div>
 						<div class="form-group">
-							<label>Wiadomość</label
-							><textarea
-								name="message"
-								placeholder="Napisz, czego potrzebujesz..."
-								required
-							></textarea>
+							<label>E-mail</label><input type="email" name="email" placeholder="anna@email.com"
+								required />
 						</div>
-						<label class="consent-label">
-							<input type="checkbox" name="consent" required />
-							<span>Wyrażam zgodę na przetwarzanie moich danych osobowych w celu obsługi zapytania zgodnie z <a href="/polityka-prywatnosci" target="_blank">Polityką Prywatności</a>.</span>
-						</label>
-						<button type="submit" class="form-submit">
-							Wyślij wiadomość →
-						</button>
-						<div class="form-success" id="formSuccess">
-							✅ Dziękuję! Odezwiemy się wkrótce.
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Telefon (opcjonalne)</label><input type="tel" name="phone"
+								placeholder="+48 600 000 000" />
 						</div>
-					</form>
-				</div>
+						<div class="form-group">
+							<label>Przedmiot</label>
+							<select name="subject" required>
+								<option value="">Wybierz przedmiot</option>
+								<option>Matematyka — szkoła podstawowa</option>
+								<option>Matematyka — liceum / matura</option>
+								<option>Matematyka wyższa</option>
+								<option>Informatyka / programowanie</option>
+								<option>Inne</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Wiadomość</label><textarea name="message" placeholder="Napisz, czego potrzebujesz..."
+							required></textarea>
+					</div>
+					<label class="consent-label">
+						<input type="checkbox" name="consent" required />
+						<span>Wyrażam zgodę na przetwarzanie moich danych osobowych w celu obsługi zapytania zgodnie z
+							<a href="/polityka-prywatnosci" target="_blank">Polityką Prywatności</a>.</span>
+					</label>
+					<button type="submit" class="form-submit">
+						Wyślij wiadomość →
+					</button>
+					<div class="form-success" id="formSuccess">
+						✅ Dziękuję! Odezwiemy się wkrótce.
+					</div>
+				</form>
 			</div>
-		</section>
+		</div>
+	</section>
 
-		<!-- Calendly inline widget begin --> -->
-		<!-- <div
+	<!-- Calendly inline widget begin --> -->
+	<!-- <div
 			class="calendly-inline-widget"
 			data-url="https://calendly.com/szymontyburczy/60min"
 			style="min-width: 320px; height: 700px"
@@ -741,43 +756,44 @@
 			src="https://assets.calendly.com/assets/external/widget.js"
 			async
 		></script> -->
-		<!-- Calendly inline widget end -->
+	<!-- Calendly inline widget end -->
 
-		<footer id="mainFooter"></footer>
-		<script src="supabase-config.js"></script>
-		<script src="nav.js"></script>
-		<script src="chatbot.js"></script>
-		<script src="cookies-banner.js"></script>
-		<script>
-			injectNav("home");
-			injectFooter();
-			initReveal();
-			document
-				.getElementById("contactForm")
-				.addEventListener("submit", async (e) => {
-					e.preventDefault();
-					const btn = e.target.querySelector(".form-submit");
-					btn.textContent = "Wysyłanie…";
-					btn.disabled = true;
-					try {
-						const r = await fetch(e.target.action, {
-							method: "POST",
-							body: new FormData(e.target),
-							headers: { Accept: "application/json" },
-						});
-						if (r.ok) {
-							e.target.reset();
-							document.getElementById("formSuccess").style.display = "block";
-							btn.textContent = "Wysłano ✓";
-						} else {
-							btn.textContent = "Błąd — spróbuj ponownie";
-							btn.disabled = false;
-						}
-					} catch {
-						btn.textContent = "Błąd sieci";
+	<footer id="mainFooter"></footer>
+	<script src="supabase-config.js"></script>
+	<script src="nav.js"></script>
+	<script src="chatbot.js"></script>
+	<script src="cookies-banner.js"></script>
+	<script>
+		injectNav("home");
+		injectFooter();
+		initReveal();
+		document
+			.getElementById("contactForm")
+			.addEventListener("submit", async (e) => {
+				e.preventDefault();
+				const btn = e.target.querySelector(".form-submit");
+				btn.textContent = "Wysyłanie…";
+				btn.disabled = true;
+				try {
+					const r = await fetch(e.target.action, {
+						method: "POST",
+						body: new FormData(e.target),
+						headers: { Accept: "application/json" },
+					});
+					if (r.ok) {
+						e.target.reset();
+						document.getElementById("formSuccess").style.display = "block";
+						btn.textContent = "Wysłano ✓";
+					} else {
+						btn.textContent = "Błąd — spróbuj ponownie";
 						btn.disabled = false;
 					}
-				});
-		</script>
-	</body>
+				} catch {
+					btn.textContent = "Błąd sieci";
+					btn.disabled = false;
+				}
+			});
+	</script>
+</body>
+
 </html>

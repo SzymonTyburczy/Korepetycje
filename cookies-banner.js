@@ -189,21 +189,23 @@
 
   // ── Google Analytics (załaduj tylko po zgodzie) ──
   function loadAnalytics() {
-    // TODO: Dodaj swój Google Analytics Measurement ID poniżej
-    // Odkomentuj gdy będziesz gotowy:
-    //
-    // const GA_ID = 'G-XXXXXXXXXX'; // Wstaw swój Measurement ID
-    // const script = document.createElement('script');
-    // script.async = true;
-    // script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
-    // document.head.appendChild(script);
-    //
-    // script.onload = function () {
-    //   window.dataLayer = window.dataLayer || [];
-    //   function gtag(){ dataLayer.push(arguments); }
-    //   gtag('js', new Date());
-    //   gtag('config', GA_ID, { anonymize_ip: true });
-    // };
+    // Sprawdź czy już załadowane (unikaj duplikatów)
+    if (window._gaLoaded) return;
+    window._gaLoaded = true;
+
+    const GA_ID = 'G-KWTJSRZX5W';
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+    document.head.appendChild(script);
+
+    script.onload = function () {
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      window.gtag = gtag;
+      gtag('js', new Date());
+      gtag('config', GA_ID, { anonymize_ip: true });
+    };
   }
 
   // ── Globalna funkcja do resetowania zgody (link w stopce) ──
