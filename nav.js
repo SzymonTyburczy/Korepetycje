@@ -1,18 +1,14 @@
-/* nav.js — nawigacja i stopka dla wszystkich podstron */
-
-/* nav.js — nawigacja i stopka dla wszystkich podstron */
-
 function injectNav(activePage) {
   const nav = document.getElementById('mainNav');
   if (!nav) return;
   nav.innerHTML = `
     <a class="nav-logo" href="/"><span>Korepetycje</span> Szymon Tyburczy</a>
     <ul class="nav-links" id="navLinks">
-      <li><a href="/"                  ${activePage==='home'          ?'class="active"':''}>Strona główna</a></li>
-      <li><a href="/o-mnie"            ${activePage==='o-mnie'        ?'class="active"':''}>O mnie</a></li>
-      <li><a href="/korepetytorzy"     ${activePage==='korepetytorzy' ?'class="active"':''}>Korepetytorzy</a></li>
-      <li><a href="/cennik"            ${activePage==='cennik'        ?'class="active"':''}>Cennik</a></li>
-      <li><a href="/opinie"            ${activePage==='opinie'        ?'class="active"':''}>Opinie</a></li>
+      <li><a href="/"                  ${activePage === 'home' ? 'class="active"' : ''}>Strona główna</a></li>
+      <li><a href="/o-mnie"            ${activePage === 'o-mnie' ? 'class="active"' : ''}>O mnie</a></li>
+      <li><a href="/korepetytorzy"     ${activePage === 'korepetytorzy' ? 'class="active"' : ''}>Korepetytorzy</a></li>
+      <li><a href="/cennik"            ${activePage === 'cennik' ? 'class="active"' : ''}>Cennik</a></li>
+      <li><a href="/opinie"            ${activePage === 'opinie' ? 'class="active"' : ''}>Opinie</a></li>
       
       <li id="navDashboardTab" style="display:none;">
         <a href="dashboard.html" style="color: var(--gold); font-weight: 700;">🚀 Mój Panel</a>
@@ -30,7 +26,7 @@ function injectNav(activePage) {
 
   _updateAuthButton();
 
-  const hbg      = document.getElementById('hamburger');
+  const hbg = document.getElementById('hamburger');
   const navLinks = document.getElementById('navLinks');
 
   hbg.addEventListener('click', () => {
@@ -59,7 +55,7 @@ function injectNav(activePage) {
 }
 
 async function _updateAuthButton() {
-  const btn  = document.getElementById('navAuthBtn');
+  const btn = document.getElementById('navAuthBtn');
   const link = document.getElementById('navAuthLink');
   const dashboardTab = document.getElementById('navDashboardTab'); // Łapiemy nową zakładkę
 
@@ -84,21 +80,21 @@ async function _updateAuthButton() {
         .eq('id', user.id)
         .single();
 
-      const name  = profile?.full_name?.split(' ')[0] || 'Uczeń';
+      const name = profile?.full_name?.split(' ')[0] || 'Uczeń';
       const emoji = profile?.role === 'admin' ? '🔑' : '👤';
 
-      link.href        = 'dashboard.html';
+      link.href = 'dashboard.html';
       link.textContent = `${emoji} ${name}`;
       link.style.cssText = 'background:rgba(201,168,76,.15)!important;border:1px solid var(--gold)!important;color:var(--gold-light)!important;border-radius:3px;padding:.35rem .9rem;';
     } else {
       // UKRYJ ZAKŁADKĘ JEŚLI UŻYTKOWNIK NIE JEST ZALOGOWANY
       if (dashboardTab) dashboardTab.style.display = 'none';
-      link.href        = 'login.html';
+      link.href = 'login.html';
       link.textContent = '🔐 Zaloguj się';
     }
-  } catch(e) {
+  } catch (e) {
     if (dashboardTab) dashboardTab.style.display = 'none';
-    link.href        = 'login.html';
+    link.href = 'login.html';
     link.textContent = '🔐 Zaloguj się';
   }
 }

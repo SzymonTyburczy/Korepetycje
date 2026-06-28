@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="pl">
+
 <head>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Opinie — Korepetycje Szymon Tyburczy</title>
-  <meta name="description" content="Opinie uczniów o korepetycjach Szymona Tyburczy. Średnia ocena 5.0, 100% zdawalność matur. Matematyka, informatyka, studia." />
+  <meta name="description"
+    content="Opinie uczniów o korepetycjach Szymona Tyburczy. Średnia ocena 5.0, 100% zdawalność matur. Matematyka, informatyka, studia." />
   <link rel="canonical" href="https://korepetycje-tyburczy.pl/opinie" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://korepetycje-tyburczy.pl/opinie" />
@@ -16,7 +19,11 @@
   <link rel="stylesheet" href="style.css" />
   <style>
     /* ── STATS BAR ── */
-    #stats-bar { background: var(--navy); padding: 3rem 2rem; }
+    #stats-bar {
+      background: var(--navy);
+      padding: 3rem 2rem;
+    }
+
     .stats-row {
       display: flex;
       gap: 0;
@@ -25,14 +32,19 @@
       margin: 0 auto;
       flex-wrap: wrap;
     }
+
     .stat-block {
       flex: 1;
       min-width: 160px;
       text-align: center;
       padding: 1.5rem 2rem;
-      border-right: 1px solid rgba(255,255,255,.1);
+      border-right: 1px solid rgba(255, 255, 255, .1);
     }
-    .stat-block:last-child { border-right: none; }
+
+    .stat-block:last-child {
+      border-right: none;
+    }
+
     .stat-big {
       font-family: 'Playfair Display', serif;
       font-size: 3rem;
@@ -42,14 +54,24 @@
       line-height: 1;
       margin-bottom: .4rem;
     }
-    .stat-block p { color: rgba(255,255,255,.5); font-size: .82rem; text-transform: uppercase; letter-spacing: .1em; }
+
+    .stat-block p {
+      color: rgba(255, 255, 255, .5);
+      font-size: .82rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
 
     /* ── REVIEWS GRID ── */
-    #reviews { background: var(--cream); }
+    #reviews {
+      background: var(--cream);
+    }
+
     .reviews-grid {
       columns: 3;
       column-gap: 1.5rem;
     }
+
     .review-card {
       break-inside: avoid;
       background: var(--white);
@@ -59,24 +81,74 @@
       margin-bottom: 1.5rem;
       transition: box-shadow .2s;
     }
-    .review-card:hover { box-shadow: var(--shadow); }
 
-    .review-stars { color: var(--gold); font-size: 1rem; margin-bottom: .8rem; letter-spacing: .05em; }
-    .review-text { font-size: 16px; color: var(--text); line-height: 1.75; margin-bottom: 1.2rem; font-style: italic; }
-    .review-text::before { content: '"'; color: var(--gold); font-size: 1.5rem; font-family: 'Playfair Display', serif; line-height: 0; vertical-align: -0.4rem; margin-right: .2rem; }
-    .review-text::after  { content: '"'; color: var(--gold); font-size: 1.5rem; font-family: 'Playfair Display', serif; line-height: 0; vertical-align: -0.4rem; margin-left: .2rem; }
+    .review-card:hover {
+      box-shadow: var(--shadow);
+    }
 
-    .review-author { display: flex; gap: .9rem; align-items: center; }
+    .review-stars {
+      color: var(--gold);
+      font-size: 1rem;
+      margin-bottom: .8rem;
+      letter-spacing: .05em;
+    }
+
+    .review-text {
+      font-size: 16px;
+      color: var(--text);
+      line-height: 1.75;
+      margin-bottom: 1.2rem;
+      font-style: italic;
+    }
+
+    .review-text::before {
+      content: '"';
+      color: var(--gold);
+      font-size: 1.5rem;
+      font-family: 'Playfair Display', serif;
+      line-height: 0;
+      vertical-align: -0.4rem;
+      margin-right: .2rem;
+    }
+
+    .review-text::after {
+      content: '"';
+      color: var(--gold);
+      font-size: 1.5rem;
+      font-family: 'Playfair Display', serif;
+      line-height: 0;
+      vertical-align: -0.4rem;
+      margin-left: .2rem;
+    }
+
+    .review-author {
+      display: flex;
+      gap: .9rem;
+      align-items: center;
+    }
+
     .review-avatar {
-      width: 40px; height: 40px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--navy), var(--navy-light));
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 1.1rem;
       flex-shrink: 0;
     }
-    .review-name { font-weight: 600; color: var(--navy); font-size: .92rem; }
-    .review-meta { font-size: .8rem; color: var(--text-muted); }
+
+    .review-name {
+      font-weight: 600;
+      color: var(--navy);
+      font-size: .92rem;
+    }
+
+    .review-meta {
+      font-size: .8rem;
+      color: var(--text-muted);
+    }
 
     .review-tag {
       display: inline-block;
@@ -96,176 +168,303 @@
       background: var(--navy);
       border-color: var(--gold);
     }
-    .review-featured .review-text { color: rgba(255,255,255,.85); }
-    .review-featured .review-name { color: var(--white); }
-    .review-featured .review-meta { color: rgba(255,255,255,.5); }
-    .review-featured .review-tag { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.15); color: rgba(255,255,255,.5); }
+
+    .review-featured .review-text {
+      color: rgba(255, 255, 255, .85);
+    }
+
+    .review-featured .review-name {
+      color: var(--white);
+    }
+
+    .review-featured .review-meta {
+      color: rgba(255, 255, 255, .5);
+    }
+
+    .review-featured .review-tag {
+      background: rgba(255, 255, 255, .08);
+      border-color: rgba(255, 255, 255, .15);
+      color: rgba(255, 255, 255, .5);
+    }
 
     /* ── ADD REVIEW ── */
-    #add-review { background: var(--white); }
+    #add-review {
+      background: var(--white);
+    }
+
     .add-review-inner {
       display: grid;
       grid-template-columns: 1fr 1.2fr;
       gap: 5rem;
       align-items: start;
     }
-    .add-review-info h3 { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--navy); margin-bottom:.8rem; }
-    .add-review-info p { color:var(--text-muted); font-size:16px; line-height:1.75; }
-    .stars-select { display:flex; gap:.4rem; margin-bottom:1.2rem; }
-    .star-btn { font-size:1.5rem; cursor:pointer; filter:grayscale(1); transition:filter .15s; background:none; border:none; }
-    .star-btn.active { filter:none; }
-    .review-form { display:flex; flex-direction:column; gap:1rem; }
-    .form-group { display:flex; flex-direction:column; gap:.35rem; }
-    .form-group label { font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--navy); font-weight:600; }
-    .form-group input, .form-group textarea, .form-group select {
-      padding:.72rem 1rem; border:1.5px solid var(--border); border-radius:3px;
-      font-family:'Source Serif 4',serif; font-size:16px; color:var(--text);
-      background:var(--cream); transition:border-color .2s; outline:none;
+
+    .add-review-info h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--navy);
+      margin-bottom: .8rem;
     }
-    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-      border-color:var(--navy); background:var(--white);
+
+    .add-review-info p {
+      color: var(--text-muted);
+      font-size: 16px;
+      line-height: 1.75;
     }
-    .form-group textarea { resize:vertical; min-height:110px; }
+
+    .stars-select {
+      display: flex;
+      gap: .4rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .star-btn {
+      font-size: 1.5rem;
+      cursor: pointer;
+      filter: grayscale(1);
+      transition: filter .15s;
+      background: none;
+      border: none;
+    }
+
+    .star-btn.active {
+      filter: none;
+    }
+
+    .review-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+
+    .form-group label {
+      font-size: .78rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      padding: .72rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 3px;
+      font-family: 'Source Serif 4', serif;
+      font-size: 16px;
+      color: var(--text);
+      background: var(--cream);
+      transition: border-color .2s;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--navy);
+      background: var(--white);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 110px;
+    }
+
     .review-success {
-      display:none; background:#f0faf4; border:1px solid #86c9a2;
-      border-radius:3px; padding:1rem 1.5rem; color:#256541; font-size:.92rem;
+      display: none;
+      background: #f0faf4;
+      border: 1px solid #86c9a2;
+      border-radius: 3px;
+      padding: 1rem 1.5rem;
+      color: #256541;
+      font-size: .92rem;
     }
 
     /* CONSENT */
     .consent-label {
-      display:flex; align-items:flex-start; gap:.6rem;
-      font-size:.82rem; color:var(--text-muted); line-height:1.55;
-      cursor:pointer; margin:.3rem 0 .5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      font-size: .82rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      cursor: pointer;
+      margin: .3rem 0 .5rem;
     }
-    .consent-label input[type="checkbox"] {
-      width:18px; height:18px; accent-color:var(--navy);
-      cursor:pointer; flex-shrink:0; margin-top:2px;
-    }
-    .consent-label a { color:var(--gold); text-decoration:none; }
-    .consent-label a:hover { text-decoration:underline; }
 
-    @media(max-width: 900px){
-      .reviews-grid { columns: 2; }
+    .consent-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--navy);
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 2px;
     }
-    @media(max-width: 600px){
-      .reviews-grid { columns: 1; }
-      .add-review-inner { grid-template-columns: 1fr; gap: 2rem; }
-      .stats-row { flex-direction: column; }
-      .stat-block { border-right: none; border-bottom: 1px solid rgba(255,255,255,.1); }
+
+    .consent-label a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    .consent-label a:hover {
+      text-decoration: underline;
+    }
+
+    @media(max-width: 900px) {
+      .reviews-grid {
+        columns: 2;
+      }
+    }
+
+    @media(max-width: 600px) {
+      .reviews-grid {
+        columns: 1;
+      }
+
+      .add-review-inner {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .stats-row {
+        flex-direction: column;
+      }
+
+      .stat-block {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, .1);
+      }
     }
   </style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 </head>
+
 <body>
-<nav id="mainNav"></nav>
+  <nav id="mainNav"></nav>
 
-<div class="page-header">
-  <div class="page-header-inner">
-    <div class="page-tag">Opinie</div>
-    <h1>Co mówią nasi <em>uczniowie</em></h1>
-    <p>Prawdziwe opinie od uczniów i studentów, którym pomogliśmy osiągnąć ich cele edukacyjne.</p>
-  </div>
-</div>
-
-<!-- STATS BAR -->
-<section id="stats-bar">
-  <div class="stats-row">
-    <div class="stat-block reveal">
-      <span class="stat-big">5.00</span>
-      <p>Średnia ocena</p>
-    </div>
-    <div class="stat-block reveal">
-      <span class="stat-big">100+</span>
-      <p>Uczniów</p>
-    </div>
-    <div class="stat-block reveal">
-      <span class="stat-big">100%</span>
-      <p>Zdawalność matur</p>
-    </div>
-    <div class="stat-block reveal">
-      <span class="stat-big">100%</span>
-      <p>Poleca dalej</p>
+  <div class="page-header">
+    <div class="page-header-inner">
+      <div class="page-tag">Opinie</div>
+      <h1>Co mówią nasi <em>uczniowie</em></h1>
+      <p>Prawdziwe opinie od uczniów i studentów, którym pomogliśmy osiągnąć ich cele edukacyjne.</p>
     </div>
   </div>
-</section>
 
-<!-- REVIEWS GRID -->
-<section id="reviews" class="section">
-  <div class="container">
-    <div class="reveal">
-      <span class="section-tag">Opinie uczniów</span>
-      <h2 class="section-title">Głosy naszych podopiecznych</h2>
-      <p class="section-desc">Opinie zebrane od uczniów po zakończeniu współpracy.</p>
+  <!-- STATS BAR -->
+  <section id="stats-bar">
+    <div class="stats-row">
+      <div class="stat-block reveal">
+        <span class="stat-big">5.00</span>
+        <p>Średnia ocena</p>
+      </div>
+      <div class="stat-block reveal">
+        <span class="stat-big">100+</span>
+        <p>Uczniów</p>
+      </div>
+      <div class="stat-block reveal">
+        <span class="stat-big">100%</span>
+        <p>Zdawalność matur</p>
+      </div>
+      <div class="stat-block reveal">
+        <span class="stat-big">100%</span>
+        <p>Poleca dalej</p>
+      </div>
     </div>
-    <div class="reviews-grid">
+  </section>
 
-      <div class="review-card review-featured reveal">
-        <span class="review-tag">Informatyka Rozszerzona </span>
-        <div class="review-stars">★★★★★</div>
-        <p class="review-text">Dzięki Szymonowi przygotowania do matury z informatyki od zerowej wiedzy w rok przeszły bardzo sprawnie i polecam go każdemu kto szuka sympatycznej i konkretniej osoby do nauki.</p>
-        <div class="review-author">
-          <div class="review-avatar">👨</div>
-          <div>
-            <div class="review-name">Oliwier</div>
-            <div class="review-meta">Informatyka · Rozszerzenie · 2025</div>
+  <!-- REVIEWS GRID -->
+  <section id="reviews" class="section">
+    <div class="container">
+      <div class="reveal">
+        <span class="section-tag">Opinie uczniów</span>
+        <h2 class="section-title">Głosy naszych podopiecznych</h2>
+        <p class="section-desc">Opinie zebrane od uczniów po zakończeniu współpracy.</p>
+      </div>
+      <div class="reviews-grid">
+
+        <div class="review-card review-featured reveal">
+          <span class="review-tag">Informatyka Rozszerzona </span>
+          <div class="review-stars">★★★★★</div>
+          <p class="review-text">Dzięki Szymonowi przygotowania do matury z informatyki od zerowej wiedzy w rok przeszły
+            bardzo sprawnie i polecam go każdemu kto szuka sympatycznej i konkretniej osoby do nauki.</p>
+          <div class="review-author">
+            <div class="review-avatar">👨</div>
+            <div>
+              <div class="review-name">Oliwier</div>
+              <div class="review-meta">Informatyka · Rozszerzenie · 2025</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="review-card reveal">
-        <span class="review-tag">Matematyka Podstawowa</span>
-        <div class="review-stars">★★★★★</div>
-        <p class="review-text">Polecam. Korepetycje prowadzone są na wysokim poziomie. Szymon potrafi bardzo dobrze przygotować do matury podstawowej jak i rozszerzonej.</p>
-        <div class="review-author">
-          <div class="review-avatar">👦</div>
-          <div>
-            <div class="review-name">Artur.</div>
-            <div class="review-meta">Matematyka ·  Podstawa i Rozszerzenie· 2024</div>
+        <div class="review-card reveal">
+          <span class="review-tag">Matematyka Podstawowa</span>
+          <div class="review-stars">★★★★★</div>
+          <p class="review-text">Polecam. Korepetycje prowadzone są na wysokim poziomie. Szymon potrafi bardzo dobrze
+            przygotować do matury podstawowej jak i rozszerzonej.</p>
+          <div class="review-author">
+            <div class="review-avatar">👦</div>
+            <div>
+              <div class="review-name">Artur.</div>
+              <div class="review-meta">Matematyka · Podstawa i Rozszerzenie· 2024</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="review-card reveal">
-        <span class="review-tag">Matematyka Rozszerzona</span>
-        <div class="review-stars">★★★★★</div>
-        <p class="review-text">Polecam z całego serca Szymona jako korepetytora z matematyki dla wszystkich uczniów przygotowujących się do egzaminu maturalnego. Mam przyjemność współpracować z nim od kilku miesięcy i jestem zachwycony jego profesjonalizmem oraz umiejętnościami pedagogicznymi. Jednym z najważniejszych atutów Szymona jest jego ogromna wiedza matematyczna. Potrafi wytłumaczyć nawet najtrudniejsze zagadnienia w sposób zrozumiały i przystępny. Niezależnie od poziomu zaawansowania ucznia, potrafi dostosować swój sposób nauczania tak, aby uczeń miał pewność, że rozumie omawiany materiał.</p>
-        <div class="review-author">
-          <div class="review-avatar">👨</div>
-          <div>
-            <div class="review-name">Mateusz</div>
-            <div class="review-meta">Matematyka · Rozszerzenie · 2023</div>
+        <div class="review-card reveal">
+          <span class="review-tag">Matematyka Rozszerzona</span>
+          <div class="review-stars">★★★★★</div>
+          <p class="review-text">Polecam z całego serca Szymona jako korepetytora z matematyki dla wszystkich uczniów
+            przygotowujących się do egzaminu maturalnego. Mam przyjemność współpracować z nim od kilku miesięcy i jestem
+            zachwycony jego profesjonalizmem oraz umiejętnościami pedagogicznymi. Jednym z najważniejszych atutów
+            Szymona jest jego ogromna wiedza matematyczna. Potrafi wytłumaczyć nawet najtrudniejsze zagadnienia w sposób
+            zrozumiały i przystępny. Niezależnie od poziomu zaawansowania ucznia, potrafi dostosować swój sposób
+            nauczania tak, aby uczeń miał pewność, że rozumie omawiany materiał.</p>
+          <div class="review-author">
+            <div class="review-avatar">👨</div>
+            <div>
+              <div class="review-name">Mateusz</div>
+              <div class="review-meta">Matematyka · Rozszerzenie · 2023</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="review-card reveal">
-        <span class="review-tag">Analiza matematyczna Studia</span>
-        <div class="review-stars">★★★★★</div>
-        <p class="review-text">Poprawka z Analizy matematycznej zdana na 100%. Polecam korepetycje prowadzone przez Szymona.</p>
-        <div class="review-author">
-          <div class="review-avatar">👨</div>
-          <div>
-            <div class="review-name">Kacper.</div>
-            <div class="review-meta">Matematyka Studia · 2025</div>
+        <div class="review-card reveal">
+          <span class="review-tag">Analiza matematyczna Studia</span>
+          <div class="review-stars">★★★★★</div>
+          <p class="review-text">Poprawka z Analizy matematycznej zdana na 100%. Polecam korepetycje prowadzone przez
+            Szymona.</p>
+          <div class="review-author">
+            <div class="review-avatar">👨</div>
+            <div>
+              <div class="review-name">Kacper.</div>
+              <div class="review-meta">Matematyka Studia · 2025</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="review-card reveal">
-        <span class="review-tag">Matematyka Podstawowa</span>
-        <div class="review-stars">★★★★★</div>
-        <p class="review-text">Mega polecam Szymona ,naprawdę cierpliwy i potrafi wytłumaczyć wszystko .Pomimo trudności z matematyką wszystko da się zrozumieć .</p>
-        <div class="review-author">
-          <div class="review-avatar">👦</div>
-          <div>
-            <div class="review-name">Krzysztof L.</div>
-            <div class="review-meta">Matematyka — matura · 2024</div>
+        <div class="review-card reveal">
+          <span class="review-tag">Matematyka Podstawowa</span>
+          <div class="review-stars">★★★★★</div>
+          <p class="review-text">Mega polecam Szymona ,naprawdę cierpliwy i potrafi wytłumaczyć wszystko .Pomimo
+            trudności z matematyką wszystko da się zrozumieć .</p>
+          <div class="review-author">
+            <div class="review-avatar">👦</div>
+            <div>
+              <div class="review-name">Krzysztof L.</div>
+              <div class="review-meta">Matematyka — matura · 2024</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- <div class="review-card reveal">
+        <!-- <div class="review-card reveal">
         <span class="review-tag">Matura podstawowa</span>
         <div class="review-stars">★★★★☆</div>
         <p class="review-text">Miałam bardzo mało czasu przed maturą — 6 tygodni. Dzięki intensywnemu kursowi zdałam matematykę z wynikiem 78%, co było dla mnie ogromnym sukcesem. Materiały dostarczone przez pana Jana były złotem.</p>
@@ -278,7 +477,7 @@
         </div>
       </div> -->
 
-      <!-- <div class="review-card reveal">
+        <!-- <div class="review-card reveal">
         <span class="review-tag">Java · Algorytmy</span>
         <div class="review-stars">★★★★★</div>
         <p class="review-text">Anna pomogła mi przygotować się do rozmowy kwalifikacyjnej do pracy jako junior developer. Ćwiczyliśmy zadania algorytmiczne i code review. Dostałem pracę!</p>
@@ -291,7 +490,7 @@
         </div>
       </div> -->
 
-      <!-- <div class="review-card reveal">
+        <!-- <div class="review-card reveal">
         <span class="review-tag">Algebra liniowa</span>
         <div class="review-stars">★★★★★</div>
         <p class="review-text">Zaliczyłem algebrę liniową za trzecim podejściem — bez Marty nie dałbym rady. Jej sposób tłumaczenia przestrzeni wektorowych i macierzy jest absolutnie unikalny. Teraz to jeden z moich ulubionych tematów!</p>
@@ -304,100 +503,105 @@
         </div>
       </div> -->
 
-    </div>
-  </div>
-</section>
-
-<!-- ADD REVIEW -->
-<section id="add-review" class="section">
-  <div class="container">
-    <div class="add-review-inner">
-      <div class="add-review-info reveal">
-        <span class="section-tag">Twoja opinia</span>
-        <h3>Byłeś naszym uczniem?</h3>
-        <p>Podziel się swoją opinią — pomożesz innym uczniom w wyborze korepetytora. Każda opinia jest dla nas cenna i pomaga nam się rozwijać.</p>
-        <br>
-        <p style="font-size:.88rem; color:var(--text-muted);">Opinie są weryfikowane — publikujemy je po potwierdzeniu współpracy.</p>
       </div>
-      <div class="reveal">
-        <form class="review-form" id="reviewForm" action="https://formspree.io/f/TWOJ_KOD" method="POST">
-          <input type="hidden" name="_subject" value="Nowa opinia od ucznia" />
-          <div class="form-group">
-            <label>Twoja ocena</label>
-            <div class="stars-select" id="starsSelect">
-              <button type="button" class="star-btn" data-val="1">⭐</button>
-              <button type="button" class="star-btn" data-val="2">⭐</button>
-              <button type="button" class="star-btn" data-val="3">⭐</button>
-              <button type="button" class="star-btn" data-val="4">⭐</button>
-              <button type="button" class="star-btn" data-val="5">⭐</button>
+    </div>
+  </section>
+
+  <!-- ADD REVIEW -->
+  <section id="add-review" class="section">
+    <div class="container">
+      <div class="add-review-inner">
+        <div class="add-review-info reveal">
+          <span class="section-tag">Twoja opinia</span>
+          <h3>Byłeś naszym uczniem?</h3>
+          <p>Podziel się swoją opinią — pomożesz innym uczniom w wyborze korepetytora. Każda opinia jest dla nas cenna i
+            pomaga nam się rozwijać.</p>
+          <br>
+          <p style="font-size:.88rem; color:var(--text-muted);">Opinie są weryfikowane — publikujemy je po potwierdzeniu
+            współpracy.</p>
+        </div>
+        <div class="reveal">
+          <form class="review-form" id="reviewForm" action="https://formspree.io/f/TWOJ_KOD" method="POST">
+            <input type="hidden" name="_subject" value="Nowa opinia od ucznia" />
+            <div class="form-group">
+              <label>Twoja ocena</label>
+              <div class="stars-select" id="starsSelect">
+                <button type="button" class="star-btn" data-val="1">⭐</button>
+                <button type="button" class="star-btn" data-val="2">⭐</button>
+                <button type="button" class="star-btn" data-val="3">⭐</button>
+                <button type="button" class="star-btn" data-val="4">⭐</button>
+                <button type="button" class="star-btn" data-val="5">⭐</button>
+              </div>
+              <input type="hidden" name="rating" id="ratingInput" value="" required />
             </div>
-            <input type="hidden" name="rating" id="ratingInput" value="" required />
-          </div>
-          <div class="form-group">
-            <label>Imię (lub inicjały)</label>
-            <input type="text" name="name" placeholder="Anna K." required />
-          </div>
-          <div class="form-group">
-            <label>Korepetytor</label>
-            <select name="tutor">
-              <option value="">Wybierz korepetytora</option>
-              <option>Szymon Tyburczy</option>
-              <option>Adam Szymanek</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Przedmiot</label>
-            <input type="text" name="subject" placeholder="np. Matematyka — matura rozszerzona" required />
-          </div>
-          <div class="form-group">
-            <label>Twoja opinia</label>
-            <textarea name="review" placeholder="Napisz kilka słów o swojej współpracy z korepetytorem..." required></textarea>
-          </div>
-          <label class="consent-label">
-            <input type="checkbox" name="consent" required />
-            <span>Wyrażam zgodę na przetwarzanie moich danych osobowych i publikację opinii zgodnie z <a href="/polityka-prywatnosci" target="_blank">Polityką Prywatności</a>.</span>
-          </label>
-          <button type="submit" class="btn btn-primary">Wyślij opinię →</button>
-          <div class="review-success" id="reviewSuccess">✅ Dziękuję za opinię! Opublikujemy ją po weryfikacji.</div>
-        </form>
+            <div class="form-group">
+              <label>Imię (lub inicjały)</label>
+              <input type="text" name="name" placeholder="Anna K." required />
+            </div>
+            <div class="form-group">
+              <label>Korepetytor</label>
+              <select name="tutor">
+                <option value="">Wybierz korepetytora</option>
+                <option>Szymon Tyburczy</option>
+                <option>Adam Szymanek</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Przedmiot</label>
+              <input type="text" name="subject" placeholder="np. Matematyka — matura rozszerzona" required />
+            </div>
+            <div class="form-group">
+              <label>Twoja opinia</label>
+              <textarea name="review" placeholder="Napisz kilka słów o swojej współpracy z korepetytorem..."
+                required></textarea>
+            </div>
+            <label class="consent-label">
+              <input type="checkbox" name="consent" required />
+              <span>Wyrażam zgodę na przetwarzanie moich danych osobowych i publikację opinii zgodnie z <a
+                  href="/polityka-prywatnosci" target="_blank">Polityką Prywatności</a>.</span>
+            </label>
+            <button type="submit" class="btn btn-primary">Wyślij opinię →</button>
+            <div class="review-success" id="reviewSuccess">✅ Dziękuję za opinię! Opublikujemy ją po weryfikacji.</div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<footer id="mainFooter"></footer>
-<script src="supabase-config.js"></script>
-<script src="nav.js"></script>
-<script src="chatbot.js"></script>
-<script src="cookies-banner.js"></script>
-<script>
-  injectNav('opinie');
-  injectFooter();
-  initReveal();
+  <footer id="mainFooter"></footer>
+  <script src="supabase-config.js"></script>
+  <script src="nav.js"></script>
+  <script src="chatbot.js"></script>
+  <script src="cookies-banner.js"></script>
+  <script>
+    injectNav('opinie');
+    injectFooter();
+    initReveal();
 
-  // Stars selector
-  const stars = document.querySelectorAll('.star-btn');
-  const ratingInput = document.getElementById('ratingInput');
-  stars.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const val = parseInt(btn.dataset.val);
-      ratingInput.value = val;
-      stars.forEach((s, i) => s.classList.toggle('active', i < val));
+    // Stars selector
+    const stars = document.querySelectorAll('.star-btn');
+    const ratingInput = document.getElementById('ratingInput');
+    stars.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = parseInt(btn.dataset.val);
+        ratingInput.value = val;
+        stars.forEach((s, i) => s.classList.toggle('active', i < val));
+      });
     });
-  });
 
-  // Form
-  const reviewForm = document.getElementById('reviewForm');
-  reviewForm.addEventListener('submit', async e => {
-    e.preventDefault();
-    const btn = reviewForm.querySelector('button[type="submit"]');
-    btn.textContent = 'Wysyłanie…'; btn.disabled = true;
-    try {
-      const r = await fetch(reviewForm.action, { method:'POST', body:new FormData(reviewForm), headers:{'Accept':'application/json'} });
-      if (r.ok) { reviewForm.reset(); stars.forEach(s => s.classList.remove('active')); ratingInput.value = ''; document.getElementById('reviewSuccess').style.display='block'; btn.textContent='Wysłano ✓'; }
-      else { btn.textContent='Błąd — spróbuj ponownie'; btn.disabled=false; }
-    } catch { btn.textContent='Błąd sieci'; btn.disabled=false; }
-  });
-</script>
+    // Form
+    const reviewForm = document.getElementById('reviewForm');
+    reviewForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = reviewForm.querySelector('button[type="submit"]');
+      btn.textContent = 'Wysyłanie…'; btn.disabled = true;
+      try {
+        const r = await fetch(reviewForm.action, { method: 'POST', body: new FormData(reviewForm), headers: { 'Accept': 'application/json' } });
+        if (r.ok) { reviewForm.reset(); stars.forEach(s => s.classList.remove('active')); ratingInput.value = ''; document.getElementById('reviewSuccess').style.display = 'block'; btn.textContent = 'Wysłano ✓'; }
+        else { btn.textContent = 'Błąd — spróbuj ponownie'; btn.disabled = false; }
+      } catch { btn.textContent = 'Błąd sieci'; btn.disabled = false; }
+    });
+  </script>
 </body>
+
 </html>
