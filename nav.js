@@ -131,8 +131,16 @@ function injectFooter() {
           <li><a href="/#contact">✉️ Formularz kontaktowy</a></li>
         </ul>
       </div>
+      <div class="footer-col">
+        <h4>Prawne</h4>
+        <ul>
+          <li><a href="/polityka-prywatnosci">📄 Polityka prywatności</a></li>
+          <li><a href="/regulamin">📋 Regulamin</a></li>
+          <li><a href="#" onclick="if(typeof resetCookieConsent==='function'){resetCookieConsent();}else{alert('Brak modułu cookies.');}return false;">🍪 Ustawienia cookies</a></li>
+        </ul>
+      </div>
     </div>
-    <div class="footer-bottom">© 2025 Korepetycje Szymon Tyburczy · Wszelkie prawa zastrzeżone</div>
+    <div class="footer-bottom">© 2025–2026 Korepetycje Szymon Tyburczy · Wszelkie prawa zastrzeżone</div>
   `;
 }
 

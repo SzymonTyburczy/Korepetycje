@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Regulamin — Korepetycje Szymon Tyburczy</title>
+  <meta name="description" content="Regulamin świadczenia usług korepetycji przez Szymona Tyburczy. Warunki współpracy, płatności, odwoływanie lekcji." />
+  <link rel="canonical" href="https://korepetycje-tyburczy.pl/regulamin" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://korepetycje-tyburczy.pl/regulamin" />
+  <meta property="og:title" content="Regulamin — Korepetycje Szymon Tyburczy" />
+  <meta property="og:locale" content="pl_PL" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .legal-page { background: var(--white); }
+    .legal-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    .legal-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--navy);
+      margin: 2.5rem 0 1rem;
+      padding-bottom: .5rem;
+      border-bottom: 2px solid var(--gold);
+      display: inline-block;
+    }
+    .legal-content h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--navy);
+      margin: 1.8rem 0 .6rem;
+    }
+    .legal-content p {
+      color: var(--text-muted);
+      font-size: .95rem;
+      line-height: 1.85;
+      margin-bottom: 1rem;
+    }
+    .legal-content ul, .legal-content ol {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .legal-content li {
+      color: var(--text-muted);
+      font-size: .95rem;
+      line-height: 1.75;
+      margin-bottom: .4rem;
+    }
+    .legal-content strong { color: var(--navy); }
+    .legal-content a { color: var(--gold); text-decoration: none; }
+    .legal-content a:hover { text-decoration: underline; }
+    .legal-update {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      font-size: .85rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<nav id="mainNav"></nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-tag">Prawne</div>
+    <h1><em>Regulamin</em> świadczenia usług</h1>
+    <p>Warunki korzystania z serwisu i usług korepetycji.</p>
+  </div>
+</div>
+
+<section class="legal-page section">
+  <div class="legal-content">
+    <div class="legal-update">
+      📅 <strong>Ostatnia aktualizacja:</strong> 28 czerwca 2026 r.<br>
+      Niniejszy Regulamin obowiązuje od dnia jego publikacji na stronie.
+    </div>
+
+    <!-- §1 -->
+    <h2>§1. Postanowienia ogólne</h2>
+    <ol>
+      <li>Niniejszy Regulamin określa zasady świadczenia usług drogą elektroniczną oraz zasady świadczenia usług korepetycji przez <strong>Szymona Tyburczy</strong>, prowadzącego działalność w ramach Inkubatora Przedsiębiorczości, z siedzibą w Krakowie (dalej: „Usługodawca").</li>
+      <li>Serwis dostępny jest pod adresem: <a href="https://korepetycje-tyburczy.pl">korepetycje-tyburczy.pl</a>.</li>
+      <li>Kontakt z Usługodawcą:
+        <ul>
+          <li>E-mail: <a href="mailto:szymontyburczy@protonmail.com">szymontyburczy@protonmail.com</a></li>
+          <li>Telefon: +48 789 142 398</li>
+        </ul>
+      </li>
+      <li>Korzystanie z serwisu i usług oznacza akceptację niniejszego Regulaminu.</li>
+    </ol>
+
+    <!-- §2 -->
+    <h2>§2. Definicje</h2>
+    <ol>
+      <li><strong>Serwis</strong> — strona internetowa korepetycje-tyburczy.pl wraz z wszystkimi podstronami.</li>
+      <li><strong>Usługodawca</strong> — Szymon Tyburczy, prowadzący działalność w ramach Inkubatora Przedsiębiorczości.</li>
+      <li><strong>Użytkownik</strong> — każda osoba korzystająca z Serwisu.</li>
+      <li><strong>Uczeń</strong> — osoba korzystająca z usług korepetycji.</li>
+      <li><strong>Korepetytor</strong> — osoba świadcząca usługi korepetycji w imieniu Usługodawcy.</li>
+      <li><strong>Konto</strong> — indywidualne konto użytkownika w Serwisie, zabezpieczone hasłem.</li>
+      <li><strong>Lekcja</strong> — pojedyncze spotkanie korepetycyjne (online lub stacjonarnie).</li>
+      <li><strong>Pakiet</strong> — zestaw lekcji zakupionych w cenie promocyjnej.</li>
+    </ol>
+
+    <!-- §3 -->
+    <h2>§3. Usługi świadczone drogą elektroniczną</h2>
+    <ol>
+      <li>Za pośrednictwem Serwisu Usługodawca świadczy następujące usługi drogą elektroniczną:
+        <ul>
+          <li>Udostępnianie informacji o ofercie korepetycji</li>
+          <li>Możliwość kontaktu za pomocą formularza kontaktowego</li>
+          <li>Rejestracja i prowadzenie Konta użytkownika</li>
+          <li>Umówienie i zarządzanie lekcjami korepetycji</li>
+          <li>Udostępnianie materiałów edukacyjnych</li>
+          <li>Komunikacja z korepetytorem poprzez czat</li>
+        </ul>
+      </li>
+      <li>Wymagania techniczne:
+        <ul>
+          <li>Aktualna przeglądarka internetowa (Chrome, Firefox, Safari, Edge)</li>
+          <li>Dostęp do internetu</li>
+          <li>Włączona obsługa JavaScript i cookies</li>
+          <li>Dla lekcji online: mikrofon, kamera (opcjonalnie), konto Discord lub inna platforma komunikacji</li>
+        </ul>
+      </li>
+    </ol>
+
+    <!-- §4 -->
+    <h2>§4. Rejestracja i Konto użytkownika</h2>
+    <ol>
+      <li>Rejestracja Konta jest bezpłatna i dobrowolna.</li>
+      <li>Podczas rejestracji Użytkownik podaje: imię i nazwisko, adres e-mail oraz hasło (min. 8 znaków).</li>
+      <li>Po rejestracji Użytkownik otrzymuje e-mail z linkiem potwierdzającym. Konto zostaje aktywowane po kliknięciu w link.</li>
+      <li>Użytkownik zobowiązuje się do:
+        <ul>
+          <li>podania prawdziwych danych</li>
+          <li>nieudostępniania hasła osobom trzecim</li>
+          <li>niezwłocznego informowania Usługodawcy o podejrzeniu nieautoryzowanego dostępu do Konta</li>
+        </ul>
+      </li>
+      <li>Usługodawca może zablokować lub usunąć Konto w przypadku naruszenia Regulaminu.</li>
+      <li>Użytkownik może usunąć Konto w każdej chwili, kontaktując się z Usługodawcą mailowo.</li>
+    </ol>
+
+    <!-- §5 -->
+    <h2>§5. Usługi korepetycji</h2>
+    <ol>
+      <li>Usługodawca organizuje indywidualne korepetycje z matematyki, informatyki, fizyki, języka polskiego, języka angielskiego i innych przedmiotów.</li>
+      <li>Lekcje mogą odbywać się:
+        <ul>
+          <li><strong>Online</strong> — przez Discord lub inną uzgodnioną platformę komunikacji</li>
+          <li><strong>Stacjonarnie</strong> — w Krakowie, w ustalonym miejscu</li>
+        </ul>
+      </li>
+      <li>Standardowy czas trwania lekcji to <strong>60 minut</strong>, chyba że strony ustalą inaczej.</li>
+      <li>Termin lekcji ustalany jest indywidualnie między Uczniem a Korepetytorem.</li>
+      <li>Pierwsza konsultacja (15 minut przez telefon) jest bezpłatna i służy ustaleniu celów, poziomu i planu nauki.</li>
+    </ol>
+
+    <!-- §6 -->
+    <h2>§6. Cennik i płatności</h2>
+    <ol>
+      <li>Aktualny cennik dostępny jest na stronie <a href="/cennik">korepetycje-tyburczy.pl/cennik</a>.</li>
+      <li>Ceny podane w cenniku są cenami brutto (Usługodawca nie jest płatnikiem VAT).</li>
+      <li>Formy płatności:
+        <ul>
+          <li>Przelew bankowy</li>
+          <li>BLIK</li>
+        </ul>
+      </li>
+      <li>Płatność za pojedynczą lekcję następuje przed lub bezpośrednio po lekcji.</li>
+      <li>Płatność za Pakiet następuje z góry, przed pierwszą lekcją w Pakiecie.</li>
+      <li>Na życzenie Usługodawca wystawia fakturę lub rachunek.</li>
+    </ol>
+
+    <!-- §7 -->
+    <h2>§7. Odwoływanie i zmiana terminu lekcji</h2>
+    <ol>
+      <li>Uczeń może odwołać lub przełożyć lekcję <strong>bezpłatnie</strong>, pod warunkiem poinformowania Korepetytora z <strong>co najmniej 24-godzinnym wyprzedzeniem</strong>.</li>
+      <li>W przypadku odwołania z wyprzedzeniem krótszym niż 24 godziny, lekcja jest traktowana jako odbyta i nie podlega zwrotowi.</li>
+      <li>Korepetytor może odwołać lekcję z powodu choroby lub siły wyższej — w takim przypadku lekcja zostaje przełożona na inny termin bez dodatkowych kosztów.</li>
+      <li>W przypadku nieobecności Ucznia bez uprzedniego odwołania, lekcja jest traktowana jako odbyta.</li>
+    </ol>
+
+    <!-- §8 -->
+    <h2>§8. Pakiety — warunki szczególne</h2>
+    <ol>
+      <li>Pakiet lekcji jest ważny przez <strong>3 miesiące</strong> od daty zakupu, chyba że indywidualnie ustalono inaczej.</li>
+      <li>Niewykorzystane lekcje w Pakiecie nie podlegają zwrotowi po upływie terminu ważności.</li>
+      <li>Pakiet jest przypisany do jednego Ucznia i nie może być przekazany innej osobie.</li>
+      <li>W wyjątkowych sytuacjach (np. choroba) możliwe jest przedłużenie ważności Pakietu — prosimy o kontakt.</li>
+    </ol>
+
+    <!-- §9 -->
+    <h2>§9. Prawo odstąpienia od umowy</h2>
+    <ol>
+      <li>Konsumentowi przysługuje prawo do odstąpienia od umowy zawartej na odległość w terminie <strong>14 dni</strong> od dnia zawarcia umowy, bez podawania przyczyny (art. 27 ustawy o prawach konsumenta).</li>
+      <li>Aby skorzystać z prawa odstąpienia, należy poinformować Usługodawcę o swojej decyzji drogą e-mailową na adres: <a href="mailto:szymontyburczy@protonmail.com">szymontyburczy@protonmail.com</a>.</li>
+      <li>W przypadku odstąpienia od umowy Usługodawca zwraca wszystkie otrzymane płatności, pomniejszone o wartość usług już wykonanych (odbytych lekcji), w ciągu 14 dni od dnia otrzymania oświadczenia o odstąpieniu.</li>
+      <li>Prawo odstąpienia nie przysługuje w odniesieniu do usług w pełni wykonanych za wyraźną zgodą konsumenta (art. 38 pkt 1 ustawy o prawach konsumenta).</li>
+    </ol>
+
+    <!-- §10 -->
+    <h2>§10. Reklamacje</h2>
+    <ol>
+      <li>Reklamacje dotyczące jakości usług lub działania Serwisu można składać drogą e-mailową na adres: <a href="mailto:szymontyburczy@protonmail.com">szymontyburczy@protonmail.com</a>.</li>
+      <li>Reklamacja powinna zawierać: imię i nazwisko, adres e-mail, opis problemu oraz oczekiwany sposób rozwiązania.</li>
+      <li>Usługodawca rozpatruje reklamację w terminie <strong>14 dni</strong> od dnia jej otrzymania i informuje Użytkownika o wyniku drogą e-mailową.</li>
+    </ol>
+
+    <!-- §11 -->
+    <h2>§11. Prawa autorskie i materiały</h2>
+    <ol>
+      <li>Materiały edukacyjne udostępniane Uczniom (PDF, notatki, zadania) są własnością Usługodawcy lub Korepetytora i są chronione prawem autorskim.</li>
+      <li>Uczeń ma prawo korzystać z materiałów wyłącznie na własny użytek osobisty.</li>
+      <li>Zabrania się: kopiowania, rozpowszechniania, udostępniania publicznie, sprzedaży lub modyfikowania materiałów bez pisemnej zgody Usługodawcy.</li>
+    </ol>
+
+    <!-- §12 -->
+    <h2>§12. Odpowiedzialność</h2>
+    <ol>
+      <li>Usługodawca dołoży wszelkich starań, aby usługi były świadczone na najwyższym poziomie.</li>
+      <li>Usługodawca nie ponosi odpowiedzialności za:
+        <ul>
+          <li>przerwy w działaniu Serwisu spowodowane siłą wyższą lub problemami technicznymi niezależnymi od Usługodawcy</li>
+          <li>skutki nieprawidłowego korzystania z Serwisu przez Użytkownika</li>
+          <li>wyniki egzaminów lub oceny szkolne Ucznia (korepetycje mają charakter wspierający)</li>
+        </ul>
+      </li>
+    </ol>
+
+    <!-- §13 -->
+    <h2>§13. Ochrona danych osobowych</h2>
+    <p>Zasady przetwarzania danych osobowych Użytkowników określa <a href="/polityka-prywatnosci">Polityka Prywatności</a>, stanowiąca integralną część niniejszego Regulaminu.</p>
+
+    <!-- §14 -->
+    <h2>§14. Postanowienia końcowe</h2>
+    <ol>
+      <li>Niniejszy Regulamin podlega prawu polskiemu.</li>
+      <li>W sprawach nieuregulowanych niniejszym Regulaminem zastosowanie mają przepisy Kodeksu Cywilnego, ustawy o świadczeniu usług drogą elektroniczną (UŚUDE) oraz ustawy o prawach konsumenta.</li>
+      <li>Usługodawca zastrzega sobie prawo do zmiany Regulaminu. O zmianach Użytkownicy zostaną poinformowani poprzez komunikat na stronie co najmniej 14 dni przed wejściem zmian w życie.</li>
+      <li>Spory wynikające z niniejszego Regulaminu będą rozstrzygane polubownie, a w przypadku braku porozumienia — przez właściwy sąd powszechny.</li>
+      <li>Konsument może skorzystać z pozasądowych sposobów rozpatrywania reklamacji, w tym z platformy ODR: <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener">https://ec.europa.eu/consumers/odr</a>.</li>
+    </ol>
+  </div>
+</section>
+
+<footer id="mainFooter"></footer>
+<script src="supabase-config.js"></script>
+<script src="nav.js"></script>
+<script src="chatbot.js"></script>
+<script src="cookies-banner.js"></script>
+<script>
+  injectNav('');
+  injectFooter();
+  initReveal();
+</script>
+</body>
+</html>

@@ -131,6 +131,19 @@
       border-radius:3px; padding:1rem 1.5rem; color:#256541; font-size:.92rem;
     }
 
+    /* CONSENT */
+    .consent-label {
+      display:flex; align-items:flex-start; gap:.6rem;
+      font-size:.82rem; color:var(--text-muted); line-height:1.55;
+      cursor:pointer; margin:.3rem 0 .5rem;
+    }
+    .consent-label input[type="checkbox"] {
+      width:18px; height:18px; accent-color:var(--navy);
+      cursor:pointer; flex-shrink:0; margin-top:2px;
+    }
+    .consent-label a { color:var(--gold); text-decoration:none; }
+    .consent-label a:hover { text-decoration:underline; }
+
     @media(max-width: 900px){
       .reviews-grid { columns: 2; }
     }
@@ -340,6 +353,10 @@
             <label>Twoja opinia</label>
             <textarea name="review" placeholder="Napisz kilka słów o swojej współpracy z korepetytorem..." required></textarea>
           </div>
+          <label class="consent-label">
+            <input type="checkbox" name="consent" required />
+            <span>Wyrażam zgodę na przetwarzanie moich danych osobowych i publikację opinii zgodnie z <a href="/polityka-prywatnosci" target="_blank">Polityką Prywatności</a>.</span>
+          </label>
           <button type="submit" class="btn btn-primary">Wyślij opinię →</button>
           <div class="review-success" id="reviewSuccess">✅ Dziękuję za opinię! Opublikujemy ją po weryfikacji.</div>
         </form>
@@ -352,6 +369,7 @@
 <script src="supabase-config.js"></script>
 <script src="nav.js"></script>
 <script src="chatbot.js"></script>
+<script src="cookies-banner.js"></script>
 <script>
   injectNav('opinie');
   injectFooter();
