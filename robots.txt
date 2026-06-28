@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard.html
+Disallow: /login.html
+
+Sitemap: https://korepetycje-tyburczy.pl/sitemap.xml
