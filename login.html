@@ -144,6 +144,37 @@
       background: var(--white);
     }
 
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-wrapper input {
+      width: 100%;
+      padding-right: 3rem;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 0.7rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      outline: none;
+      transition: opacity 0.2s;
+    }
+
+    .password-toggle:hover {
+      opacity: 0.7;
+    }
+
     .auth-submit {
       background: var(--navy);
       color: var(--white);
@@ -416,7 +447,11 @@
             </div>
             <div class="form-group">
               <label>Hasło</label>
-              <input type="password" id="loginPassword" placeholder="••••••••" required />
+              <div class="password-wrapper">
+                <input type="password" id="loginPassword" placeholder="••••••••" required />
+                <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)"
+                  title="Pokaż/Ukryj hasło">👁️</button>
+              </div>
             </div>
 
             <div class="remember-row">
@@ -448,7 +483,11 @@
             </div>
             <div class="form-group">
               <label>Hasło (min. 8 znaków)</label>
-              <input type="password" id="regPassword" placeholder="••••••••" minlength="8" required />
+              <div class="password-wrapper">
+                <input type="password" id="regPassword" placeholder="••••••••" minlength="8" required />
+                <button type="button" class="password-toggle" onclick="togglePassword('regPassword', this)"
+                  title="Pokaż/Ukryj hasło">👁️</button>
+              </div>
             </div>
             <label class="consent-label">
               <input type="checkbox" id="regConsent" required />
@@ -484,11 +523,19 @@
           <form class="auth-form" id="newPasswordForm">
             <div class="form-group">
               <label>Nowe hasło (min. 8 znaków)</label>
-              <input type="password" id="newPassword" placeholder="••••••••" minlength="8" required />
+              <div class="password-wrapper">
+                <input type="password" id="newPassword" placeholder="••••••••" minlength="8" required />
+                <button type="button" class="password-toggle" onclick="togglePassword('newPassword', this)"
+                  title="Pokaż/Ukryj hasło">👁️</button>
+              </div>
             </div>
             <div class="form-group">
               <label>Powtórz hasło</label>
-              <input type="password" id="newPasswordConfirm" placeholder="••••••••" minlength="8" required />
+              <div class="password-wrapper">
+                <input type="password" id="newPasswordConfirm" placeholder="••••••••" minlength="8" required />
+                <button type="button" class="password-toggle" onclick="togglePassword('newPasswordConfirm', this)"
+                  title="Pokaż/Ukryj hasło">👁️</button>
+              </div>
             </div>
             <button type="submit" class="auth-submit" id="newPwBtn">Ustaw nowe hasło →</button>
           </form>
@@ -525,6 +572,17 @@
       if (tabs) tabs.style.display = 'none';
     }
 
+
+    function togglePassword(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = 'Zasłoń';
+      } else {
+        input.type = 'password';
+        btn.textContent = 'Pokaż';
+      }
+    }
 
     function switchTab(tab) {
       document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
