@@ -422,6 +422,150 @@
 			font-weight: 600;
 		}
 
+		.pay-detail-top {
+			display: flex;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: 1rem;
+			margin-bottom: 1.2rem;
+		}
+
+		.pay-back {
+			background: none;
+			border: none;
+			color: var(--navy);
+			cursor: pointer;
+			font-family: inherit;
+			font-size: 0.9rem;
+			padding: 0.2rem 0;
+			margin-bottom: 0.65rem;
+		}
+
+		.pay-summary {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+			gap: 0.8rem;
+			margin-bottom: 1rem;
+		}
+
+		.pay-summary-item {
+			background: var(--white);
+			border: 1px solid var(--border);
+			border-radius: 6px;
+			padding: 0.9rem 1rem;
+		}
+
+		.pay-summary-item span {
+			display: block;
+			color: var(--text-muted);
+			font-size: 0.78rem;
+			margin-bottom: 0.25rem;
+		}
+
+		.pay-summary-item strong {
+			color: var(--navy);
+			font-size: 1.15rem;
+		}
+
+		.pay-editor {
+			background: var(--cream);
+			border: 1px solid var(--border);
+			border-radius: 6px;
+			padding: 1rem;
+			margin-bottom: 1rem;
+		}
+
+		.pay-editor h3 {
+			font-family: "Playfair Display", serif;
+			color: var(--navy);
+			font-size: 1.05rem;
+			margin-bottom: 0.8rem;
+		}
+
+		.pay-form-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+			gap: 0.8rem;
+			align-items: end;
+		}
+
+		.pay-lesson-list {
+			display: flex;
+			flex-direction: column;
+			gap: 0.85rem;
+		}
+
+		.pay-lesson-card {
+			background: var(--white);
+			border: 1px solid var(--border);
+			border-radius: 6px;
+			padding: 1rem;
+		}
+
+		.pay-lesson-card.collapsed {
+			cursor: pointer;
+		}
+
+		.pay-lesson-card.collapsed:hover {
+			background: var(--cream);
+		}
+
+		.pay-lesson-head {
+			display: flex;
+			justify-content: space-between;
+			gap: 1rem;
+			margin-bottom: 0.85rem;
+		}
+
+		.pay-lesson-title {
+			color: var(--navy);
+			font-weight: 700;
+		}
+
+		.pay-lesson-meta {
+			color: var(--text-muted);
+			font-size: 0.82rem;
+			margin-top: 0.1rem;
+		}
+
+		.pay-lesson-actions {
+			display: flex;
+			gap: 0.45rem;
+			justify-content: flex-end;
+			align-items: center;
+			margin-top: 0.85rem;
+		}
+
+		.pay-lesson-edit {
+			display: none;
+		}
+
+		.pay-lesson-card.expanded .pay-lesson-edit {
+			display: block;
+		}
+
+		.pay-form-grid input,
+		.pay-form-grid select,
+		.pay-lesson-card input,
+		.pay-lesson-card select {
+			width: 100%;
+			padding: 0.55rem 0.65rem;
+			border: 1px solid #d8d0c0;
+			border-radius: 4px;
+			background: var(--white);
+			font-family: inherit;
+			font-size: 0.88rem;
+		}
+
+		@media (max-width: 640px) {
+			.pay-detail-top,
+			.pay-lesson-head,
+			.pay-lesson-actions {
+				flex-direction: column;
+				align-items: stretch;
+			}
+		}
+
 		/* Desktop table */
 		.lesson-table-wrap {
 			display: none;
@@ -926,6 +1070,7 @@
 		let viewingPaymentUserId = null;
 		let viewingLessonsUserId = null;
 		let viewingPaymentPair = null;
+		let expandedPaymentLessonIds = [];
 		let appData = {
 			lessons: [],
 			payments: [],
@@ -1510,6 +1655,76 @@ ${appData.materials.length
 				.filter((l) => l.status === "odbyta" && !l.paid)
 				.reduce((s, l) => s + Number(l.price || 0), 0);
 			const today = toInputDate(new Date().toISOString());
+			const totalValue = userLessons.reduce((s, l) => s + Number(l.price || 0), 0);
+			const heldCount = userLessons.filter((l) => l.status === "odbyta").length;
+			const paidCount = userLessons.filter((l) => l.paid).length;
+			return `
+<div class="panel-header">
+  <button type="button" class="pay-back" onclick="showPaymentsList()">← Wroc do par</button>
+  <div class="pay-detail-top">
+    <div>
+      <h1>${student.full_name || student.email}</h1>
+      <p>Korepetytor: <strong>${tutor.full_name || tutor.email}</strong></p>
+    </div>
+  </div>
+</div>
+
+<div class="pay-summary">
+  <div class="pay-summary-item"><span>Do zaplaty</span><strong style="color:${debt > 0 ? "#e74c3c" : "#2ecc71"}">${debt} zl</strong></div>
+  <div class="pay-summary-item"><span>Wartosc lekcji</span><strong>${totalValue} zl</strong></div>
+  <div class="pay-summary-item"><span>Odbyte lekcje</span><strong>${heldCount}</strong></div>
+  <div class="pay-summary-item"><span>Oplacone</span><strong>${paidCount}/${userLessons.length}</strong></div>
+</div>
+
+<div class="pay-editor">
+  <h3>Dodaj lekcje do rozliczenia</h3>
+  <div class="pay-form-grid">
+    <div class="form-group"><label>Przedmiot</label><input type="text" id="newPaySubject" value="Lekcja"/></div>
+    <div class="form-group"><label>Data</label><input type="date" id="newPayDate" value="${today}"/></div>
+    <div class="form-group"><label>Godzina</label><input type="time" id="newPayTime" value="10:00"/></div>
+    <div class="form-group"><label>Koszt</label><input type="number" id="newPayPrice" min="0" step="1" value="100"/></div>
+    <div class="form-group"><label>Odbyla sie</label><select id="newPayHeld"><option value="odbyta">Tak</option><option value="odwolana">Nie</option><option value="zaplanowana">Jeszcze nie</option></select></div>
+    <div class="form-group"><label>Zaplacono</label><select id="newPayPaid" onchange="toggleNewPayPaidAt()"><option value="false">Nie</option><option value="true">Tak</option></select></div>
+    <div class="form-group"><label>Data wplaty</label><input type="date" id="newPayPaidAt" disabled/></div>
+    <button type="button" class="btn btn-gold" style="height:2.55rem;" onclick="addPaymentLesson()">+ Dodaj</button>
+  </div>
+  <div id="newPayMsg" style="margin-top:.6rem;font-size:.85rem;color:var(--text-muted);"></div>
+</div>
+
+<div class="data-wrap">
+  <div class="data-head"><h3>Lekcje tej pary (${userLessons.length})</h3></div>
+  ${userLessons.length ? `
+  <div class="pay-lesson-list">
+    ${userLessons.map((l) => {
+			const expanded = expandedPaymentLessonIds.includes(l.id);
+			return `
+    <div class="pay-lesson-card ${expanded ? "expanded" : "collapsed"}" onclick="togglePaymentLesson('${l.id}')">
+      <div class="pay-lesson-head">
+        <div>
+          <div class="pay-lesson-title">${l.subject || "Lekcja"}</div>
+          <div class="pay-lesson-meta">${fmtDate(l.date)} · ${l.duration} min · ${l.price} zl</div>
+        </div>
+        <div>${badge(l.status)} ${l.paid ? `<span style="background:#2ecc71;color:white;padding:2px 8px;border-radius:4px;font-size:.75rem;margin-left:.3rem;">Oplacona</span>` : `<span style="background:#e74c3c;color:white;padding:2px 8px;border-radius:4px;font-size:.75rem;margin-left:.3rem;">Do zaplaty</span>`}</div>
+      </div>
+      <div class="pay-lesson-edit" onclick="event.stopPropagation()">
+      <div class="pay-form-grid">
+        <div class="form-group"><label>Przedmiot</label><input type="text" id="pay-subject-${l.id}" value="${l.subject || ""}"/></div>
+        <div class="form-group"><label>Data</label><input type="date" id="pay-date-${l.id}" value="${toInputDate(l.date)}"/></div>
+        <div class="form-group"><label>Godzina</label><input type="time" id="pay-time-${l.id}" value="${toInputTime(l.date)}"/></div>
+        <div class="form-group"><label>Koszt</label><input type="number" id="pay-price-${l.id}" value="${l.price}" min="0" step="1"/></div>
+        <div class="form-group"><label>Odbyla sie</label><select id="pay-status-${l.id}"><option value="odbyta" ${l.status === "odbyta" ? "selected" : ""}>Tak</option><option value="odwolana" ${l.status === "odwolana" ? "selected" : ""}>Nie</option><option value="zaplanowana" ${l.status === "zaplanowana" ? "selected" : ""}>Jeszcze nie</option></select></div>
+        <div class="form-group"><label>Zaplacono</label><select id="pay-paid-${l.id}" onchange="togglePayPaidAt('${l.id}')"><option value="false" ${!l.paid ? "selected" : ""}>Nie</option><option value="true" ${l.paid ? "selected" : ""}>Tak</option></select></div>
+        <div class="form-group"><label>Data wplaty</label><input type="date" id="pay-paidat-${l.id}" value="${l.paidAt ? toInputDateOnly(l.paidAt) : ""}" ${!l.paid ? "disabled" : ""}/></div>
+      </div>
+      <div class="pay-lesson-actions">
+        <button type="button" class="btn btn-gold" style="padding:.4rem .8rem;font-size:.8rem;" onclick="savePaymentLesson('${l.id}')">Zapisz</button>
+        <button type="button" class="btn btn-outline" style="padding:.4rem .8rem;font-size:.8rem;color:red;border-color:red;" onclick="deletePaymentLesson('${l.id}')">Usun</button>
+      </div>
+      </div>
+    </div>`;
+		}).join("")}
+  </div>` : `<div class="empty-state"><p>Brak lekcji dla tej pary. Dodaj pierwsza pozycje powyzej.</p></div>`}
+</div>`;
 			return `
 <div class="panel-header">
   <button type="button" style="margin-bottom:.8rem;padding:.3rem 0;background:none;border:none;color:var(--navy);cursor:pointer;font-family:inherit;font-size:.9rem;" onclick="showPaymentsList()">← Wroc</button>
@@ -1559,11 +1774,11 @@ ${appData.materials.length
 			if (!u) {
 				return `<div class="empty-state"><p>Nie znaleziono użytkownika.</p><button class="btn btn-primary" onclick="showPaymentsList()">← Wróć</button></div>`;
 			}
-			const userLessons = appData.lessons
+			const legacyUserLessons = appData.lessons
 				.filter((l) => l.studentId === u.id && l.status === "odbyta")
 				.sort((a, b) => new Date(b.date) - new Date(a.date));
-			const debt = calcUserDebt(u.id);
-			const today = toInputDate(new Date().toISOString());
+			const legacyDebt = calcUserDebt(u.id);
+			const legacyToday = toInputDate(new Date().toISOString());
 
 			return `
 <div class="panel-header">
@@ -2294,7 +2509,15 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
 		window.openUserPayments = function (studentId, tutorId) {
 			viewingPaymentUserId = studentId;
 			viewingPaymentPair = tutorId ? { studentId, tutorId } : null;
+			expandedPaymentLessonIds = [];
 			showPanel("all-payments");
+		};
+
+		window.togglePaymentLesson = function (lessonId) {
+			expandedPaymentLessonIds = expandedPaymentLessonIds.includes(lessonId)
+				? expandedPaymentLessonIds.filter((id) => id !== lessonId)
+				: [...expandedPaymentLessonIds, lessonId];
+			document.getElementById("dashMain").innerHTML = panelpayments();
 		};
 
 		window.showAllLessonsList = function () {

@@ -605,8 +605,8 @@
 
       // Ustaw czas trwania sesji
       supabaseClient.auth.setSession; // już ustawione przez persistSession
-      const { error } = await supabaseClient.auth.signInWithPassword({
-        email: document.getElementById('loginEmail').value,
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email: document.getElementById('loginEmail').value.trim(),
         password: document.getElementById('loginPassword').value,
       });
 
@@ -627,6 +627,21 @@
         //     supabase.auth.signOut();
         //   });
         // }
+        if (!data?.user) {
+          errEl.textContent = 'Nie udalo sie zalogowac. Sprawdz e-mail i haslo.';
+          errEl.style.display = 'block';
+          btn.textContent = 'Zaloguj sie ->'; btn.disabled = false;
+          return;
+        }
+
+        const profile = await getCurrentProfile();
+        if (!profile) {
+          errEl.textContent = 'Konto istnieje, ale nie ma profilu w bazie. Skontaktuj sie z administratorem.';
+          errEl.style.display = 'block';
+          btn.textContent = 'Zaloguj sie ->'; btn.disabled = false;
+          return;
+        }
+
         window.location.href = 'dashboard.html';
       }
     });
@@ -640,11 +655,19 @@
       btn.textContent = 'Rejestracja…'; btn.disabled = true;
       errEl.style.display = 'none'; sucEl.style.display = 'none';
 
-      const { error } = await supabaseClient.auth.signUp({
-        email: document.getElementById('regEmail').value,
+      const regEmail = document.getElementById('regEmail').value.trim().toLowerCase();
+      const { data, error } = await supabaseClient.auth.signUp({
+        email: regEmail,
         password: document.getElementById('regPassword').value,
         options: { data: { full_name: document.getElementById('regName').value } }
       });
+
+      if (!error && data?.user?.identities && data.user.identities.length === 0) {
+        errEl.textContent = 'To konto nadal istnieje w systemie logowania. Usun je takze w Supabase Authentication albo przywroc profil w bazie.';
+        errEl.style.display = 'block';
+        btn.textContent = 'Zarejestruj sie ->'; btn.disabled = false;
+        return;
+      }
 
       if (error) {
         const msgs = {
@@ -671,8 +694,27 @@
       btn.textContent = 'Wysyłanie…'; btn.disabled = true;
       errEl.style.display = 'none'; sucEl.style.display = 'none';
 
+      const resetEmail = document.getElementById('resetEmail').value.trim().toLowerCase();
+
+      const { data: profileExists, error: profileCheckError } = await supabaseClient
+        .rpc('public_profile_exists', { lookup_email: resetEmail });
+
+      if (profileCheckError) {
+        errEl.textContent = 'Reset hasla wymaga aktualizacji bazy danych. Brakuje funkcji public_profile_exists.';
+        errEl.style.display = 'block';
+        btn.textContent = 'Wyslij link resetujacy ->'; btn.disabled = false;
+        return;
+      }
+
+      if (!profileExists) {
+        errEl.textContent = 'Nie ma konta z takim adresem e-mail.';
+        errEl.style.display = 'block';
+        btn.textContent = 'Wyslij link resetujacy ->'; btn.disabled = false;
+        return;
+      }
+
       const { error } = await supabaseClient.auth.resetPasswordForEmail(
-        document.getElementById('resetEmail').value,
+        resetEmail,
         { redirectTo: window.location.origin + '/login.html' }
       );
 
