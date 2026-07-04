@@ -34,6 +34,7 @@ CREATE TABLE lessons (
   notes TEXT,
   price NUMERIC(10,2),
   paid BOOLEAN DEFAULT FALSE,
+  paid_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -86,6 +87,30 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+-- Notatki admina o użytkownikach (widoczne tylko dla admina)
+CREATE TABLE admin_user_notes (
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE PRIMARY KEY,
+  note TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE admin_user_notes ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Admin czyta notatki" ON admin_user_notes FOR SELECT
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+CREATE POLICY "Admin zapisuje notatki" ON admin_user_notes FOR INSERT
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+CREATE POLICY "Admin aktualizuje notatki" ON admin_user_notes FOR UPDATE
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+CREATE POLICY "Admin usuwa notatki" ON admin_user_notes FOR DELETE
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- Migracja: data wpłaty przy lekcji (uruchom jeśli tabela lessons już istnieje)
+-- ALTER TABLE lessons ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ;
 */
 
 const SUPABASE_URL = "https://joxezxwwzelpmqjawwmb.supabase.co"; // np. https://abcxyz.supabase.co
@@ -160,6 +185,10 @@ async function getCurrentProfile() {
 		.select("*")
 		.eq("id", user.id)
 		.single();
+	if (!data) {
+		// Sesja bez profilu (np. usunięty użytkownik) — wyloguj, żeby uniknąć pętli login ↔ dashboard
+		await supabaseClient.auth.signOut();
+	}
 	return data;
 }
 

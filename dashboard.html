@@ -391,6 +391,37 @@
 			gap: 0.15rem;
 		}
 
+		.pay-user-list {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.pay-user-item {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 1rem 1.2rem;
+			border-bottom: 1px solid var(--border);
+			cursor: pointer;
+			background: var(--white);
+			transition: background 0.15s;
+			font-family: "Source Serif 4", serif;
+			font-size: 1rem;
+			color: var(--navy);
+		}
+
+		.pay-user-item:first-child {
+			border-top: 1px solid var(--border);
+		}
+
+		.pay-user-item:hover {
+			background: var(--cream);
+		}
+
+		.pay-user-item strong {
+			font-weight: 600;
+		}
+
 		/* Desktop table */
 		.lesson-table-wrap {
 			display: none;
@@ -891,10 +922,17 @@
 	<script>
 		// ── ZMIENNE GLOBALNE I STAN APLIKACJI ──
 		let currentProfile = null;
+		let viewingUserId = null;
+		let viewingPaymentUserId = null;
+		let viewingLessonsUserId = null;
+		let viewingPaymentPair = null;
 		let appData = {
 			lessons: [],
 			payments: [],
 			materials: [],
+			users: [],
+			assignments: [],
+			adminNotes: {},
 		};
 
 		const sidebarItems = {
@@ -923,6 +961,64 @@
 				{ id: "profile", icon: "👤", label: "Profil" },
 			],
 		};
+
+		function toInputDate(iso) {
+			if (!iso) return "";
+			const d = new Date(iso);
+			const off = d.getTimezoneOffset();
+			return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
+		}
+		function toInputTime(iso) {
+			if (!iso) return "10:00";
+			const d = new Date(iso);
+			return d.toTimeString().slice(0, 5);
+		}
+		function toInputDateOnly(iso) {
+			if (!iso) return "";
+			return toInputDate(iso);
+		}
+		function calcUserDebt(userId) {
+			return appData.lessons
+				.filter((l) => l.studentId === userId && l.status === "odbyta" && !l.paid)
+				.reduce((s, l) => s + Number(l.price || 0), 0);
+		}
+		function calcUserPaidTotal(userId) {
+			return appData.lessons
+				.filter((l) => l.studentId === userId && l.status === "odbyta" && l.paid)
+				.reduce((s, l) => s + Number(l.price || 0), 0);
+		}
+		function getStudents() {
+			return (appData.users || []).filter((u) => u.role === "uczen");
+		}
+		function getTutors() {
+			return (appData.users || []).filter((u) => u.role === "korepetytor" || u.role === "admin");
+		}
+		function getUserName(userId) {
+			const user = (appData.users || []).find((u) => u.id === userId);
+			return user?.full_name || user?.email || "Nieznany uzytkownik";
+		}
+		function getAssignedTutorIds(studentId) {
+			return (appData.assignments || [])
+				.filter((a) => a.studentId === studentId)
+				.map((a) => a.tutorId);
+		}
+		function getAssignedStudentIds(tutorId) {
+			return (appData.assignments || [])
+				.filter((a) => a.tutorId === tutorId)
+				.map((a) => a.studentId);
+		}
+		function isAssigned(studentId, tutorId) {
+			return (appData.assignments || []).some((a) => a.studentId === studentId && a.tutorId === tutorId);
+		}
+		function pairLessons(studentId, tutorId) {
+			return appData.lessons
+				.filter((l) => l.studentId === studentId && (!tutorId || l.tutorId === tutorId))
+				.sort((a, b) => new Date(a.date) - new Date(b.date));
+		}
+		function nextLessonFor(studentId, tutorId = null) {
+			const now = new Date();
+			return pairLessons(studentId, tutorId).find((l) => (l.status === "zaplanowana" || l.status === "oczekuje") && new Date(l.date) >= now);
+		}
 
 		// ── FORMATOWANIE ──
 		function fmtDate(s) {
@@ -992,10 +1088,19 @@
 				.select("*, tutor:profiles!tutor_id(full_name)")
 				.order("created_at", { ascending: false });
 
+			const { data: assignments, error: assignmentsError } = await supabaseClient
+				.from("student_tutor_assignments")
+				.select("student_id, tutor_id");
+			if (assignmentsError) {
+				console.warn("Brak tabeli student_tutor_assignments lub uprawnien RLS:", assignmentsError.message);
+			}
+
 			// 3. Pobieranie profili z uwzględnieniem ról i prywatności
 			if (currentProfile.role === "admin") {
 				const { data: profiles } = await supabaseClient.from("profiles").select("*").order("full_name", { ascending: true });
 				appData.users = profiles || [];
+				const { data: notes } = await supabaseClient.from("admin_user_notes").select("user_id, note");
+				appData.adminNotes = Object.fromEntries((notes || []).map((n) => [n.user_id, n.note]));
 			} else if (currentProfile.role === "korepetytor") {
 				const { data: profiles } = await supabaseClient.from("profiles").select("*").eq("role", "uczen").order("full_name", { ascending: true });
 				appData.users = profiles || [];
@@ -1007,6 +1112,8 @@
 			// Mapowanie danych dla interfejsu
 			appData.lessons = (lessons || []).map((l) => ({
 				id: l.id,
+				studentId: l.student_id,
+				tutorId: l.tutor_id,
 				subject: l.subject,
 				tutor: l.tutor?.full_name || "Nieprzypisany",
 				student: l.student?.full_name || "Nieznany Uczeń",
@@ -1015,6 +1122,7 @@
 				status: l.status,
 				price: l.price || "100",
 				paid: l.paid === true || String(l.paid) === "true",
+				paidAt: l.paid_at || null,
 			}));
 
 			appData.materials = (materials || []).map((m) => ({
@@ -1025,13 +1133,27 @@
 				file: m.file_url || "#",
 			}));
 
+			appData.assignments = (assignments || []).map((a) => ({
+				studentId: a.student_id,
+				tutorId: a.tutor_id,
+			}));
+			if (currentProfile.role === "korepetytor") {
+				const assignedIds = getAssignedStudentIds(currentProfile.id);
+				appData.users = appData.users.filter((u) => u.role !== "uczen" || assignedIds.includes(u.id));
+			} else if (currentProfile.role === "uczen") {
+				const assignedTutorIds = getAssignedTutorIds(currentProfile.id);
+				appData.users = appData.users.filter((u) => u.role === "admin" || assignedTutorIds.includes(u.id));
+			}
+
 			// Opłaty wyliczane z odbytych lekcji (kwota + status na podstawie pola paid)
 			appData.payments = appData.lessons
 				.filter((l) => l.status === "odbyta")
 				.map((l) => ({
 					id: l.id,
+					studentId: l.studentId,
 					amount: Number(l.price) || 0,
 					paid: l.paid,
+					paidAt: l.paidAt,
 					status: l.paid ? "oplacona" : "oczekuje",
 				}));
 		}
@@ -1063,7 +1185,73 @@ ${up.length
 </div>`;
 		}
 
+		function panelAllLessonsUsers() {
+			const users = [...(appData.users || [])]
+				.filter((u) => u.full_name || u.email)
+				.sort((a, b) => (a.full_name || a.email || "").localeCompare(b.full_name || b.email || "", "pl"));
+			return `
+<div class="panel-header"><h1>Wszystkie lekcje</h1><p>Wybierz uzytkownika, aby zobaczyc jego lekcje.</p></div>
+<div class="data-wrap">
+  <div class="data-head"><h3>Uzytkownicy (${users.length})</h3></div>
+  ${users.length ? `
+  <div class="pay-user-list">
+    ${users.map((u) => {
+				const count = appData.lessons.filter((l) => l.studentId === u.id || l.tutorId === u.id).length;
+				const next = nextLessonFor(u.id) || appData.lessons.find((l) => l.tutorId === u.id && (l.status === "zaplanowana" || l.status === "oczekuje"));
+				return `
+    <div class="pay-user-item" onclick="openUserLessons('${u.id}')">
+      <div><strong>${u.full_name || u.email}</strong><div style="font-size:.82rem;color:var(--text-muted);">${badge(u.role)} ${count} lekcji</div></div>
+      <span style="font-size:.85rem;color:var(--text-muted);">${next ? fmtDate(next.date) : "Brak nadchodzacych"}</span>
+    </div>`;
+			}).join("")}
+  </div>` : `<div class="empty-state"><p>Brak uzytkownikow.</p></div>`}
+</div>`;
+		}
+
+		function panelUserLessons() {
+			const u = (appData.users || []).find((x) => x.id === viewingLessonsUserId);
+			if (!u) return `<div class="empty-state"><p>Nie znaleziono uzytkownika.</p><button class="btn btn-primary" onclick="showAllLessonsList()">Wroc</button></div>`;
+			const userLessons = appData.lessons
+				.filter((l) => l.studentId === u.id || l.tutorId === u.id)
+				.sort((a, b) => new Date(a.date) - new Date(b.date));
+			return `
+<div class="panel-header">
+  <button type="button" style="margin-bottom:.8rem;padding:.3rem 0;background:none;border:none;color:var(--navy);cursor:pointer;font-family:inherit;font-size:.9rem;" onclick="showAllLessonsList()">← Wroc do listy</button>
+  <h1>${u.full_name || u.email}</h1>
+  <p>Wszystkie lekcje tego uzytkownika.</p>
+</div>
+<div class="data-wrap">
+  <div class="data-head"><h3>Lekcje (${userLessons.length})</h3></div>
+  ${userLessons.length ? `
+  <div class="lesson-table-wrap" style="display:block;overflow-x:auto;">
+    <table>
+      <thead><tr><th>Uczen</th><th>Korepetytor</th><th>Przedmiot</th><th>Data</th><th>Czas</th><th>Koszt</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        ${userLessons.map((l) => `
+        <tr>
+          <td><strong>${l.student}</strong></td>
+          <td>${l.tutor}</td>
+          <td>${l.subject}</td>
+          <td>${fmtDate(l.date)}</td>
+          <td>${l.duration} min</td>
+          <td>${l.price} zl</td>
+          <td>${badge(l.status)}</td>
+          <td style="white-space:nowrap;">
+            ${l.status === "zaplanowana" ? `<button class="btn btn-gold" style="padding:.3rem .7rem;font-size:.8rem;background:#2ecc71;border-color:#2ecc71;color:white;" onclick="markAsDone('${l.id}')">Odbyla sie</button>` : ""}
+            <button class="btn btn-outline" style="color:red;border-color:red;padding:.3rem .7rem;font-size:.8rem;margin-left:.3rem;" onclick="deleteLesson('${l.id}')">Usun</button>
+          </td>
+        </tr>`).join("")}
+      </tbody>
+    </table>
+  </div>` : `<div class="empty-state"><p>Ten uzytkownik nie ma jeszcze lekcji.</p></div>`}
+</div>`;
+		}
+
 		function panelAllLessons() {
+			if (currentProfile.role === "admin") {
+				if (viewingLessonsUserId) return panelUserLessons();
+				return panelAllLessonsUsers();
+			}
 			const pending = appData.lessons.filter((l) => l.status === "oczekuje");
 			const confirmed = appData.lessons.filter((l) => l.status === "zaplanowana");
 			const history = appData.lessons.filter((l) => l.status === "odbyta" || l.status === "odwolana");
@@ -1221,56 +1409,278 @@ ${appData.materials.length
 </div>`;
 		}
 
+		function panelStudents() {
+			const assignedIds = currentProfile.role === "admin"
+				? getAssignedStudentIds(currentProfile.id)
+				: getAssignedStudentIds(currentProfile.id);
+			const students = getStudents()
+				.filter((s) => assignedIds.includes(s.id))
+				.sort((a, b) => (a.full_name || a.email || "").localeCompare(b.full_name || b.email || "", "pl"));
+			return `
+<div class="panel-header"><h1>Uczniowie</h1><p>Uczniowie przypisani do Twojego konta.</p></div>
+<div class="data-wrap">
+  <div class="data-head"><h3>Moi uczniowie (${students.length})</h3></div>
+  ${students.length ? `
+  <div class="lesson-table-wrap" style="display:block;overflow-x:auto;">
+    <table>
+      <thead><tr><th>Uczen</th><th>E-mail</th><th>Najblizsza lekcja</th><th>Liczba lekcji</th><th></th></tr></thead>
+      <tbody>
+        ${students.map((s) => {
+				const lessons = pairLessons(s.id, currentProfile.id);
+				const next = nextLessonFor(s.id, currentProfile.id);
+				return `
+        <tr>
+          <td><strong>${s.full_name || s.email}</strong></td>
+          <td>${s.email || "—"}</td>
+          <td>${next ? `${fmtDate(next.date)} · ${next.subject}` : "Brak zaplanowanych"}</td>
+          <td>${lessons.length}</td>
+          <td><button type="button" class="btn btn-primary" style="padding:.3rem .7rem;font-size:.78rem;" onclick="openStudentLessons('${s.id}')">Lekcje →</button></td>
+        </tr>`;
+			}).join("")}
+      </tbody>
+    </table>
+  </div>` : `<div class="empty-state"><p>Nie masz jeszcze przypisanych uczniow. Administrator moze przypisac ich w panelu Przeglad.</p></div>`}
+</div>`;
+		}
+
 		function panelpayments() {
-			// Pobieramy TYLKO lekcje o statusie "odbyta"
-			const pastLessons = appData.lessons.filter(l => l.status === "odbyta");
-			const isAdmin = currentProfile.role === "admin";
+			if (currentProfile.role === "admin") {
+				if (viewingPaymentPair) return panelAdminUserPayments();
+				return panelAdminPaymentsUsers();
+			}
+			return panelStudentPayments();
+		}
+
+		function panelAdminPaymentsUsers() {
+			const rows = (appData.assignments || [])
+				.map((a) => ({
+					student: (appData.users || []).find((u) => u.id === a.studentId),
+					tutor: (appData.users || []).find((u) => u.id === a.tutorId),
+					studentId: a.studentId,
+					tutorId: a.tutorId,
+				}))
+				.filter((r) => r.student && r.tutor)
+				.sort((a, b) => (a.student.full_name || a.student.email || "").localeCompare(b.student.full_name || b.student.email || "", "pl"));
+			return `
+<div class="panel-header"><h1>Oplaty</h1><p>Rozliczenia wedlug par uczen-korepetytor.</p></div>
+<div class="data-wrap">
+  ${rows.length ? `
+  <div class="pay-user-list">
+    ${rows.map((r) => {
+				const lessons = pairLessons(r.studentId, r.tutorId).filter((l) => l.status === "odbyta");
+				const debt = lessons.filter((l) => !l.paid).reduce((s, l) => s + Number(l.price || 0), 0);
+				return `
+    <div class="pay-user-item" onclick="openUserPayments('${r.studentId}', '${r.tutorId}')">
+      <div><strong>${r.student.full_name || r.student.email}</strong><div style="font-size:.82rem;color:var(--text-muted);">${r.tutor.full_name || r.tutor.email}</div></div>
+      <span style="font-size:.85rem;color:${debt > 0 ? "#e74c3c" : "var(--text-muted)"};">${debt > 0 ? `${debt} zl do zaplaty` : "Rozliczone"}</span>
+    </div>`;
+			}).join("")}
+  </div>` : `<div class="empty-state"><p>Brak przypisanych par uczen-korepetytor. Dodaj przypisania w panelu Przeglad.</p></div>`}
+</div>`;
+			const users = [...(appData.users || [])]
+				.filter((u) => u.full_name)
+				.sort((a, b) => a.full_name.localeCompare(b.full_name, "pl"));
+			return `
+<div class="panel-header"><h1>Opłaty</h1></div>
+<div class="data-wrap">
+  ${users.length ? `
+  <div class="pay-user-list">
+    ${users
+					.map(
+						(u) => `
+    <div class="pay-user-item" onclick="openUserPayments('${u.id}')">
+      <strong>${u.full_name}</strong>
+    </div>`,
+					)
+					.join("")}
+  </div>` : `<div class="empty-state"><p>Brak użytkowników z uzupełnionym imieniem i nazwiskiem.</p></div>`}
+</div>`;
+		}
+
+		function panelAdminUserPayments() {
+			const pair = viewingPaymentPair;
+			if (!pair) return panelAdminPaymentsUsers();
+			const student = (appData.users || []).find((x) => x.id === pair.studentId);
+			const tutor = (appData.users || []).find((x) => x.id === pair.tutorId);
+			if (!student || !tutor) {
+				return `<div class="empty-state"><p>Nie znaleziono przypisania.</p><button class="btn btn-primary" onclick="showPaymentsList()">Wroc</button></div>`;
+			}
+			const userLessons = pairLessons(pair.studentId, pair.tutorId).sort((a, b) => new Date(b.date) - new Date(a.date));
+			const debt = userLessons
+				.filter((l) => l.status === "odbyta" && !l.paid)
+				.reduce((s, l) => s + Number(l.price || 0), 0);
+			const today = toInputDate(new Date().toISOString());
+			return `
+<div class="panel-header">
+  <button type="button" style="margin-bottom:.8rem;padding:.3rem 0;background:none;border:none;color:var(--navy);cursor:pointer;font-family:inherit;font-size:.9rem;" onclick="showPaymentsList()">← Wroc</button>
+  <h1>${student.full_name || student.email}</h1>
+  <p>${tutor.full_name || tutor.email} · <strong>Do zaplaty:</strong> <span style="color:${debt > 0 ? "#e74c3c" : "#2ecc71"}">${debt} zl</span></p>
+</div>
+<div class="data-wrap">
+  <div class="data-head"><h3>Lekcje i rozliczenia</h3></div>
+  <div class="res-form" style="margin:0;border:none;box-shadow:none;padding:0 0 1rem;border-bottom:1px solid var(--border);">
+    <div class="form-row-2">
+      <div class="form-group"><label>Przedmiot</label><input type="text" id="newPaySubject" value="Lekcja"/></div>
+      <div class="form-group"><label>Kwota (zl)</label><input type="number" id="newPayPrice" min="0" step="1" value="100"/></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Data</label><input type="date" id="newPayDate" value="${today}"/></div>
+      <div class="form-group"><label>Godzina</label><input type="time" id="newPayTime" value="10:00"/></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Czy lekcja sie odbyla?</label><select id="newPayHeld"><option value="odbyta">Tak</option><option value="odwolana">Nie</option><option value="zaplanowana">Jeszcze nie</option></select></div>
+      <div class="form-group"><label>Zapłacono</label><select id="newPayPaid" onchange="toggleNewPayPaidAt()"><option value="false">Nie</option><option value="true">Tak</option></select></div>
+    </div>
+    <div class="form-group"><label>Data wplaty</label><input type="date" id="newPayPaidAt" disabled/></div>
+    <button type="button" class="btn btn-gold" style="font-size:.85rem;padding:.45rem 1rem;" onclick="addPaymentLesson()">+ Dodaj lekcje</button>
+    <div id="newPayMsg" style="margin-top:.5rem;font-size:.85rem;color:var(--text-muted);"></div>
+  </div>
+  ${userLessons.length ? `
+  <div class="lesson-table-wrap" style="display:block;overflow-x:auto;margin-top:1rem;">
+    <table>
+      <thead><tr><th>Przedmiot</th><th>Data</th><th>Godzina</th><th>Koszt</th><th>Odbyla sie</th><th>Zapłacono</th><th>Data wplaty</th><th></th></tr></thead>
+      <tbody>
+        ${userLessons.map((l) => `
+        <tr>
+          <td><input type="text" id="pay-subject-${l.id}" value="${l.subject || ""}" style="width:7rem;padding:.25rem .4rem;font-size:.8rem;"/></td>
+          <td><input type="date" id="pay-date-${l.id}" value="${toInputDate(l.date)}" style="padding:.25rem .4rem;font-size:.8rem;"/></td>
+          <td><input type="time" id="pay-time-${l.id}" value="${toInputTime(l.date)}" style="padding:.25rem .4rem;font-size:.8rem;"/></td>
+          <td><input type="number" id="pay-price-${l.id}" value="${l.price}" min="0" step="1" style="width:4.5rem;padding:.25rem .4rem;font-size:.8rem;"/></td>
+          <td><select id="pay-status-${l.id}" style="padding:.2rem;font-size:.78rem;"><option value="odbyta" ${l.status === "odbyta" ? "selected" : ""}>Tak</option><option value="odwolana" ${l.status === "odwolana" ? "selected" : ""}>Nie</option><option value="zaplanowana" ${l.status === "zaplanowana" ? "selected" : ""}>Jeszcze nie</option></select></td>
+          <td><select id="pay-paid-${l.id}" onchange="togglePayPaidAt('${l.id}')" style="padding:.2rem;font-size:.78rem;"><option value="false" ${!l.paid ? "selected" : ""}>Nie</option><option value="true" ${l.paid ? "selected" : ""}>Tak</option></select></td>
+          <td><input type="date" id="pay-paidat-${l.id}" value="${l.paidAt ? toInputDateOnly(l.paidAt) : ""}" ${!l.paid ? "disabled" : ""} style="padding:.25rem .4rem;font-size:.8rem;"/></td>
+          <td style="white-space:nowrap;"><button type="button" class="btn btn-gold" style="padding:.25rem .5rem;font-size:.75rem;" onclick="savePaymentLesson('${l.id}')">Zapisz</button><button type="button" class="btn btn-outline" style="padding:.25rem .5rem;font-size:.75rem;color:red;border-color:red;margin-left:.3rem;" onclick="deletePaymentLesson('${l.id}')">Usun</button></td>
+        </tr>`).join("")}
+      </tbody>
+    </table>
+  </div>` : `<div class="empty-state" style="margin-top:1rem;"><p>Brak lekcji dla tej pary.</p></div>`}
+</div>`;
+			const u = (appData.users || []).find((x) => x.id === viewingPaymentUserId);
+			if (!u) {
+				return `<div class="empty-state"><p>Nie znaleziono użytkownika.</p><button class="btn btn-primary" onclick="showPaymentsList()">← Wróć</button></div>`;
+			}
+			const userLessons = appData.lessons
+				.filter((l) => l.studentId === u.id && l.status === "odbyta")
+				.sort((a, b) => new Date(b.date) - new Date(a.date));
+			const debt = calcUserDebt(u.id);
+			const today = toInputDate(new Date().toISOString());
+
+			return `
+<div class="panel-header">
+  <button type="button" style="margin-bottom:.8rem;padding:.3rem 0;background:none;border:none;color:var(--navy);cursor:pointer;font-family:inherit;font-size:.9rem;" onclick="showPaymentsList()">← Wróć</button>
+  <h1>${u.full_name || "—"}</h1>
+  <p style="font-size:1rem;margin-top:.4rem;"><strong>Do zapłaty:</strong> <span style="color:${debt > 0 ? "#e74c3c" : "#2ecc71"}">${debt} zł</span></p>
+</div>
+
+<div class="data-wrap">
+  <div class="data-head"><h3>Zajęcia</h3></div>
+  <div class="res-form" style="margin:0;border:none;box-shadow:none;padding:0 0 1rem;border-bottom:1px solid var(--border);">
+    <div class="form-row-2">
+      <div class="form-group"><label>Przedmiot</label><input type="text" id="newPaySubject" placeholder="Matematyka" value="Lekcja"/></div>
+      <div class="form-group"><label>Kwota (zł)</label><input type="number" id="newPayPrice" min="0" step="1" value="100"/></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Data</label><input type="date" id="newPayDate" value="${today}"/></div>
+      <div class="form-group"><label>Godzina</label><input type="time" id="newPayTime" value="10:00"/></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label>Zapłacono</label>
+        <select id="newPayPaid" onchange="toggleNewPayPaidAt()">
+          <option value="false">Nie</option>
+          <option value="true">Tak</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Data wpłaty</label><input type="date" id="newPayPaidAt" disabled/></div>
+    </div>
+    <button type="button" class="btn btn-gold" style="font-size:.85rem;padding:.45rem 1rem;" onclick="addPaymentLesson()">+ Dodaj zajęcia</button>
+    <div id="newPayMsg" style="margin-top:.5rem;font-size:.85rem;color:var(--text-muted);"></div>
+  </div>
+  ${userLessons.length ? `
+  <div class="lesson-table-wrap" style="display:block;overflow-x:auto;margin-top:1rem;">
+    <table>
+      <thead>
+        <tr>
+          <th>Przedmiot</th>
+          <th>Data</th>
+          <th>Godzina</th>
+          <th>Kwota</th>
+          <th>Zapłacono</th>
+          <th>Data wpłaty</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        ${userLessons.map((l) => `
+        <tr>
+          <td><input type="text" id="pay-subject-${l.id}" value="${l.subject || ""}" style="width:7rem;padding:.25rem .4rem;font-size:.8rem;"/></td>
+          <td><input type="date" id="pay-date-${l.id}" value="${toInputDate(l.date)}" style="padding:.25rem .4rem;font-size:.8rem;"/></td>
+          <td><input type="time" id="pay-time-${l.id}" value="${toInputTime(l.date)}" style="padding:.25rem .4rem;font-size:.8rem;"/></td>
+          <td><input type="number" id="pay-price-${l.id}" value="${l.price}" min="0" step="1" style="width:4.5rem;padding:.25rem .4rem;font-size:.8rem;"/></td>
+          <td>
+            <select id="pay-paid-${l.id}" onchange="togglePayPaidAt('${l.id}')" style="padding:.2rem;font-size:.78rem;">
+              <option value="false" ${!l.paid ? "selected" : ""}>Nie</option>
+              <option value="true" ${l.paid ? "selected" : ""}>Tak</option>
+            </select>
+          </td>
+          <td><input type="date" id="pay-paidat-${l.id}" value="${l.paidAt ? toInputDateOnly(l.paidAt) : ""}" ${!l.paid ? "disabled" : ""} style="padding:.25rem .4rem;font-size:.8rem;"/></td>
+          <td style="white-space:nowrap;">
+            <button type="button" class="btn btn-gold" style="padding:.25rem .5rem;font-size:.75rem;" onclick="savePaymentLesson('${l.id}')">Zapisz</button>
+            <button type="button" class="btn btn-outline" style="padding:.25rem .5rem;font-size:.75rem;color:red;border-color:red;margin-left:.3rem;" onclick="deletePaymentLesson('${l.id}')">Usuń</button>
+          </td>
+        </tr>`).join("")}
+      </tbody>
+    </table>
+  </div>` : `<div class="empty-state" style="margin-top:1rem;"><p>Brak zajęć. Dodaj pierwszą pozycję powyżej.</p></div>`}
+</div>`;
+		}
+
+		function panelStudentPayments() {
+			const pastLessons = appData.lessons.filter((l) => l.status === "odbyta");
 			const isTutor = currentProfile.role === "korepetytor";
+			const myDebt = pastLessons.filter((l) => !l.paid).reduce((s, l) => s + Number(l.price || 0), 0);
 
 			return `
 <div class="panel-header"><h1>Opłaty</h1><p>Rozliczenia za zrealizowane zajęcia.</p></div>
+${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label">Do zapłaty</div><div class="s-val">${myDebt} zł</div></div></div>` : ""}
 <div class="data-wrap">
     <div class="data-head"><h3>Odbyte lekcje</h3></div>
-    ${pastLessons.length
-					? `
+    ${pastLessons.length ? `
     <div class="lesson-table-wrap" style="display:block">
         <table>
             <thead>
                 <tr>
                     <th>Przedmiot</th>
-                    ${isAdmin || isTutor ? '<th>Uczeń</th>' : '<th>Korepetytor</th>'}
+                    ${isTutor ? "<th>Uczeń</th>" : "<th>Korepetytor</th>"}
                     <th>Data</th>
                     <th>Kwota</th>
-                    <th>Obecny status</th>
-                    ${isAdmin || isTutor ? '<th>Zmień status na...</th>' : ''}
+                    <th>Status</th>
+                    ${isTutor ? "<th>Zmień status</th>" : "<th>Data wpłaty</th>"}
                 </tr>
             </thead>
             <tbody>
                 ${pastLessons.map((l) => `
                 <tr>
                     <td><strong>${l.subject}</strong></td>
-                    ${isAdmin || isTutor ? `<td>${l.student}</td>` : `<td>${l.tutor}</td>`}
-                    <td>${fmtDateOnly(l.date)}</td>
+                    ${isTutor ? `<td>${l.student}</td>` : `<td>${l.tutor}</td>`}
+                    <td>${fmtDate(l.date)}</td>
                     <td><strong>${l.price} zł</strong></td>
                     <td>
                         ${l.paid
-							? `<span style="background:#2ecc71; color:white; padding:2px 8px; border-radius:4px; font-size:0.75rem; text-transform:uppercase;">Opłacona</span>`
-							: `<span style="background:#e74c3c; color:white; padding:2px 8px; border-radius:4px; font-size:0.75rem; text-transform:uppercase;">Brak wpłaty</span>`}
+							? `<span style="background:#2ecc71;color:white;padding:2px 8px;border-radius:4px;font-size:0.75rem;">Opłacona</span>`
+							: `<span style="background:#e74c3c;color:white;padding:2px 8px;border-radius:4px;font-size:0.75rem;">Do zapłaty</span>`}
                     </td>
-                    ${isAdmin || isTutor ? `
+                    ${isTutor ? `
                     <td>
-                        <select onchange="changePaymentStatus('${l.id}', this)" style="padding: .3rem; font-size: .8rem; border-radius: 4px; border: 1px solid var(--border); background: var(--white); cursor: pointer;">
-                            <option value="false" ${!l.paid ? 'selected' : ''}>Brak wpłaty</option>
-                            <option value="true" ${l.paid ? 'selected' : ''}>Opłacona</option>
+                        <select onchange="changePaymentStatus('${l.id}', this)" style="padding:.3rem;font-size:.8rem;border-radius:4px;">
+                            <option value="false" ${!l.paid ? "selected" : ""}>Brak wpłaty</option>
+                            <option value="true" ${l.paid ? "selected" : ""}>Opłacona</option>
                         </select>
-                    </td>
-                    ` : ''}
+                    </td>` : `<td>${l.paid && l.paidAt ? fmtDateOnly(l.paidAt) : "—"}</td>`}
                 </tr>`).join("")}
             </tbody>
         </table>
-    </div>`
-					: `<div class="empty-state"><div class="icon">💳</div><p>Brak odbytych lekcji do rozliczenia.</p></div>`
-				}
+    </div>` : `<div class="empty-state"><div class="icon">💳</div><p>Brak odbytych lekcji do rozliczenia.</p></div>`}
 </div>`;
 		}
 
@@ -1300,6 +1710,12 @@ ${appData.materials.length
 			);
 
 			const role = currentProfile.role;
+			const visibleStudents = role === "korepetytor"
+				? students.filter((s) => isAssigned(s.id, currentProfile.id))
+				: students;
+			const visibleTutors = role === "uczen"
+				? tutors.filter((t) => isAssigned(currentProfile.id, t.id))
+				: tutors;
 
 			return `
 <div class="panel-header"><h1>Zarezerwuj lekcję</h1><p>Wypełnij formularz, aby zaplanować spotkanie.</p></div>
@@ -1313,7 +1729,7 @@ ${appData.materials.length
             <label>Wybierz ucznia</label>
             <select id="bStudentId">
                 <option value="">-- Wybierz ucznia --</option>
-                ${students.map((s) => `<option value="${s.id}">${s.full_name || s.email}</option>`).join("")}
+                ${visibleStudents.map((s) => `<option value="${s.id}">${s.full_name || s.email}</option>`).join("")}
             </select>
         </div>
         `
@@ -1326,7 +1742,7 @@ ${appData.materials.length
             <label>Wybierz korepetytora</label>
             <select id="bTutorId">
                 <option value="">-- Wybierz nauczyciela --</option>
-                ${tutors.map((t) => `<option value="${t.id}">${t.full_name || t.email}</option>`).join("")}
+                ${visibleTutors.map((t) => `<option value="${t.id}">${t.full_name || t.email}</option>`).join("")}
             </select>
         </div>
         `
@@ -1389,20 +1805,36 @@ ${appData.materials.length
 			const items = sidebarItems[role] || sidebarItems.uczen;
 			document.getElementById("dashSidebar").innerHTML = items
 				.map(
-					(i) => `
-<button class="sidebar-link${i.id === "overview" ? " active" : ""}" data-panel="${i.id}" onclick="showPanel('${i.id}')">
+					(i) => {
+						const click =
+							i.id === "all-payments"
+								? "showPaymentsList()"
+								: i.id === "all-lessons" && role === "admin"
+									? "showAllLessonsList()"
+								: `showPanel('${i.id}')`;
+						return `
+<button class="sidebar-link${i.id === "overview" ? " active" : ""}" data-panel="${i.id}" onclick="${click}">
 <span class="sidebar-icon">${i.icon}</span>${i.label}
-</button>`,
+</button>`;
+					},
 				)
 				.join("");
 
 			const bn = items.slice(0, 5);
 			document.getElementById("bottomNav").innerHTML = bn
 				.map(
-					(i) => `
-<button class="bnav-btn${i.id === "overview" ? " active" : ""}" data-panel="${i.id}" onclick="showPanel('${i.id}')">
+					(i) => {
+						const click =
+							i.id === "all-payments"
+								? "showPaymentsList()"
+								: i.id === "all-lessons" && role === "admin"
+									? "showAllLessonsList()"
+								: `showPanel('${i.id}')`;
+						return `
+<button class="bnav-btn${i.id === "overview" ? " active" : ""}" data-panel="${i.id}" onclick="${click}">
 <span class="bnav-icon">${i.icon}</span>${i.label}
-</button>`,
+</button>`;
+					},
 				)
 				.join("");
 		}
@@ -1423,6 +1855,9 @@ ${appData.materials.length
 				case "materials":
 					html = panelMaterials();
 					break;
+				case "students":
+					html = panelStudents();
+					break;
 				case "payments":
 					html = panelpayments();
 					break;
@@ -1433,7 +1868,11 @@ ${appData.materials.length
 					html = panelProfile(p);
 					break;
 				case "all-users":
+					viewingUserId = null;
 					html = panelAllUsers();
+					break;
+				case "admin-user-profile":
+					html = panelAdminUserProfile();
 					break;
 				case "all-lessons":
 					html = panelAllLessons();
@@ -1445,13 +1884,48 @@ ${appData.materials.length
 					html = panelOverview(p);
 			}
 			document.getElementById("dashMain").innerHTML = html;
+			const activePanel =
+				id === "admin-user-profile"
+					? "all-users"
+					: id;
 			document.querySelectorAll(".sidebar-link,.bnav-btn").forEach((el) => {
-				el.classList.toggle("active", el.dataset.panel === id);
+				el.classList.toggle("active", el.dataset.panel === activePanel);
 			});
 			window.scrollTo(0, 0);
 		}
 
 		function panelAdminOverview() {
+			const students = getStudents();
+			const tutors = getTutors();
+			return `<div class="panel-header"><h1>Panel Admina</h1><p>Zarzadzaj platforma i przypisaniami.</p></div>
+<div class="stats-row">
+<div class="stat-card"><div class="s-label">Wszystkie lekcje</div><div class="s-val">${appData.lessons.length}</div></div>
+<div class="stat-card"><div class="s-label">Oplaty (suma)</div><div class="s-val">${appData.payments.reduce((s, i) => s + i.amount, 0)} zl</div></div>
+</div>
+<div class="data-wrap">
+  <div class="data-head"><h3>Przypisania uczniow do korepetytorow</h3></div>
+  ${students.length && tutors.length ? `
+  <div class="lesson-table-wrap" style="display:block;overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>Uczen</th>
+          ${tutors.map((t) => `<th>${t.full_name || t.email}</th>`).join("")}
+        </tr>
+      </thead>
+      <tbody>
+        ${students.map((s) => `
+        <tr>
+          <td><strong>${s.full_name || s.email}</strong></td>
+          ${tutors.map((t) => `
+          <td style="text-align:center;">
+            <input type="checkbox" ${isAssigned(s.id, t.id) ? "checked" : ""} onchange="toggleStudentTutorAssignment('${s.id}', '${t.id}', this.checked)" />
+          </td>`).join("")}
+        </tr>`).join("")}
+      </tbody>
+    </table>
+  </div>` : `<div class="empty-state"><p>Dodaj konta uczniow i korepetytorow, aby tworzyc przypisania.</p></div>`}
+</div>`;
 			return `<div class="panel-header"><h1>Panel Admina 🔑</h1><p>Zarządzaj platformą.</p></div>
 <div class="stats-row">
 <div class="stat-card"><div class="s-label">Wszystkie lekcje</div><div class="s-val">${appData.lessons.length}</div></div>
@@ -1476,6 +1950,7 @@ ${appData.materials.length
                     <th>Aktualna Rola</th>
                     <th>Zmień rolę na...</th>
                     <th>Dołączył</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -1495,6 +1970,7 @@ ${appData.materials.length
                             </select>
                         </td>
                         <td>${fmtDateOnly(u.created_at)}</td>
+                        <td><button type="button" class="btn btn-primary" style="padding:.3rem .7rem;font-size:.78rem;" onclick="openUserProfile('${u.id}')">Profil →</button></td>
                     </tr>
                 `,
 						)
@@ -1507,6 +1983,83 @@ ${appData.materials.length
 				}
 </div>`;
 		}
+
+		function panelAdminUserProfile() {
+			if (currentProfile.role !== "admin" || !viewingUserId) {
+				return `<div class="empty-state"><p>Brak dostępu.</p></div>`;
+			}
+			const u = appData.users.find((x) => x.id === viewingUserId);
+			if (!u) {
+				return `<div class="empty-state"><p>Nie znaleziono użytkownika.</p><button class="btn btn-primary" onclick="showPanel('all-users')">← Wróć do listy</button></div>`;
+			}
+			const init = (u.full_name || "?")
+				.split(" ")
+				.map((w) => w[0])
+				.join("")
+				.slice(0, 2)
+				.toUpperCase();
+			const userLessons = appData.lessons.filter(
+				(l) => l.studentId === u.id || l.tutorId === u.id,
+			);
+			const note = appData.adminNotes[u.id] || "";
+			return `
+<div class="panel-header">
+  <button type="button" style="margin-bottom:.8rem;padding:.3rem 0;background:none;border:none;color:var(--navy);cursor:pointer;font-family:inherit;font-size:.9rem;" onclick="showPanel('all-users')">← Wróć do użytkowników</button>
+  <h1>Profil użytkownika</h1>
+  <p>Szczegóły konta — widoczne tylko dla administratora.</p>
+</div>
+<div class="profile-wrap">
+  <div class="profile-avatar-row">
+    <div class="profile-avatar-big">${init}</div>
+    <div>
+      <strong style="color:var(--navy)">${u.full_name || "—"}</strong><br>
+      <span style="font-size:.85rem;color:var(--text-muted)">${u.email || "—"}</span><br>
+      ${badge(u.role)}
+    </div>
+  </div>
+  <div class="form-group"><label>Imię i nazwisko</label><input type="text" value="${u.full_name || "—"}" disabled style="opacity:.7"/></div>
+  <div class="form-group"><label>E-mail</label><input type="email" value="${u.email || "—"}" disabled style="opacity:.7"/></div>
+  <div class="form-group"><label>Telefon</label><input type="tel" value="${u.phone || "—"}" disabled style="opacity:.7"/></div>
+  <div class="form-group"><label>Rola</label><input type="text" value="${u.role || "—"}" disabled style="opacity:.7"/></div>
+  <div class="form-group"><label>Data rejestracji</label><input type="text" value="${fmtDate(u.created_at)}" disabled style="opacity:.7"/></div>
+  <div class="form-group"><label>Liczba lekcji na koncie</label><input type="text" value="${userLessons.length}" disabled style="opacity:.7"/></div>
+</div>
+<div class="profile-wrap" style="margin-top:1rem;border:1px dashed rgba(201,168,76,.4);">
+  <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:.3rem;">🔒 Notatka administratora</h3>
+  <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem;">Krótki opis widoczny wyłącznie dla Ciebie. Uczeń i korepetytor go nie zobaczą.</p>
+  <div class="form-group">
+    <label>Notatka (max 500 znaków)</label>
+    <textarea id="adminNoteText" rows="4" maxlength="500" placeholder="Np. preferuje lekcje wieczorem, przygotowuje się do matury…" style="width:100%;padding:.6rem;border:1px solid #d8d0c0;border-radius:4px;font-family:inherit;resize:vertical;">${note}</textarea>
+  </div>
+  <button type="button" class="btn btn-primary" onclick="saveAdminNote()">Zapisz notatkę</button>
+  <div id="adminNoteMsg" style="margin-top:.8rem;font-size:.88rem;color:var(--text-muted);"></div>
+</div>`;
+		}
+
+		window.openUserProfile = function (userId) {
+			viewingUserId = userId;
+			showPanel("admin-user-profile");
+		};
+
+		window.saveAdminNote = async function () {
+			if (!viewingUserId || currentProfile.role !== "admin") return;
+			const msg = document.getElementById("adminNoteMsg");
+			const note = document.getElementById("adminNoteText").value.trim();
+			msg.textContent = "Zapisywanie…";
+			const { error } = await supabaseClient.from("admin_user_notes").upsert(
+				{ user_id: viewingUserId, note, updated_at: new Date().toISOString() },
+				{ onConflict: "user_id" },
+			);
+			if (error) {
+				msg.textContent = "❌ Błąd zapisu: " + error.message;
+				if (error.message.includes("admin_user_notes")) {
+					msg.textContent += " — uruchom SQL z supabase-config.js w Supabase (tabela admin_user_notes).";
+				}
+			} else {
+				appData.adminNotes[viewingUserId] = note;
+				msg.textContent = "✅ Notatka zapisana.";
+			}
+		};
 
 		// ── AKCJE ──
 
@@ -1726,9 +2279,161 @@ ${appData.materials.length
 			buildNav(profile.role);
 			showPanel("overview");
 		}
-		// --- NOWE FUNKCJE DO ZARZĄDZANIA LEKCJAMI I OPŁATAMI ---
+		// --- ZARZĄDZANIE OPŁATAMI (ADMIN) ---
 
-		// Zmiana statusu opłacenia lekcji
+		window.showPaymentsList = function () {
+			viewingPaymentUserId = null;
+			viewingPaymentPair = null;
+			showPanel(currentProfile.role === "admin" ? "all-payments" : "payments");
+		};
+
+		window.refreshPayments = function () {
+			showPanel(currentProfile.role === "admin" ? "all-payments" : "payments");
+		};
+
+		window.openUserPayments = function (studentId, tutorId) {
+			viewingPaymentUserId = studentId;
+			viewingPaymentPair = tutorId ? { studentId, tutorId } : null;
+			showPanel("all-payments");
+		};
+
+		window.showAllLessonsList = function () {
+			viewingLessonsUserId = null;
+			showPanel("all-lessons");
+		};
+
+		window.openUserLessons = function (userId) {
+			viewingLessonsUserId = userId;
+			showPanel("all-lessons");
+		};
+
+		window.openStudentLessons = function (studentId) {
+			viewingLessonsUserId = studentId;
+			showPanel("all-lessons");
+		};
+
+		window.toggleStudentTutorAssignment = async function (studentId, tutorId, checked) {
+			let error;
+			if (checked) {
+				({ error } = await supabaseClient
+					.from("student_tutor_assignments")
+					.upsert({ student_id: studentId, tutor_id: tutorId }, { onConflict: "student_id,tutor_id" }));
+			} else {
+				({ error } = await supabaseClient
+					.from("student_tutor_assignments")
+					.delete()
+					.eq("student_id", studentId)
+					.eq("tutor_id", tutorId));
+			}
+			if (error) {
+				alert("Blad zapisu przypisania: " + error.message + "\nUruchom SQL z supabase-config.js, jesli tabela jeszcze nie istnieje.");
+			}
+			await loadRealData();
+			showPanel("overview");
+		};
+
+		window.toggleNewPayPaidAt = function () {
+			const paid = document.getElementById("newPayPaid").value === "true";
+			const el = document.getElementById("newPayPaidAt");
+			el.disabled = !paid;
+			if (paid && !el.value) el.value = toInputDate(new Date().toISOString());
+			if (!paid) el.value = "";
+		};
+
+		window.togglePayPaidAt = function (lessonId) {
+			const paid = document.getElementById(`pay-paid-${lessonId}`).value === "true";
+			const el = document.getElementById(`pay-paidat-${lessonId}`);
+			el.disabled = !paid;
+			if (paid && !el.value) el.value = toInputDate(new Date().toISOString());
+			if (!paid) el.value = "";
+		};
+
+		window.addPaymentLesson = async function () {
+			if (!viewingPaymentUserId) return;
+			const msg = document.getElementById("newPayMsg");
+			const subject = document.getElementById("newPaySubject").value.trim() || "Lekcja";
+			const price = parseFloat(document.getElementById("newPayPrice").value);
+			const date = document.getElementById("newPayDate").value;
+			const time = document.getElementById("newPayTime").value;
+			const paid = document.getElementById("newPayPaid").value === "true";
+			const paidAtVal = document.getElementById("newPayPaidAt").value;
+			const status = document.getElementById("newPayHeld")?.value || "odbyta";
+
+			if (!date || !time || isNaN(price)) {
+				msg.textContent = "⚠️ Uzupełnij datę, godzinę i kwotę.";
+				return;
+			}
+
+			msg.textContent = "Dodawanie…";
+			const defaultTutor = viewingPaymentPair?.tutorId || (appData.users || []).find((u) => u.role === "korepetytor")?.id || null;
+			const payload = {
+				student_id: viewingPaymentUserId,
+				tutor_id: defaultTutor,
+				subject,
+				date: `${date}T${time}:00`,
+				duration_minutes: 60,
+				status,
+				price,
+				paid,
+				paid_at: paid && paidAtVal ? new Date(paidAtVal).toISOString() : null,
+			};
+
+			const { error } = await supabaseClient.from("lessons").insert(payload);
+			if (error) {
+				msg.textContent = "❌ Błąd: " + error.message;
+			} else {
+				msg.textContent = "✅ Dodano pozycję.";
+				await loadRealData();
+				refreshPayments();
+			}
+		};
+
+		window.savePaymentLesson = async function (lessonId) {
+			const subject = document.getElementById(`pay-subject-${lessonId}`).value.trim() || "Lekcja";
+			const date = document.getElementById(`pay-date-${lessonId}`).value;
+			const time = document.getElementById(`pay-time-${lessonId}`).value;
+			const price = parseFloat(document.getElementById(`pay-price-${lessonId}`).value);
+			const paid = document.getElementById(`pay-paid-${lessonId}`).value === "true";
+			const paidAtVal = document.getElementById(`pay-paidat-${lessonId}`).value;
+			const status = document.getElementById(`pay-status-${lessonId}`)?.value || "odbyta";
+
+			if (!date || !time || isNaN(price)) {
+				alert("⚠️ Uzupełnij datę, godzinę i kwotę.");
+				return;
+			}
+
+			const { error } = await supabaseClient
+				.from("lessons")
+				.update({
+					subject,
+					date: `${date}T${time}:00`,
+					price,
+					status,
+					paid,
+					paid_at: paid && paidAtVal ? new Date(paidAtVal).toISOString() : null,
+				})
+				.eq("id", lessonId);
+
+			if (error) {
+				alert("❌ Błąd zapisu: " + error.message);
+			} else {
+				await loadRealData();
+				refreshPayments();
+			}
+		};
+
+		window.deletePaymentLesson = async function (lessonId) {
+			if (!confirm("Usunąć tę pozycję rozliczeniową z bazy?")) return;
+			const { error } = await supabaseClient.from("lessons").delete().eq("id", lessonId);
+			if (error) {
+				alert("❌ Błąd usuwania: " + error.message);
+			} else {
+				await loadRealData();
+				refreshPayments();
+			}
+		};
+
+		// Zmiana statusu opłacenia lekcji (korepetytor / uczeń)
 		window.changePaymentStatus = async function (lessonId, selectElement) {
 			const isPaid = (selectElement.value === 'true');
 			selectElement.disabled = true;
@@ -1748,13 +2453,11 @@ ${appData.materials.length
 				selectElement.disabled = false;
 				selectElement.value = (!isPaid).toString();
 			} else {
-				// 🚀 NATYCHMIASTOWA AKTUALIZACJA WIDOKU (BEZ POBIERANIA CAŁEJ BAZY)
-				const lessonIndex = appData.lessons.findIndex(l => l.id === lessonId);
+				const lessonIndex = appData.lessons.findIndex((l) => l.id === lessonId);
 				if (lessonIndex !== -1) {
-					appData.lessons[lessonIndex].paid = isPaid; // Aktualizujemy lokalnie
+					appData.lessons[lessonIndex].paid = isPaid;
 				}
-
-				showPanel("payments"); // Przeładowujemy sam widok (teraz na 100% użyje nowej wartości)
+				refreshPayments();
 			}
 		};
 
