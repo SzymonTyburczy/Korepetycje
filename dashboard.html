@@ -11,7 +11,7 @@
 	<style>
 		body {
 			background: #f0f2f7;
-			padding-bottom: 72px;
+			padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
 		}
 
 		/* bottom nav space on mobile */
@@ -116,12 +116,22 @@
 			bottom: 0;
 			left: 0;
 			right: 0;
-			z-index: 150;
+			z-index: 260;
 			background: var(--white);
 			border-top: 1px solid var(--border);
 			display: flex;
-			height: 64px;
+			height: calc(58px + env(safe-area-inset-bottom, 0px));
+			padding-bottom: env(safe-area-inset-bottom, 0px);
 			box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+			overflow-x: auto;
+			overflow-y: hidden;
+			-webkit-overflow-scrolling: touch;
+			scrollbar-width: none;
+			touch-action: pan-x;
+		}
+
+		.bottom-nav::-webkit-scrollbar {
+			display: none;
 		}
 
 		@media (min-width: 900px) {
@@ -131,27 +141,29 @@
 		}
 
 		.bnav-btn {
-			flex: 1;
+			flex: 1 1 0;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			gap: 3px;
+			gap: 1px;
 			background: none;
 			border: none;
 			cursor: pointer;
 			color: var(--text-muted);
 			font-family: "Source Serif 4", serif;
-			font-size: 0.65rem;
-			letter-spacing: 0.02em;
-			padding: 0.4rem;
+			font-size: 0.58rem;
+			letter-spacing: 0;
+			padding: 0.25rem 0.15rem;
 			transition: color 0.15s;
 			border-top: 2px solid transparent;
 			min-height: var(--touch);
+			height: 58px;
+			white-space: nowrap;
 		}
 
 		.bnav-btn .bnav-icon {
-			font-size: 1.35rem;
+			font-size: 1.05rem;
 			line-height: 1;
 		}
 
@@ -168,9 +180,97 @@
 			padding-top: 60px;
 		}
 
+		.mobile-panel-switch {
+			position: sticky;
+			top: 60px;
+			z-index: 140;
+			background: #f0f2f7;
+			padding: 0.55rem 0.85rem 0;
+		}
+
+		.mobile-dashboard-actions {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 0.5rem;
+			margin-bottom: 0.55rem;
+		}
+
+		.mobile-dashboard-actions a,
+		.mobile-dashboard-actions button {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 38px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			background: var(--white);
+			color: var(--navy);
+			font: 700 0.82rem "Source Serif 4", serif;
+			text-decoration: none;
+			cursor: pointer;
+			box-shadow: 0 4px 14px rgba(26, 39, 68, 0.05);
+		}
+
+		.mobile-dashboard-actions button {
+			background: var(--navy);
+			border-color: var(--navy);
+			color: var(--white);
+		}
+
+		.mobile-panel-switch select {
+			width: 100%;
+			min-height: 40px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			background: var(--white);
+			color: var(--navy);
+			font: 600 0.84rem "Source Serif 4", serif;
+			padding: 0.4rem 2rem 0.4rem 0.7rem;
+			box-shadow: 0 4px 14px rgba(26, 39, 68, 0.06);
+		}
+
+		@media (max-width: 480px) {
+			.dash-nav {
+				padding: 0 0.55rem;
+				gap: 0.35rem;
+			}
+
+			.dash-logo {
+				max-width: 42vw;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				font-size: 0.84rem;
+			}
+
+			.user-chip {
+				gap: 0.35rem;
+			}
+
+			.user-avatar {
+				width: 30px;
+				height: 30px;
+				font-size: 0.74rem;
+			}
+
+			.role-badge {
+				display: none;
+			}
+
+			.btn-signout {
+				min-height: 32px;
+				padding: 0.24rem 0.5rem;
+				font-size: 0.7rem;
+			}
+		}
+
 		@media (min-width: 900px) {
 			.dash-layout {
 				grid-template-columns: 220px 1fr;
+			}
+
+			.mobile-panel-switch {
+				display: none;
 			}
 		}
 
@@ -744,11 +844,153 @@
 		}
 
 		@media (max-width: 640px) {
+			.dash-main {
+				padding: 1rem 0.85rem 1.35rem;
+			}
+
+			.panel-header {
+				margin: 0.15rem 0 1.15rem;
+			}
+
+			.panel-header h1 {
+				font-size: 1.32rem;
+				line-height: 1.22;
+			}
+
+			.panel-header p {
+				font-size: 0.86rem;
+				line-height: 1.45;
+			}
+
+			.stats-row {
+				grid-template-columns: 1fr;
+				gap: 0.75rem;
+				margin-bottom: 1.15rem;
+			}
+
+			.stat-card {
+				padding: 0.9rem 1rem;
+			}
+
+			.stat-card .s-val {
+				font-size: 1.45rem;
+			}
+
+			.data-wrap {
+				border-radius: 6px;
+				margin-bottom: 1rem;
+			}
+
+			.data-head {
+				align-items: stretch;
+				flex-direction: column;
+				padding: 0.9rem 1rem;
+				gap: 0.65rem;
+			}
+
+			.data-head h3 {
+				font-size: 1rem;
+			}
+
+			.data-head .btn {
+				align-self: flex-start;
+			}
+
+			.lesson-cards {
+				gap: 0.85rem;
+				padding: 0.9rem;
+			}
+
+			.lesson-card {
+				border-radius: 6px;
+				padding: 1rem;
+			}
+
+			.lesson-card-top {
+				flex-direction: column;
+				gap: 0.45rem;
+			}
+
+			.lesson-card-meta {
+				gap: 0.25rem;
+				line-height: 1.45;
+			}
+
+			.pay-user-item {
+				align-items: flex-start;
+				flex-direction: column;
+				gap: 0.35rem;
+				padding: 0.9rem 1rem;
+				line-height: 1.35;
+			}
+
 			.pay-detail-top,
 			.pay-lesson-head,
 			.pay-lesson-actions {
 				flex-direction: column;
 				align-items: stretch;
+			}
+
+			.pay-summary,
+			.admin-money-card .pay-summary,
+			.pay-form-grid,
+			.assignment-options,
+			.date-summary-controls,
+			.form-row-2 {
+				grid-template-columns: 1fr;
+			}
+
+			.pay-summary {
+				gap: 0.65rem;
+			}
+
+			.pay-summary-item,
+			.pay-editor,
+			.pay-lesson-card,
+			.assignment-card,
+			.admin-money-card,
+			.date-summary-box,
+			.res-form {
+				border-radius: 6px;
+				padding: 0.9rem 1rem;
+			}
+
+			.pay-lesson-list,
+			.assignment-list,
+			.tutor-note-list {
+				gap: 0.9rem;
+			}
+
+			.student-note-actions {
+				align-items: stretch;
+				flex-direction: column;
+				gap: 0.45rem;
+			}
+
+			.material-item {
+				align-items: flex-start;
+				padding: 0.9rem 1rem;
+			}
+
+			.profile-wrap,
+			.res-form {
+				max-width: none;
+			}
+
+			.profile-avatar-row {
+				align-items: flex-start;
+				gap: 0.9rem;
+				margin-bottom: 1.35rem;
+			}
+
+			.profile-avatar-big {
+				width: 64px;
+				height: 64px;
+				font-size: 1.55rem;
+			}
+
+			.empty-state {
+				padding: 2.2rem 1rem;
 			}
 		}
 
@@ -1217,6 +1459,71 @@
 				display: flex !important;
 			}
 		}
+
+		@media (max-width: 640px) {
+			.dash-panel {
+				width: 100%;
+			}
+
+			.data-wrap,
+			.res-form,
+			.profile-wrap,
+			.pay-editor,
+			.pay-lesson-card,
+			.assignment-card,
+			.admin-money-card,
+			.date-summary-box {
+				width: 100%;
+				max-width: none;
+			}
+
+			.res-form,
+			.pay-editor,
+			.pay-lesson-card,
+			.assignment-card,
+			.admin-money-card,
+			.date-summary-box {
+				padding: 1rem;
+			}
+
+			.form-row-2,
+			.pay-form-grid,
+			.assignment-options,
+			.date-summary-controls {
+				grid-template-columns: 1fr !important;
+				gap: 0.75rem;
+			}
+
+			.form-group {
+				margin-bottom: 0.9rem;
+			}
+
+			.material-item {
+				align-items: flex-start;
+				padding: 1rem;
+			}
+
+			.profile-avatar-row {
+				align-items: flex-start;
+				gap: 0.9rem;
+				margin-bottom: 1.35rem;
+			}
+
+			.profile-avatar-big {
+				width: 64px;
+				height: 64px;
+				font-size: 1.55rem;
+			}
+
+			.empty-state {
+				padding: 2.2rem 1rem;
+			}
+
+			.chat-layout {
+				height: calc(100vh - 150px);
+				min-height: 420px;
+			}
+		}
 	</style>
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
@@ -1239,6 +1546,13 @@
 	<div class="dash-layout">
 		<!-- SIDEBAR (desktop) -->
 		<aside class="dash-sidebar" id="dashSidebar"></aside>
+		<div class="mobile-panel-switch">
+			<div class="mobile-dashboard-actions">
+				<a href="index.html">Strona</a>
+				<button type="button" onclick="signOut()">Wyloguj</button>
+			</div>
+			<select id="mobilePanelSelect" aria-label="Wybierz widok panelu"></select>
+		</div>
 		<!-- MAIN -->
 		<main class="dash-main" id="dashMain">
 			<div class="loading">
@@ -2383,37 +2697,58 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
 		}
 
 		// ── NAVIGATION ──
+		function goToNavItem(id) {
+			const role = currentProfile?.role;
+			if (id === "all-payments") {
+				showPaymentsList();
+				return;
+			}
+			if (id === "all-lessons" && role === "admin") {
+				showAllLessonsList();
+				return;
+			}
+			showPanel(id);
+		}
+
+		function getMobileNavItems(role, items) {
+			const quickIds = {
+				uczen: ["overview", "lessons", "payments", "profile"],
+				korepetytor: ["overview", "lessons", "students", "profile"],
+				admin: ["overview", "all-lessons", "all-payments", "profile"],
+			};
+			const ids = quickIds[role] || quickIds.uczen;
+			return ids
+				.map((id) => items.find((item) => item.id === id))
+				.filter(Boolean);
+		}
+
 		function buildNav(role) {
 			const items = sidebarItems[role] || sidebarItems.uczen;
 			document.getElementById("dashSidebar").innerHTML = items
 				.map(
 					(i) => {
-						const click =
-							i.id === "all-payments"
-								? "showPaymentsList()"
-								: i.id === "all-lessons" && role === "admin"
-									? "showAllLessonsList()"
-								: `showPanel('${i.id}')`;
 						return `
-<button class="sidebar-link${i.id === "overview" ? " active" : ""}" data-panel="${i.id}" onclick="${click}">
+<button class="sidebar-link${i.id === "overview" ? " active" : ""}" data-panel="${i.id}" onclick="goToNavItem('${i.id}')">
 <span class="sidebar-icon">${i.icon}</span>${i.label}
 </button>`;
 					},
 				)
 				.join("");
 
-			const bn = items.slice(0, 5);
+			const mobileSelect = document.getElementById("mobilePanelSelect");
+			if (mobileSelect) {
+				mobileSelect.innerHTML = items
+					.map((i) => `<option value="${i.id}">${i.label}</option>`)
+					.join("");
+				mobileSelect.onchange = (event) => goToNavItem(event.target.value);
+			}
+
+			const bn = getMobileNavItems(role, items);
 			document.getElementById("bottomNav").innerHTML = bn
 				.map(
 					(i) => {
-						const click =
-							i.id === "all-payments"
-								? "showPaymentsList()"
-								: i.id === "all-lessons" && role === "admin"
-									? "showAllLessonsList()"
-								: `showPanel('${i.id}')`;
 						return `
-<button class="bnav-btn${i.id === "overview" ? " active" : ""}" data-panel="${i.id}" onclick="${click}">
+<button class="bnav-btn${i.id === "overview" ? " active" : ""}" data-panel="${i.id}" onclick="goToNavItem('${i.id}')">
 <span class="bnav-icon">${i.icon}</span>${i.label}
 </button>`;
 					},
@@ -2473,6 +2808,10 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
 			document.querySelectorAll(".sidebar-link,.bnav-btn").forEach((el) => {
 				el.classList.toggle("active", el.dataset.panel === activePanel);
 			});
+			const mobileSelect = document.getElementById("mobilePanelSelect");
+			if (mobileSelect && [...mobileSelect.options].some((option) => option.value === activePanel)) {
+				mobileSelect.value = activePanel;
+			}
 			window.scrollTo(0, 0);
 		}
 
