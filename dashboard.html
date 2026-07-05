@@ -1569,9 +1569,12 @@
 		let viewingUserId = null;
 		let viewingPaymentUserId = null;
 		let viewingLessonsUserId = null;
+		let allLessonsUserFilter = "all";
+		let userLessonsSort = "date-asc";
 		let viewingPaymentPair = null;
 		let expandedPaymentLessonIds = [];
 		let expandedAdminStudentIds = [];
+		let expandedTutorStudentIds = [];
 		let expandedPaymentStudentIds = [];
 		let expandedAssignmentStudentIds = [];
 		let appData = {
@@ -1641,6 +1644,41 @@
 		}
 		function getTutors() {
 			return (appData.users || []).filter((u) => u.role === "korepetytor" || u.role === "admin");
+		}
+		function isTutorRole(role) {
+			return role === "korepetytor" || role === "admin";
+		}
+		function displayUserName(u) {
+			return u?.full_name || u?.email || "Bez nazwy";
+		}
+		function lessonsForUser(u) {
+			if (!u) return [];
+			if (u.role === "uczen") return appData.lessons.filter((l) => l.studentId === u.id);
+			if (isTutorRole(u.role)) return appData.lessons.filter((l) => l.tutorId === u.id);
+			return appData.lessons.filter((l) => l.studentId === u.id || l.tutorId === u.id);
+		}
+		function sortLessons(lessons, sortKey = userLessonsSort) {
+			return [...lessons].sort((a, b) => {
+				switch (sortKey) {
+					case "date-desc":
+						return new Date(b.date) - new Date(a.date);
+					case "subject":
+						return (a.subject || "").localeCompare(b.subject || "", "pl");
+					case "student":
+						return (a.student || "").localeCompare(b.student || "", "pl");
+					case "tutor":
+						return (a.tutor || "").localeCompare(b.tutor || "", "pl");
+					case "status":
+						return (a.status || "").localeCompare(b.status || "", "pl");
+					case "price-desc":
+						return (Number(b.price) || 0) - (Number(a.price) || 0);
+					case "price-asc":
+						return (Number(a.price) || 0) - (Number(b.price) || 0);
+					case "date-asc":
+					default:
+						return new Date(a.date) - new Date(b.date);
+				}
+			});
 		}
 		function getUserName(userId) {
 			const user = (appData.users || []).find((u) => u.id === userId);
@@ -1892,24 +1930,45 @@ ${up.length
 		}
 
 		function panelAllLessonsUsers() {
-			const users = [...(appData.users || [])]
-				.filter((u) => u.full_name || u.email)
+			const students = [...(appData.users || [])]
+				.filter((u) => u.role === "uczen" && (u.full_name || u.email))
 				.sort((a, b) => (a.full_name || a.email || "").localeCompare(b.full_name || b.email || "", "pl"));
+			const tutors = [...(appData.users || [])]
+				.filter((u) => isTutorRole(u.role) && (u.full_name || u.email))
+				.sort((a, b) => (a.full_name || a.email || "").localeCompare(b.full_name || b.email || "", "pl"));
+			const groups = [
+				{ id: "students", title: `Uczniowie (${students.length})`, users: students },
+				{ id: "tutors", title: `Korepetytorzy (${tutors.length})`, users: tutors },
+			].filter((group) => allLessonsUserFilter === "all" || group.id === allLessonsUserFilter);
+			const total = groups.reduce((sum, group) => sum + group.users.length, 0);
 			return `
 <div class="panel-header"><h1>Wszystkie lekcje</h1><p>Wybierz uzytkownika, aby zobaczyc jego lekcje.</p></div>
 <div class="data-wrap">
-  <div class="data-head"><h3>Uzytkownicy (${users.length})</h3></div>
-  ${users.length ? `
+  <div class="data-head">
+    <h3>Uzytkownicy (${total})</h3>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+      <label style="font-size:.82rem;color:var(--text-muted);">Pokaz</label>
+      <select onchange="setAllLessonsUserFilter(this.value)" style="min-height:38px;border:1px solid var(--border);border-radius:4px;background:white;padding:.35rem .65rem;font-family:inherit;">
+        <option value="all" ${allLessonsUserFilter === "all" ? "selected" : ""}>Wszyscy</option>
+        <option value="students" ${allLessonsUserFilter === "students" ? "selected" : ""}>Tylko uczniowie</option>
+        <option value="tutors" ${allLessonsUserFilter === "tutors" ? "selected" : ""}>Tylko korepetytorzy</option>
+      </select>
+    </div>
+  </div>
+  ${total ? `
   <div class="pay-user-list">
-    ${users.map((u) => {
-				const count = appData.lessons.filter((l) => l.studentId === u.id || l.tutorId === u.id).length;
-				const next = nextLessonFor(u.id) || appData.lessons.find((l) => l.tutorId === u.id && (l.status === "zaplanowana" || l.status === "oczekuje"));
+    ${groups.map((group) => `
+      <div style="padding:.75rem 1.2rem .35rem;color:var(--text-muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;">${group.title}</div>
+      ${group.users.length ? group.users.map((u) => {
+				const lessons = lessonsForUser(u);
+				const next = lessons.find((l) => (l.status === "zaplanowana" || l.status === "oczekuje") && new Date(l.date) >= new Date());
 				return `
     <div class="pay-user-item" onclick="openUserLessons('${u.id}')">
-      <div><strong>${u.full_name || u.email}</strong><div style="font-size:.82rem;color:var(--text-muted);">${badge(u.role)} ${count} lekcji</div></div>
+      <div><strong>${displayUserName(u)}</strong><div style="font-size:.82rem;color:var(--text-muted);">${badge(u.role)} ${lessons.length} lekcji</div></div>
       <span style="font-size:.85rem;color:var(--text-muted);">${next ? fmtDate(next.date) : "Brak nadchodzacych"}</span>
     </div>`;
-			}).join("")}
+			}).join("") : `<div class="empty-state" style="padding:1.5rem 1rem;"><p>Brak uzytkownikow w tej grupie.</p></div>`}
+    `).join("")}
   </div>` : `<div class="empty-state"><p>Brak uzytkownikow.</p></div>`}
 </div>`;
 		}
@@ -1917,17 +1976,30 @@ ${up.length
 		function panelUserLessons() {
 			const u = (appData.users || []).find((x) => x.id === viewingLessonsUserId);
 			if (!u) return `<div class="empty-state"><p>Nie znaleziono uzytkownika.</p><button class="btn btn-primary" onclick="showAllLessonsList()">Wroc</button></div>`;
-			const userLessons = appData.lessons
-				.filter((l) => l.studentId === u.id || l.tutorId === u.id)
-				.sort((a, b) => new Date(a.date) - new Date(b.date));
+			const userLessons = sortLessons(lessonsForUser(u));
 			return `
 <div class="panel-header">
   <button type="button" style="margin-bottom:.8rem;padding:.3rem 0;background:none;border:none;color:var(--navy);cursor:pointer;font-family:inherit;font-size:.9rem;" onclick="showAllLessonsList()">← Wroc do listy</button>
-  <h1>${u.full_name || u.email}</h1>
-  <p>Wszystkie lekcje tego uzytkownika.</p>
+  <h1>${displayUserName(u)}</h1>
+  <p>${u.role === "uczen" ? "Lekcje wybranego ucznia." : "Lekcje prowadzone przez wybranego korepetytora."}</p>
 </div>
 <div class="data-wrap">
-  <div class="data-head"><h3>Lekcje (${userLessons.length})</h3></div>
+  <div class="data-head">
+    <h3>Lekcje (${userLessons.length})</h3>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+      <label style="font-size:.82rem;color:var(--text-muted);">Sortuj</label>
+      <select onchange="setUserLessonsSort(this.value)" style="min-height:38px;border:1px solid var(--border);border-radius:4px;background:white;padding:.35rem .65rem;font-family:inherit;">
+        <option value="date-asc" ${userLessonsSort === "date-asc" ? "selected" : ""}>Data rosnaco</option>
+        <option value="date-desc" ${userLessonsSort === "date-desc" ? "selected" : ""}>Data malejaco</option>
+        <option value="student" ${userLessonsSort === "student" ? "selected" : ""}>Uczen A-Z</option>
+        <option value="tutor" ${userLessonsSort === "tutor" ? "selected" : ""}>Korepetytor A-Z</option>
+        <option value="subject" ${userLessonsSort === "subject" ? "selected" : ""}>Przedmiot A-Z</option>
+        <option value="status" ${userLessonsSort === "status" ? "selected" : ""}>Status A-Z</option>
+        <option value="price-desc" ${userLessonsSort === "price-desc" ? "selected" : ""}>Koszt malejaco</option>
+        <option value="price-asc" ${userLessonsSort === "price-asc" ? "selected" : ""}>Koszt rosnaco</option>
+      </select>
+    </div>
+  </div>
   ${userLessons.length ? `
   <div class="lesson-table-wrap" style="display:block;overflow-x:auto;">
     <table>
@@ -2133,16 +2205,20 @@ ${appData.materials.length
 				const lessons = pairLessons(s.id, currentProfile.id);
 				const next = nextLessonFor(s.id, currentProfile.id);
 				const note = getTutorStudentNote(s.id, currentProfile.id)?.note || "";
+				const expanded = expandedTutorStudentIds.includes(s.id);
 				return `
-    <div class="pay-lesson-card">
-      <div class="pay-lesson-head">
+    <div class="pay-lesson-card${expanded ? " expanded" : " collapsed"}" style="cursor:pointer;" onclick="toggleTutorStudent('${s.id}')">
+      <div class="pay-lesson-head" style="margin-bottom:${expanded ? ".85rem" : "0"};">
         <div>
           <div class="pay-lesson-title">${s.full_name || s.email}</div>
           <div class="pay-lesson-meta">${s.email || "Brak e-maila"} · ${lessons.length} lekcji</div>
           <div class="pay-lesson-meta">Najblizsza: ${next ? `${fmtDate(next.date)} · ${next.subject}` : "brak zaplanowanych"}</div>
         </div>
-        <button type="button" class="btn btn-primary" style="padding:.35rem .75rem;font-size:.78rem;" onclick="openStudentLessons('${s.id}')">Lekcje</button>
+        <span style="font-size:.82rem;color:var(--navy);font-weight:700;">${expanded ? "Ukryj" : "Rozwin"}</span>
       </div>
+      ${expanded ? `
+      <div onclick="event.stopPropagation()">
+        <button type="button" class="btn btn-primary" style="padding:.35rem .75rem;font-size:.78rem;" onclick="openStudentLessons('${s.id}')">Lekcje</button>
       <div class="student-note-box">
         <label style="display:block;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);font-weight:600;margin-bottom:.35rem;">Moja prywatna notatka</label>
         <textarea id="tutor-note-${s.id}" maxlength="500" placeholder="Krotki opis ucznia, preferencje, poziom, cele...">${note}</textarea>
@@ -2151,6 +2227,7 @@ ${appData.materials.length
           <span class="student-note-msg" id="tutor-note-msg-${s.id}"></span>
         </div>
       </div>
+      </div>` : ""}
     </div>`;
 			}).join("")}
   </div>` : `<div class="empty-state"><p>Nie masz jeszcze przypisanych uczniow. Administrator moze przypisac ich w panelu Przeglad.</p></div>`}
@@ -2905,6 +2982,7 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
                     <th>Zmień rolę na...</th>
                     <th>Dołączył</th>
                     <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -2924,6 +3002,7 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
                             </select>
                         </td>
                         <td>${fmtDateOnly(u.created_at)}</td>
+                        <td>${u.id !== currentProfile.id ? `<button type="button" class="btn btn-outline" style="padding:.3rem .7rem;font-size:.78rem;color:red;border-color:red;" onclick="deleteUserAccount('${u.id}')">Usun</button>` : ""}</td>
                         <td><button type="button" class="btn btn-primary" style="padding:.3rem .7rem;font-size:.78rem;" onclick="openUserProfile('${u.id}')">Profil →</button></td>
                     </tr>
                 `,
@@ -2987,7 +3066,13 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
   </div>
   <button type="button" class="btn btn-primary" onclick="saveAdminNote()">Zapisz notatkę</button>
   <div id="adminNoteMsg" style="margin-top:.8rem;font-size:.88rem;color:var(--text-muted);"></div>
-</div>`;
+</div>
+${u.id !== currentProfile.id ? `
+<div class="profile-wrap" style="margin-top:1rem;border:1px solid rgba(192,57,43,.35);background:rgba(192,57,43,.04);">
+  <h3 style="font-family:'Playfair Display',serif;color:#c0392b;margin-bottom:.3rem;">Usuwanie konta</h3>
+  <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem;">Usuwa profil oraz powiazane lekcje, przypisania i notatki widoczne w panelu. Pelne usuniecie uzytkownika z Supabase Auth moze wymagac operacji po stronie backendu.</p>
+  <button type="button" class="btn btn-outline" style="color:red;border-color:red;" onclick="deleteUserAccount('${u.id}')">Usun konto</button>
+</div>` : ""}`;
 		}
 
 		window.openUserProfile = function (userId) {
@@ -3012,6 +3097,49 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
 			} else {
 				appData.adminNotes[viewingUserId] = note;
 				msg.textContent = "✅ Notatka zapisana.";
+			}
+		};
+
+		window.deleteUserAccount = async function (userId) {
+			if (currentProfile.role !== "admin") return;
+			if (!userId || userId === currentProfile.id) {
+				alert("Nie mozna usunac aktualnie zalogowanego konta administratora.");
+				return;
+			}
+			const u = (appData.users || []).find((x) => x.id === userId);
+			const name = u?.full_name || u?.email || "tego uzytkownika";
+			if (!confirm(`Usunac konto: ${name}?\n\nTo usunie profil oraz powiazane lekcje, przypisania i notatki widoczne w panelu. Tej operacji nie mozna cofnac.`)) return;
+
+			const fail = (label, error) => {
+				if (error) throw new Error(`${label}: ${error.message}`);
+			};
+
+			try {
+				let result;
+				result = await supabaseClient.from("materials").delete().or(`student_id.eq.${userId},tutor_id.eq.${userId}`);
+				fail("materialy", result.error);
+				result = await supabaseClient.from("invoices").delete().eq("student_id", userId);
+				fail("faktury", result.error);
+				result = await supabaseClient.from("lessons").delete().or(`student_id.eq.${userId},tutor_id.eq.${userId}`);
+				fail("lekcje", result.error);
+				result = await supabaseClient.from("student_tutor_assignments").delete().or(`student_id.eq.${userId},tutor_id.eq.${userId}`);
+				fail("przypisania", result.error);
+				result = await supabaseClient.from("tutor_student_notes").delete().or(`student_id.eq.${userId},tutor_id.eq.${userId}`);
+				fail("notatki korepetytorow", result.error);
+				result = await supabaseClient.from("admin_user_notes").delete().eq("user_id", userId);
+				fail("notatki admina", result.error);
+				result = await supabaseClient.from("profiles").delete().eq("id", userId);
+				fail("profil", result.error);
+
+				viewingUserId = null;
+				viewingLessonsUserId = null;
+				viewingPaymentUserId = null;
+				viewingPaymentPair = null;
+				await loadRealData();
+				showPanel("all-users");
+				alert("Konto zostalo usuniete z panelu. Jesli uzytkownik nadal istnieje w Supabase Auth, usun go dodatkowo w panelu Supabase albo przez backend z service role.");
+			} catch (error) {
+				alert("Nie udalo sie usunac konta: " + error.message);
 			}
 		};
 
@@ -3319,6 +3447,13 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
 			document.getElementById("dashMain").innerHTML = panelStudents();
 		};
 
+		window.toggleTutorStudent = function (studentId) {
+			expandedTutorStudentIds = expandedTutorStudentIds.includes(studentId)
+				? expandedTutorStudentIds.filter((id) => id !== studentId)
+				: [...expandedTutorStudentIds, studentId];
+			document.getElementById("dashMain").innerHTML = panelStudents();
+		};
+
 		window.toggleAssignmentStudent = function (studentId) {
 			expandedAssignmentStudentIds = expandedAssignmentStudentIds.includes(studentId)
 				? expandedAssignmentStudentIds.filter((id) => id !== studentId)
@@ -3336,6 +3471,17 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
 
 		window.showAllLessonsList = function () {
 			viewingLessonsUserId = null;
+			showPanel("all-lessons");
+		};
+
+		window.setAllLessonsUserFilter = function (filter) {
+			allLessonsUserFilter = filter || "all";
+			viewingLessonsUserId = null;
+			showPanel("all-lessons");
+		};
+
+		window.setUserLessonsSort = function (sortKey) {
+			userLessonsSort = sortKey || "date-asc";
 			showPanel("all-lessons");
 		};
 
