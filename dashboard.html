@@ -544,6 +544,24 @@
 			display: block;
 		}
 
+		.pay-debt-soft {
+			border-bottom: 2px solid rgba(231, 76, 60, 0.32);
+			box-shadow: inset 0 -10px 0 rgba(231, 76, 60, 0.04);
+		}
+
+		.pay-money-row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.55rem;
+			margin-top: 0.2rem;
+			color: var(--text-muted);
+			font-size: 0.82rem;
+		}
+
+		.pay-money-row strong {
+			color: var(--navy);
+		}
+
 		.pay-form-grid input,
 		.pay-form-grid select,
 		.pay-lesson-card input,
@@ -555,6 +573,174 @@
 			background: var(--white);
 			font-family: inherit;
 			font-size: 0.88rem;
+		}
+
+		.student-note-box {
+			margin-top: 0.7rem;
+		}
+
+		.student-note-box textarea {
+			width: 100%;
+			min-height: 76px;
+			padding: 0.65rem;
+			border: 1px solid #d8d0c0;
+			border-radius: 4px;
+			background: var(--white);
+			font-family: inherit;
+			font-size: 0.88rem;
+			resize: vertical;
+		}
+
+		.student-note-actions {
+			display: flex;
+			align-items: center;
+			gap: 0.7rem;
+			margin-top: 0.45rem;
+		}
+
+		.student-note-msg {
+			color: var(--text-muted);
+			font-size: 0.82rem;
+		}
+
+		.tutor-note-list {
+			display: flex;
+			flex-direction: column;
+			gap: 0.65rem;
+		}
+
+		.tutor-note-item {
+			background: var(--cream);
+			border: 1px solid var(--border);
+			border-radius: 6px;
+			padding: 0.8rem 0.9rem;
+		}
+
+		.assignment-list {
+			display: flex;
+			flex-direction: column;
+			gap: 0.85rem;
+		}
+
+		.assignment-card {
+			background: var(--white);
+			border: 1px solid var(--border);
+			border-radius: 6px;
+			padding: 1rem;
+		}
+
+		.assignment-current {
+			color: var(--text-muted);
+			font-size: 0.86rem;
+			margin: 0.25rem 0 0.75rem;
+		}
+
+		.assignment-current strong {
+			color: var(--navy);
+		}
+
+		.assignment-options {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+			gap: 0.5rem;
+			margin-top: 0.75rem;
+		}
+
+		.assignment-option {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			background: var(--cream);
+			border: 1px solid var(--border);
+			border-radius: 4px;
+			padding: 0.55rem 0.65rem;
+			cursor: pointer;
+			font-size: 0.88rem;
+			color: var(--navy);
+		}
+
+		.assignment-option input {
+			width: 16px;
+			height: 16px;
+			accent-color: var(--gold);
+			flex-shrink: 0;
+		}
+
+		.assignment-toggle {
+			background: none;
+			border: none;
+			color: var(--navy);
+			cursor: pointer;
+			font-family: inherit;
+			font-size: 0.86rem;
+			padding: 0;
+			text-decoration: underline;
+		}
+
+		.date-summary-box {
+			background: var(--white);
+			border: 1px solid var(--border);
+			border-radius: 6px;
+			padding: 1rem;
+			margin-bottom: 1rem;
+		}
+
+		.admin-money-board {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 1rem;
+		}
+
+		@media (min-width: 920px) {
+			.admin-money-board {
+				grid-template-columns: 1fr 1fr;
+			}
+		}
+
+		.admin-money-card {
+			background: var(--cream);
+			border: 1px solid var(--border);
+			border-radius: 6px;
+			padding: 1rem;
+		}
+
+		.admin-money-card h4 {
+			color: var(--navy);
+			margin: 0 0 0.75rem;
+			font-size: 0.98rem;
+		}
+
+		.admin-money-card .pay-summary {
+			margin-bottom: 0;
+			grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+		}
+
+		.admin-money-card .pay-summary-item {
+			padding: 0.75rem 0.85rem;
+		}
+
+		.date-summary-controls {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(180px, 240px));
+			gap: 0.8rem;
+			align-items: end;
+			margin-bottom: 0.9rem;
+		}
+
+		.date-summary-controls input {
+			width: 100%;
+			padding: 0.55rem 0.65rem;
+			border: 1px solid #d8d0c0;
+			border-radius: 4px;
+			background: var(--white);
+			font-family: inherit;
+			font-size: 0.88rem;
+		}
+
+		.tutor-note-meta {
+			color: var(--text-muted);
+			font-size: 0.78rem;
+			margin-bottom: 0.25rem;
 		}
 
 		@media (max-width: 640px) {
@@ -1071,6 +1257,9 @@
 		let viewingLessonsUserId = null;
 		let viewingPaymentPair = null;
 		let expandedPaymentLessonIds = [];
+		let expandedAdminStudentIds = [];
+		let expandedPaymentStudentIds = [];
+		let expandedAssignmentStudentIds = [];
 		let appData = {
 			lessons: [],
 			payments: [],
@@ -1078,6 +1267,7 @@
 			users: [],
 			assignments: [],
 			adminNotes: {},
+			tutorStudentNotes: [],
 		};
 
 		const sidebarItems = {
@@ -1164,6 +1354,48 @@
 			const now = new Date();
 			return pairLessons(studentId, tutorId).find((l) => (l.status === "zaplanowana" || l.status === "oczekuje") && new Date(l.date) >= now);
 		}
+		function summarizeLessonsByDate(startDate, endDate) {
+			const start = startDate ? new Date(`${startDate}T00:00:00`) : null;
+			const end = endDate ? new Date(`${endDate}T23:59:59`) : null;
+			const lessons = appData.lessons.filter((l) => {
+				if (l.status !== "odbyta") return false;
+				const date = new Date(l.date);
+				if (start && date < start) return false;
+				if (end && date > end) return false;
+				return true;
+			});
+			const total = lessons.reduce((s, l) => s + Number(l.price || 0), 0);
+			const paid = lessons.filter((l) => l.paid).reduce((s, l) => s + Number(l.price || 0), 0);
+			const debt = lessons.filter((l) => !l.paid).reduce((s, l) => s + Number(l.price || 0), 0);
+			return { lessons, total, paid, debt };
+		}
+		function firstDayOfMonth(date = new Date()) {
+			return new Date(date.getFullYear(), date.getMonth(), 1).toISOString().slice(0, 10);
+		}
+		function lastDayOfMonth(date = new Date()) {
+			return new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().slice(0, 10);
+		}
+		function firstDayOfYear(date = new Date()) {
+			return new Date(date.getFullYear(), 0, 1).toISOString().slice(0, 10);
+		}
+		function lastDayOfYear(date = new Date()) {
+			return new Date(date.getFullYear(), 11, 31).toISOString().slice(0, 10);
+		}
+		function moneySummaryHtml(summary) {
+			return `
+<div class="pay-summary">
+  <div class="pay-summary-item"><span>Lekcje</span><strong>${summary.lessons.length}</strong></div>
+  <div class="pay-summary-item"><span>Zarobione / zaplacone</span><strong>${summary.paid} zl</strong></div>
+  <div class="pay-summary-item"><span>Aktualny dlug</span><strong style="color:${summary.debt > 0 ? "#c0392b" : "var(--navy)"}">${summary.debt} zl</strong></div>
+  <div class="pay-summary-item"><span>Wartosc lacznie</span><strong>${summary.total} zl</strong></div>
+</div>`;
+		}
+		function getTutorStudentNote(studentId, tutorId) {
+			return (appData.tutorStudentNotes || []).find((n) => n.studentId === studentId && n.tutorId === tutorId);
+		}
+		function getStudentTutorNotes(studentId) {
+			return (appData.tutorStudentNotes || []).filter((n) => n.studentId === studentId);
+		}
 
 		// ── FORMATOWANIE ──
 		function fmtDate(s) {
@@ -1240,6 +1472,13 @@
 				console.warn("Brak tabeli student_tutor_assignments lub uprawnien RLS:", assignmentsError.message);
 			}
 
+			const { data: tutorNotes, error: tutorNotesError } = await supabaseClient
+				.from("tutor_student_notes")
+				.select("student_id, tutor_id, note, updated_at, tutor:profiles!tutor_id(full_name), student:profiles!student_id(full_name)");
+			if (tutorNotesError) {
+				console.warn("Brak tabeli tutor_student_notes lub uprawnien RLS:", tutorNotesError.message);
+			}
+
 			// 3. Pobieranie profili z uwzględnieniem ról i prywatności
 			if (currentProfile.role === "admin") {
 				const { data: profiles } = await supabaseClient.from("profiles").select("*").order("full_name", { ascending: true });
@@ -1281,6 +1520,14 @@
 			appData.assignments = (assignments || []).map((a) => ({
 				studentId: a.student_id,
 				tutorId: a.tutor_id,
+			}));
+			appData.tutorStudentNotes = (tutorNotes || []).map((n) => ({
+				studentId: n.student_id,
+				tutorId: n.tutor_id,
+				note: n.note || "",
+				updatedAt: n.updated_at,
+				tutorName: n.tutor?.full_name || getUserName(n.tutor_id),
+				studentName: n.student?.full_name || getUserName(n.student_id),
 			}));
 			if (currentProfile.role === "korepetytor") {
 				const assignedIds = getAssignedStudentIds(currentProfile.id);
@@ -1555,6 +1802,45 @@ ${appData.materials.length
 		}
 
 		function panelStudents() {
+			if (currentProfile.role === "admin") {
+				return panelAdminStudents();
+			}
+			const assignedIdsNew = getAssignedStudentIds(currentProfile.id);
+			const studentsNew = getStudents()
+				.filter((s) => assignedIdsNew.includes(s.id))
+				.sort((a, b) => (a.full_name || a.email || "").localeCompare(b.full_name || b.email || "", "pl"));
+			return `
+<div class="panel-header"><h1>Uczniowie</h1><p>Uczniowie przypisani do Twojego konta.</p></div>
+<div class="data-wrap">
+  <div class="data-head"><h3>Moi uczniowie (${studentsNew.length})</h3></div>
+  ${studentsNew.length ? `
+  <div class="pay-lesson-list">
+    ${studentsNew.map((s) => {
+				const lessons = pairLessons(s.id, currentProfile.id);
+				const next = nextLessonFor(s.id, currentProfile.id);
+				const note = getTutorStudentNote(s.id, currentProfile.id)?.note || "";
+				return `
+    <div class="pay-lesson-card">
+      <div class="pay-lesson-head">
+        <div>
+          <div class="pay-lesson-title">${s.full_name || s.email}</div>
+          <div class="pay-lesson-meta">${s.email || "Brak e-maila"} · ${lessons.length} lekcji</div>
+          <div class="pay-lesson-meta">Najblizsza: ${next ? `${fmtDate(next.date)} · ${next.subject}` : "brak zaplanowanych"}</div>
+        </div>
+        <button type="button" class="btn btn-primary" style="padding:.35rem .75rem;font-size:.78rem;" onclick="openStudentLessons('${s.id}')">Lekcje</button>
+      </div>
+      <div class="student-note-box">
+        <label style="display:block;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);font-weight:600;margin-bottom:.35rem;">Moja prywatna notatka</label>
+        <textarea id="tutor-note-${s.id}" maxlength="500" placeholder="Krotki opis ucznia, preferencje, poziom, cele...">${note}</textarea>
+        <div class="student-note-actions">
+          <button type="button" class="btn btn-gold" style="padding:.35rem .75rem;font-size:.78rem;" onclick="saveTutorStudentNote('${s.id}')">Zapisz notatke</button>
+          <span class="student-note-msg" id="tutor-note-msg-${s.id}"></span>
+        </div>
+      </div>
+    </div>`;
+			}).join("")}
+  </div>` : `<div class="empty-state"><p>Nie masz jeszcze przypisanych uczniow. Administrator moze przypisac ich w panelu Przeglad.</p></div>`}
+</div>`;
 			const assignedIds = currentProfile.role === "admin"
 				? getAssignedStudentIds(currentProfile.id)
 				: getAssignedStudentIds(currentProfile.id);
@@ -1588,6 +1874,56 @@ ${appData.materials.length
 </div>`;
 		}
 
+		function panelAdminStudents() {
+			const grouped = getStudents()
+				.map((student) => {
+					const tutorIds = getAssignedTutorIds(student.id);
+					const tutors = tutorIds
+						.map((tutorId) => {
+							const tutor = (appData.users || []).find((u) => u.id === tutorId);
+							if (!tutor) return null;
+							return {
+								tutor,
+								note: getTutorStudentNote(student.id, tutorId),
+								lessons: pairLessons(student.id, tutorId),
+								next: nextLessonFor(student.id, tutorId),
+							};
+						})
+						.filter(Boolean);
+					return { student, tutors };
+				})
+				.filter((row) => row.tutors.length)
+				.sort((a, b) => (a.student.full_name || a.student.email || "").localeCompare(b.student.full_name || b.student.email || "", "pl"));
+			return `
+<div class="panel-header"><h1>Uczniowie</h1><p>Wszystkie przypisania i prywatne opisy korepetytorow.</p></div>
+<div class="data-wrap">
+  <div class="data-head"><h3>Przypisani uczniowie (${grouped.length})</h3></div>
+  ${grouped.length ? `
+  <div class="tutor-note-list">
+    ${grouped.map((row) => {
+				const expanded = expandedAdminStudentIds.includes(row.student.id);
+				return `
+    <div class="tutor-note-item" style="cursor:pointer;" onclick="toggleAdminStudentNotes('${row.student.id}')">
+      <div class="pay-lesson-head">
+        <div>
+          <div class="pay-lesson-title">${row.student.full_name || row.student.email}</div>
+          <div class="tutor-note-meta">${row.student.email || "Brak e-maila"} · ${row.tutors.length} korepetytorow</div>
+        </div>
+        <span style="color:var(--text-muted);font-size:.85rem;">${expanded ? "Zwin" : "Rozwin"}</span>
+      </div>
+      ${expanded ? `<div class="tutor-note-list" onclick="event.stopPropagation()">
+        ${row.tutors.map((item) => `
+        <div class="tutor-note-item" style="background:var(--white);">
+          <div class="tutor-note-meta">${item.tutor.full_name || item.tutor.email} · ${item.lessons.length} lekcji · najblizsza: ${item.next ? `${fmtDate(item.next.date)} · ${item.next.subject}` : "brak"}</div>
+          <div style="font-size:.9rem;color:var(--navy);"><strong>Korepetytor:</strong> ${item.note?.note ? item.note.note : "<span style='color:var(--text-muted)'>Brak notatki.</span>"}</div>
+        </div>`).join("")}
+      </div>` : ""}
+    </div>`;
+			}).join("")}
+  </div>` : `<div class="empty-state"><p>Brak przypisanych uczniow.</p></div>`}
+</div>`;
+		}
+
 		function panelpayments() {
 			if (currentProfile.role === "admin") {
 				if (viewingPaymentPair) return panelAdminUserPayments();
@@ -1597,27 +1933,54 @@ ${appData.materials.length
 		}
 
 		function panelAdminPaymentsUsers() {
-			const rows = (appData.assignments || [])
-				.map((a) => ({
-					student: (appData.users || []).find((u) => u.id === a.studentId),
-					tutor: (appData.users || []).find((u) => u.id === a.tutorId),
-					studentId: a.studentId,
-					tutorId: a.tutorId,
-				}))
-				.filter((r) => r.student && r.tutor)
+			const grouped = getStudents()
+				.map((student) => {
+					const tutorIds = getAssignedTutorIds(student.id);
+					const pairs = tutorIds
+						.map((tutorId) => {
+							const tutor = (appData.users || []).find((u) => u.id === tutorId);
+							if (!tutor) return null;
+							const lessons = pairLessons(student.id, tutorId).filter((l) => l.status === "odbyta");
+							const debt = lessons.filter((l) => !l.paid).reduce((s, l) => s + Number(l.price || 0), 0);
+							const paid = lessons.filter((l) => l.paid).reduce((s, l) => s + Number(l.price || 0), 0);
+							const total = lessons.reduce((s, l) => s + Number(l.price || 0), 0);
+							return { tutor, tutorId, lessons, debt, paid, total };
+						})
+						.filter(Boolean);
+					return {
+						student,
+						pairs,
+						debt: pairs.reduce((s, p) => s + p.debt, 0),
+						paid: pairs.reduce((s, p) => s + p.paid, 0),
+						total: pairs.reduce((s, p) => s + p.total, 0),
+					};
+				})
+				.filter((row) => row.pairs.length)
 				.sort((a, b) => (a.student.full_name || a.student.email || "").localeCompare(b.student.full_name || b.student.email || "", "pl"));
 			return `
 <div class="panel-header"><h1>Oplaty</h1><p>Rozliczenia wedlug par uczen-korepetytor.</p></div>
 <div class="data-wrap">
-  ${rows.length ? `
+  ${grouped.length ? `
   <div class="pay-user-list">
-    ${rows.map((r) => {
-				const lessons = pairLessons(r.studentId, r.tutorId).filter((l) => l.status === "odbyta");
-				const debt = lessons.filter((l) => !l.paid).reduce((s, l) => s + Number(l.price || 0), 0);
+    ${grouped.map((row) => {
+				const expanded = expandedPaymentStudentIds.includes(row.student.id);
 				return `
-    <div class="pay-user-item" onclick="openUserPayments('${r.studentId}', '${r.tutorId}')">
-      <div><strong>${r.student.full_name || r.student.email}</strong><div style="font-size:.82rem;color:var(--text-muted);">${r.tutor.full_name || r.tutor.email}</div></div>
-      <span style="font-size:.85rem;color:${debt > 0 ? "#e74c3c" : "var(--text-muted)"};">${debt > 0 ? `${debt} zl do zaplaty` : "Rozliczone"}</span>
+    <div class="tutor-note-item" style="cursor:pointer;" onclick="togglePaymentStudent('${row.student.id}')">
+      <div class="pay-lesson-head">
+        <div>
+          <div class="pay-lesson-title">${row.student.full_name || row.student.email}</div>
+          <div class="tutor-note-meta">${row.student.email || "Brak e-maila"} · ${row.pairs.length} korepetytorow</div>
+          <div class="pay-money-row"><span>Zapłacili: <strong>${row.paid} zl</strong></span><span>Dług: <strong style="color:${row.debt > 0 ? "#c0392b" : "var(--navy)"}">${row.debt} zl</strong></span><span>Razem: <strong>${row.total} zl</strong></span></div>
+        </div>
+        <span style="font-size:.85rem;color:${row.debt > 0 ? "#e74c3c" : "var(--text-muted)"};">${row.debt > 0 ? `${row.debt} zl do zaplaty` : "Rozliczone"} · ${expanded ? "Zwin" : "Rozwin"}</span>
+      </div>
+      ${expanded ? `<div class="pay-user-list" onclick="event.stopPropagation()">
+        ${row.pairs.map((p) => `
+        <div class="pay-user-item ${p.debt > 0 ? "pay-debt-soft" : ""}" onclick="openUserPayments('${row.student.id}', '${p.tutorId}')">
+          <div><strong>${p.tutor.full_name || p.tutor.email}</strong><div style="font-size:.82rem;color:var(--text-muted);">${p.lessons.length} odbytych lekcji · zaplacone ${p.paid} zl · dlug ${p.debt} zl · razem ${p.total} zl</div></div>
+          <span style="font-size:.85rem;color:${p.debt > 0 ? "#e74c3c" : "var(--text-muted)"};">${p.debt > 0 ? `${p.debt} zl do zaplaty` : "Rozliczone"}</span>
+        </div>`).join("")}
+      </div>` : ""}
     </div>`;
 			}).join("")}
   </div>` : `<div class="empty-state"><p>Brak przypisanych par uczen-korepetytor. Dodaj przypisania w panelu Przeglad.</p></div>`}
@@ -1654,6 +2017,9 @@ ${appData.materials.length
 			const debt = userLessons
 				.filter((l) => l.status === "odbyta" && !l.paid)
 				.reduce((s, l) => s + Number(l.price || 0), 0);
+			const paidTotal = userLessons
+				.filter((l) => l.status === "odbyta" && l.paid)
+				.reduce((s, l) => s + Number(l.price || 0), 0);
 			const today = toInputDate(new Date().toISOString());
 			const totalValue = userLessons.reduce((s, l) => s + Number(l.price || 0), 0);
 			const heldCount = userLessons.filter((l) => l.status === "odbyta").length;
@@ -1671,6 +2037,7 @@ ${appData.materials.length
 
 <div class="pay-summary">
   <div class="pay-summary-item"><span>Do zaplaty</span><strong style="color:${debt > 0 ? "#e74c3c" : "#2ecc71"}">${debt} zl</strong></div>
+  <div class="pay-summary-item"><span>Zaplacili lacznie</span><strong>${paidTotal} zl</strong></div>
   <div class="pay-summary-item"><span>Wartosc lekcji</span><strong>${totalValue} zl</strong></div>
   <div class="pay-summary-item"><span>Odbyte lekcje</span><strong>${heldCount}</strong></div>
   <div class="pay-summary-item"><span>Oplacone</span><strong>${paidCount}/${userLessons.length}</strong></div>
@@ -1698,7 +2065,7 @@ ${appData.materials.length
     ${userLessons.map((l) => {
 			const expanded = expandedPaymentLessonIds.includes(l.id);
 			return `
-    <div class="pay-lesson-card ${expanded ? "expanded" : "collapsed"}" onclick="togglePaymentLesson('${l.id}')">
+    <div class="pay-lesson-card ${expanded ? "expanded" : "collapsed"} ${l.status === "odbyta" && !l.paid ? "pay-debt-soft" : ""}" onclick="togglePaymentLesson('${l.id}')">
       <div class="pay-lesson-head">
         <div>
           <div class="pay-lesson-title">${l.subject || "Lekcja"}</div>
@@ -2112,33 +2479,66 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
 		function panelAdminOverview() {
 			const students = getStudents();
 			const tutors = getTutors();
+			const yearSummary = summarizeLessonsByDate(firstDayOfYear(), lastDayOfYear());
+			const monthSummary = summarizeLessonsByDate(firstDayOfMonth(), lastDayOfMonth());
+			const rangeStart = document.getElementById("adminRangeStart")?.value || firstDayOfMonth();
+			const rangeEnd = document.getElementById("adminRangeEnd")?.value || lastDayOfMonth();
+			const rangeSummary = summarizeLessonsByDate(rangeStart, rangeEnd);
 			return `<div class="panel-header"><h1>Panel Admina</h1><p>Zarzadzaj platforma i przypisaniami.</p></div>
 <div class="stats-row">
 <div class="stat-card"><div class="s-label">Wszystkie lekcje</div><div class="s-val">${appData.lessons.length}</div></div>
 <div class="stat-card"><div class="s-label">Oplaty (suma)</div><div class="s-val">${appData.payments.reduce((s, i) => s + i.amount, 0)} zl</div></div>
 </div>
 <div class="data-wrap">
-  <div class="data-head"><h3>Przypisania uczniow do korepetytorow</h3></div>
+  <div class="data-head"><h3>Podsumowanie oplat</h3></div>
+  <div class="admin-money-board">
+    <div class="admin-money-card">
+      <h4>Ten rok</h4>
+      ${moneySummaryHtml(yearSummary)}
+    </div>
+    <div class="admin-money-card">
+      <h4>Ten miesiac</h4>
+      ${moneySummaryHtml(monthSummary)}
+    </div>
+  </div>
+  <div class="date-summary-box">
+    <h4 style="color:var(--navy);margin-bottom:.8rem;">Wybrany zakres</h4>
+    <div class="date-summary-controls">
+      <div class="form-group"><label>Od</label><input type="date" id="adminRangeStart" value="${rangeStart}"/></div>
+      <div class="form-group"><label>Do</label><input type="date" id="adminRangeEnd" value="${rangeEnd}"/></div>
+      <button type="button" class="btn btn-gold" style="height:2.55rem;padding:.55rem 1.2rem;" onclick="refreshAdminOverviewRange()">Przelicz</button>
+    </div>
+    <div id="adminRangeSummary">${moneySummaryHtml(rangeSummary)}</div>
+  </div>
+</div>
+<div class="data-wrap">
+  <div class="data-head"><h3>Przypisania uczniow</h3></div>
   ${students.length && tutors.length ? `
-  <div class="lesson-table-wrap" style="display:block;overflow-x:auto;">
-    <table>
-      <thead>
-        <tr>
-          <th>Uczen</th>
-          ${tutors.map((t) => `<th>${t.full_name || t.email}</th>`).join("")}
-        </tr>
-      </thead>
-      <tbody>
-        ${students.map((s) => `
-        <tr>
-          <td><strong>${s.full_name || s.email}</strong></td>
-          ${tutors.map((t) => `
-          <td style="text-align:center;">
-            <input type="checkbox" ${isAssigned(s.id, t.id) ? "checked" : ""} onchange="toggleStudentTutorAssignment('${s.id}', '${t.id}', this.checked)" />
-          </td>`).join("")}
-        </tr>`).join("")}
-      </tbody>
-    </table>
+  <div class="assignment-list">
+    ${students.map((s) => {
+				const assignedTutors = getAssignedTutorIds(s.id)
+					.map((id) => (appData.users || []).find((u) => u.id === id))
+					.filter(Boolean);
+				const expanded = expandedAssignmentStudentIds.includes(s.id);
+				return `
+    <div class="assignment-card">
+      <div class="pay-lesson-title">${s.full_name || s.email}</div>
+      <div class="assignment-current">
+        Aktualni korepetytorzy:
+        ${assignedTutors.length
+						? `<strong>${assignedTutors.map((t) => t.full_name || t.email).join(", ")}</strong>`
+						: `<strong style="color:#c0392b;">Brak przypisanego korepetytora</strong>`}
+      </div>
+      <button type="button" class="assignment-toggle" onclick="toggleAssignmentStudent('${s.id}')">${expanded ? "Ukryj liste korepetytorow" : "Wybierz korepetytorow"}</button>
+      ${expanded ? `<div class="assignment-options">
+        ${tutors.map((t) => `
+        <label class="assignment-option">
+          <input type="checkbox" ${isAssigned(s.id, t.id) ? "checked" : ""} onchange="toggleStudentTutorAssignment('${s.id}', '${t.id}', this.checked)" />
+          <span>${t.full_name || t.email}</span>
+        </label>`).join("")}
+      </div>` : ""}
+    </div>`;
+			}).join("")}
   </div>` : `<div class="empty-state"><p>Dodaj konta uczniow i korepetytorow, aby tworzyc przypisania.</p></div>`}
 </div>`;
 			return `<div class="panel-header"><h1>Panel Admina 🔑</h1><p>Zarządzaj platformą.</p></div>
@@ -2274,6 +2674,52 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
 				appData.adminNotes[viewingUserId] = note;
 				msg.textContent = "✅ Notatka zapisana.";
 			}
+		};
+
+		window.saveTutorStudentNote = async function (studentId) {
+			if (currentProfile.role !== "korepetytor") return;
+			if (!isAssigned(studentId, currentProfile.id)) {
+				alert("Nie mozesz zapisac notatki dla ucznia, ktory nie jest do Ciebie przypisany.");
+				return;
+			}
+			const textarea = document.getElementById(`tutor-note-${studentId}`);
+			const msg = document.getElementById(`tutor-note-msg-${studentId}`);
+			const note = (textarea?.value || "").trim();
+			if (msg) msg.textContent = "Zapisywanie...";
+
+			const { error } = await supabaseClient.from("tutor_student_notes").upsert(
+				{
+					student_id: studentId,
+					tutor_id: currentProfile.id,
+					note,
+					updated_at: new Date().toISOString(),
+				},
+				{ onConflict: "student_id,tutor_id" },
+			);
+
+			if (error) {
+				if (msg) msg.textContent = "Blad zapisu: " + error.message;
+				if (error.message.includes("tutor_student_notes")) {
+					alert("Brakuje tabeli tutor_student_notes. Dodaj SQL z lokalnego pliku ZMIANY_BAZY_DANYCH.md.");
+				}
+				return;
+			}
+
+			const existing = getTutorStudentNote(studentId, currentProfile.id);
+			if (existing) {
+				existing.note = note;
+				existing.updatedAt = new Date().toISOString();
+			} else {
+				appData.tutorStudentNotes.push({
+					studentId,
+					tutorId: currentProfile.id,
+					note,
+					updatedAt: new Date().toISOString(),
+					tutorName: currentProfile.full_name || currentProfile.email,
+					studentName: getUserName(studentId),
+				});
+			}
+			if (msg) msg.textContent = "Zapisano.";
 		};
 
 		// ── AKCJE ──
@@ -2518,6 +2964,35 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
 				? expandedPaymentLessonIds.filter((id) => id !== lessonId)
 				: [...expandedPaymentLessonIds, lessonId];
 			document.getElementById("dashMain").innerHTML = panelpayments();
+		};
+
+		window.togglePaymentStudent = function (studentId) {
+			expandedPaymentStudentIds = expandedPaymentStudentIds.includes(studentId)
+				? expandedPaymentStudentIds.filter((id) => id !== studentId)
+				: [...expandedPaymentStudentIds, studentId];
+			document.getElementById("dashMain").innerHTML = panelpayments();
+		};
+
+		window.toggleAdminStudentNotes = function (studentId) {
+			expandedAdminStudentIds = expandedAdminStudentIds.includes(studentId)
+				? expandedAdminStudentIds.filter((id) => id !== studentId)
+				: [...expandedAdminStudentIds, studentId];
+			document.getElementById("dashMain").innerHTML = panelStudents();
+		};
+
+		window.toggleAssignmentStudent = function (studentId) {
+			expandedAssignmentStudentIds = expandedAssignmentStudentIds.includes(studentId)
+				? expandedAssignmentStudentIds.filter((id) => id !== studentId)
+				: [...expandedAssignmentStudentIds, studentId];
+			document.getElementById("dashMain").innerHTML = panelAdminOverview();
+		};
+
+		window.refreshAdminOverviewRange = function () {
+			const start = document.getElementById("adminRangeStart")?.value;
+			const end = document.getElementById("adminRangeEnd")?.value;
+			const target = document.getElementById("adminRangeSummary");
+			if (!target) return;
+			target.innerHTML = moneySummaryHtml(summarizeLessonsByDate(start, end));
 		};
 
 		window.showAllLessonsList = function () {
