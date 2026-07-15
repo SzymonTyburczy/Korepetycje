@@ -318,9 +318,9 @@
         <tbody>
           <tr>
             <td><code>korepetycje-auth</code></td>
-            <td>localStorage</td>
-            <td>Przechowywanie sesji zalogowanego użytkownika (Supabase Auth)</td>
-            <td>Do wylogowania lub 30 dni</td>
+            <td>localStorage lub sessionStorage</td>
+            <td>Sesja zalogowanego użytkownika (Supabase Auth). Przy „Zapamiętaj mnie” — localStorage (max 30 dni); bez zaznaczenia — sessionStorage (do zamknięcia przeglądarki).</td>
+            <td>Do 30 dni / do zamknięcia przeglądarki / do wylogowania</td>
           </tr>
           <tr>
             <td><code>cookie-consent</code></td>

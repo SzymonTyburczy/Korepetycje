@@ -603,8 +603,8 @@
       btn.textContent = 'Logowanie…'; btn.disabled = true;
       errEl.style.display = 'none';
 
-      // Ustaw czas trwania sesji
-      supabaseClient.auth.setSession; // już ustawione przez persistSession
+      // "Zapamiętaj mnie": localStorage (trwałe) vs sessionStorage (do zamknięcia przeglądarki)
+      setRememberMe(remember);
       const { data, error } = await supabaseClient.auth.signInWithPassword({
         email: document.getElementById('loginEmail').value.trim(),
         password: document.getElementById('loginPassword').value,
@@ -620,13 +620,6 @@
         errEl.style.display = 'block';
         btn.textContent = 'Zaloguj się →'; btn.disabled = false;
       } else {
-        // Ustaw długość sesji na podstawie "Zapamiętaj mnie"
-        // if (!remember) {
-        //   // Sesja tylko do zamknięcia przeglądarki — usuń token po wyjściu
-        //   window.addEventListener('beforeunload', () => {
-        //     supabase.auth.signOut();
-        //   });
-        // }
         if (!data?.user) {
           errEl.textContent = 'Nie udalo sie zalogowac. Sprawdz e-mail i haslo.';
           errEl.style.display = 'block';

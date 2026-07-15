@@ -285,6 +285,7 @@ const SUPABASE_ANON_KEY =
 
 // Inicjalizacja klienta Supabase
 let supabaseClient;
+let supabaseInitPromise;
 
 // async function initSupabase() {
 // 	// Dynamicznie ładujemy bibliotekę Supabase
@@ -303,21 +304,96 @@ let supabaseClient;
 // }
 
 
+// ── "ZAPAMIĘTAJ MNIE" ──
+// Checkbox na login.html decyduje o magazynie i limicie:
+//  - zaznaczony  → localStorage, max REMEMBER_DAYS dni (potem wymuszone wylogowanie)
+//  - odznaczony  → sessionStorage (znika po zamknięciu przeglądarki/karty)
+const REMEMBER_FLAG_KEY  = 'korepetycje-remember';
+const REMEMBER_UNTIL_KEY = 'korepetycje-remember-until';
+const REMEMBER_DAYS      = 30;
+const AUTH_STORAGE_KEY   = 'korepetycje-auth';
+
+function setRememberMe(remember) {
+  if (remember) {
+    localStorage.setItem(REMEMBER_FLAG_KEY, '1');
+    localStorage.setItem(
+      REMEMBER_UNTIL_KEY,
+      String(Date.now() + REMEMBER_DAYS * 24 * 60 * 60 * 1000)
+    );
+  } else {
+    localStorage.setItem(REMEMBER_FLAG_KEY, '0');
+    localStorage.removeItem(REMEMBER_UNTIL_KEY);
+  }
+}
+
+function clearRememberMeta() {
+  localStorage.removeItem(REMEMBER_FLAG_KEY);
+  localStorage.removeItem(REMEMBER_UNTIL_KEY);
+}
+
+function chosenAuthStorage() {
+  return localStorage.getItem(REMEMBER_FLAG_KEY) === '0' ? sessionStorage : localStorage;
+}
+
+// Adapter supabase-js — magazyn wybierany przy każdym odczycie/zapisie,
+// więc checkbox tuż przed logowaniem działa od razu.
+const rememberAwareStorage = {
+  getItem: (key) => chosenAuthStorage().getItem(key),
+  setItem: (key, value) => {
+    chosenAuthStorage().setItem(key, value);
+    const other = chosenAuthStorage() === localStorage ? sessionStorage : localStorage;
+    other.removeItem(key);
+  },
+  removeItem: (key) => {
+    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
+  },
+};
+
+// Wymusza limit 30 dni dla sesji "Zapamiętaj mnie".
+async function enforceRememberExpiry() {
+  const flag = localStorage.getItem(REMEMBER_FLAG_KEY);
+  const hasLocalSession = !!localStorage.getItem(AUTH_STORAGE_KEY);
+
+  // Sesja w sessionStorage (bez "Zapamiętaj") — przeglądarka sama ją czyści.
+  if (flag === '0') return;
+
+  // Stara sesja w localStorage bez limitu albo minął termin → wyloguj lokalnie.
+  if (hasLocalSession && (flag === null || flag === '1')) {
+    const until = Number(localStorage.getItem(REMEMBER_UNTIL_KEY) || 0);
+    if (!until || Date.now() > until) {
+      clearRememberMeta();
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      if (supabaseClient) {
+        try { await supabaseClient.auth.signOut({ scope: 'local' }); } catch (_) { /* ignore */ }
+      }
+    }
+  }
+}
+
 function initSupabase() {
-  if (supabaseClient) return Promise.resolve(supabaseClient); // już zainicjowane — nie rób tego dwa razy
+  if (supabaseInitPromise) return supabaseInitPromise;
   if (!window.supabase?.createClient) {
     console.error('Biblioteka Supabase nie jest załadowana. Dodaj tag <script> z CDN w <head>.');
     return Promise.reject('Supabase not loaded');
   }
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: {
-      persistSession: true,          // sesja przeżywa przejścia między podstronami
-      storageKey:     'korepetycje-auth', // unikalna nazwa klucza w localStorage
-      autoRefreshToken: true,        // automatyczne odświeżanie tokenu w tle
-      detectSessionInUrl: true,      // wykrywa token z linku reset hasła
-    }
+  // Najpierw wyczyść przeterminowaną sesję, dopiero potem twórz klienta
+  // (createClient od razu czyta magazyn do pamięci).
+  supabaseInitPromise = Promise.resolve().then(async () => {
+    await enforceRememberExpiry();
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        storageKey: AUTH_STORAGE_KEY,
+        storage: rememberAwareStorage,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      }
+    });
+    return supabaseClient;
   });
-  return Promise.resolve(supabaseClient);
+  return supabaseInitPromise;
 }
 
 
@@ -359,6 +435,7 @@ async function getCurrentProfile() {
 }
 
 async function signOut() {
+	clearRememberMeta();
 	await supabaseClient.auth.signOut();
 	window.location.href = "/";
 }
