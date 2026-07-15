@@ -1,1 +1,27 @@
+# Notatki robocze / dokumentacja wewnetrzna
 ZMIANY_BAZY_DANYCH.md
+
+# Pliki tymczasowe
+*.tmp
+.commitmsg.tmp
+*.log
+
+# Sekrety / zmienne srodowiskowe (NIE commituj kluczy!)
+.env
+.env.*
+*.local
+
+# Zaleznosci
+node_modules/
+
+# Systemowe
+.DS_Store
+Thumbs.db
+
+# Edytory
+.vscode/
+.idea/
+
+# Supabase (lokalne)
+supabase/.branches/
+supabase/.temp/

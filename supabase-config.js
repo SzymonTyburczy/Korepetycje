@@ -62,17 +62,203 @@ CREATE TABLE invoices (
   paid_at TIMESTAMPTZ
 );
 
--- Row Level Security
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE lessons ENABLE ROW LEVEL SECURITY;
-ALTER TABLE materials ENABLE ROW LEVEL SECURITY;
-ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
+-- ══════════════════════════════════════════════════════════════
+--  BRAKUJĄCE TABELE (używane przez dashboard.html)
+-- ══════════════════════════════════════════════════════════════
 
--- Polityki dostępu
-CREATE POLICY "Użytkownik widzi swój profil" ON profiles FOR ALL USING (auth.uid() = id);
-CREATE POLICY "Uczeń widzi swoje lekcje" ON lessons FOR SELECT USING (auth.uid() = student_id OR auth.uid() = tutor_id);
-CREATE POLICY "Uczeń widzi swoje materiały" ON materials FOR SELECT USING (auth.uid() = student_id OR auth.uid() = tutor_id);
-CREATE POLICY "Uczeń widzi swoje faktury" ON invoices FOR SELECT USING (auth.uid() = student_id);
+-- Przypisania uczeń ↔ korepetytor
+CREATE TABLE IF NOT EXISTS student_tutor_assignments (
+  student_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  tutor_id   UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (student_id, tutor_id)
+);
+
+-- Prywatne notatki korepetytora o uczniu (uczeń ich NIE widzi)
+CREATE TABLE IF NOT EXISTS tutor_student_notes (
+  student_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  tutor_id   UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  note       TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (student_id, tutor_id)
+);
+
+-- Notatki admina o użytkownikach (widoczne tylko dla admina)
+CREATE TABLE IF NOT EXISTS admin_user_notes (
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE PRIMARY KEY,
+  note TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ══════════════════════════════════════════════════════════════
+--  FUNKCJE POMOCNICZE (SECURITY DEFINER — omijają RLS, więc nie
+--  powodują nieskończonej rekurencji w politykach na profiles)
+-- ══════════════════════════════════════════════════════════════
+
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN
+LANGUAGE sql SECURITY DEFINER STABLE
+SET search_path = public
+AS $$
+  SELECT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin');
+$$;
+
+-- Czy bieżący użytkownik jest przypisany do danego ucznia jako korepetytor?
+CREATE OR REPLACE FUNCTION public.is_my_student(target UUID)
+RETURNS BOOLEAN
+LANGUAGE sql SECURITY DEFINER STABLE
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.student_tutor_assignments
+    WHERE tutor_id = auth.uid() AND student_id = target
+  );
+$$;
+
+-- Czy dany korepetytor jest przypisany do bieżącego użytkownika (ucznia)?
+CREATE OR REPLACE FUNCTION public.is_my_tutor(target UUID)
+RETURNS BOOLEAN
+LANGUAGE sql SECURITY DEFINER STABLE
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.student_tutor_assignments
+    WHERE student_id = auth.uid() AND tutor_id = target
+  );
+$$;
+
+-- Reset hasła: sprawdza istnienie profilu po e-mailu (bez ujawniania danych)
+CREATE OR REPLACE FUNCTION public.public_profile_exists(lookup_email TEXT)
+RETURNS BOOLEAN
+LANGUAGE sql SECURITY DEFINER STABLE
+SET search_path = public
+AS $$
+  SELECT EXISTS (SELECT 1 FROM public.profiles WHERE lower(email) = lower(lookup_email));
+$$;
+GRANT EXECUTE ON FUNCTION public.public_profile_exists(TEXT) TO anon, authenticated;
+
+-- ══════════════════════════════════════════════════════════════
+--  ROW LEVEL SECURITY
+-- ══════════════════════════════════════════════════════════════
+-- UWAGA: to jest kanoniczny, spojny zestaw polityk. Jesli w bazie
+-- istnieja starsze polityki pod polskimi nazwami (np. "Uzytkownik
+-- widzi swoj profil", "Admin ma pelen dostep do lekcji" itd.),
+-- USUN je najpierw — inaczej beda dzialac lacznie (OR) i moga
+-- rozluznic dostep. Wypisz istniejace politykami:
+--   SELECT schemaname, tablename, policyname FROM pg_policies ORDER BY tablename;
+-- i skasuj zbedne:  DROP POLICY "<nazwa>" ON <tabela>;
+
+ALTER TABLE profiles                  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE lessons                   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE materials                 ENABLE ROW LEVEL SECURITY;
+ALTER TABLE invoices                  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE student_tutor_assignments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tutor_student_notes       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_user_notes          ENABLE ROW LEVEL SECURITY;
+
+-- Czyszczenie (re-run friendly) — usuwa polityki o TYCH nazwach.
+DROP POLICY IF EXISTS "profiles_select" ON profiles;
+DROP POLICY IF EXISTS "profiles_update_self" ON profiles;
+DROP POLICY IF EXISTS "profiles_delete_admin" ON profiles;
+DROP POLICY IF EXISTS "lessons_select" ON lessons;
+DROP POLICY IF EXISTS "lessons_insert" ON lessons;
+DROP POLICY IF EXISTS "lessons_update" ON lessons;
+DROP POLICY IF EXISTS "lessons_delete" ON lessons;
+DROP POLICY IF EXISTS "materials_select" ON materials;
+DROP POLICY IF EXISTS "materials_write" ON materials;
+DROP POLICY IF EXISTS "invoices_select" ON invoices;
+DROP POLICY IF EXISTS "invoices_write" ON invoices;
+DROP POLICY IF EXISTS "assignments_select" ON student_tutor_assignments;
+DROP POLICY IF EXISTS "assignments_write" ON student_tutor_assignments;
+DROP POLICY IF EXISTS "tutor_notes_select" ON tutor_student_notes;
+DROP POLICY IF EXISTS "tutor_notes_write" ON tutor_student_notes;
+DROP POLICY IF EXISTS "admin_notes_all" ON admin_user_notes;
+
+-- ── PROFILES ──
+-- Odczyt: własny profil, admin, oraz profile powiązane przypisaniem.
+CREATE POLICY "profiles_select" ON profiles FOR SELECT
+  USING (
+    id = auth.uid()
+    OR public.is_admin()
+    OR public.is_my_student(id)   -- korepetytor widzi swoich uczniów
+    OR public.is_my_tutor(id)     -- uczeń widzi swoich korepetytorów
+  );
+-- Aktualizacja: własny profil lub admin (zmiana roli chroniona triggerem niżej).
+CREATE POLICY "profiles_update_self" ON profiles FOR UPDATE
+  USING (id = auth.uid() OR public.is_admin())
+  WITH CHECK (id = auth.uid() OR public.is_admin());
+-- Usuwanie profilu: tylko admin (INSERT robi trigger handle_new_user).
+CREATE POLICY "profiles_delete_admin" ON profiles FOR DELETE
+  USING (public.is_admin());
+
+-- Ochrona przed eskalacją uprawnień: zwykły użytkownik NIE może zmienić swojej roli.
+CREATE OR REPLACE FUNCTION public.protect_profile_role()
+RETURNS TRIGGER
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.role IS DISTINCT FROM OLD.role AND NOT public.is_admin() THEN
+    NEW.role := OLD.role;  -- ignoruj próbę zmiany roli przez nie-admina
+  END IF;
+  RETURN NEW;
+END;
+$$;
+DROP TRIGGER IF EXISTS trg_protect_profile_role ON profiles;
+CREATE TRIGGER trg_protect_profile_role
+  BEFORE UPDATE ON profiles
+  FOR EACH ROW EXECUTE FUNCTION public.protect_profile_role();
+
+-- ── LESSONS ──
+CREATE POLICY "lessons_select" ON lessons FOR SELECT
+  USING (student_id = auth.uid() OR tutor_id = auth.uid() OR public.is_admin());
+CREATE POLICY "lessons_insert" ON lessons FOR INSERT
+  WITH CHECK (student_id = auth.uid() OR tutor_id = auth.uid() OR public.is_admin());
+CREATE POLICY "lessons_update" ON lessons FOR UPDATE
+  USING (tutor_id = auth.uid() OR public.is_admin())
+  WITH CHECK (tutor_id = auth.uid() OR public.is_admin());
+CREATE POLICY "lessons_delete" ON lessons FOR DELETE
+  USING (tutor_id = auth.uid() OR public.is_admin());
+
+-- ── MATERIALS ──
+CREATE POLICY "materials_select" ON materials FOR SELECT
+  USING (student_id = auth.uid() OR tutor_id = auth.uid() OR public.is_admin());
+CREATE POLICY "materials_write" ON materials FOR ALL
+  USING (tutor_id = auth.uid() OR public.is_admin())
+  WITH CHECK (tutor_id = auth.uid() OR public.is_admin());
+
+-- ── INVOICES ──
+CREATE POLICY "invoices_select" ON invoices FOR SELECT
+  USING (student_id = auth.uid() OR public.is_admin());
+CREATE POLICY "invoices_write" ON invoices FOR ALL
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+-- ── STUDENT_TUTOR_ASSIGNMENTS ──
+CREATE POLICY "assignments_select" ON student_tutor_assignments FOR SELECT
+  USING (student_id = auth.uid() OR tutor_id = auth.uid() OR public.is_admin());
+CREATE POLICY "assignments_write" ON student_tutor_assignments FOR ALL
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+-- ── TUTOR_STUDENT_NOTES (uczeń NIE ma dostępu) ──
+CREATE POLICY "tutor_notes_select" ON tutor_student_notes FOR SELECT
+  USING (tutor_id = auth.uid() OR public.is_admin());
+-- Korepetytor moze pisac notatki tylko o PRZYPISANYCH do siebie uczniach.
+CREATE POLICY "tutor_notes_write" ON tutor_student_notes FOR ALL
+  USING (
+    public.is_admin()
+    OR (tutor_id = auth.uid() AND public.is_my_student(student_id))
+  )
+  WITH CHECK (
+    public.is_admin()
+    OR (tutor_id = auth.uid() AND public.is_my_student(student_id))
+  );
+
+-- ── ADMIN_USER_NOTES (tylko admin) ──
+CREATE POLICY "admin_notes_all" ON admin_user_notes FOR ALL
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 
 -- Trigger: automatyczny profil po rejestracji
 CREATE OR REPLACE FUNCTION handle_new_user()
@@ -84,30 +270,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
-
--- Notatki admina o użytkownikach (widoczne tylko dla admina)
-CREATE TABLE admin_user_notes (
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE PRIMARY KEY,
-  note TEXT,
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-ALTER TABLE admin_user_notes ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Admin czyta notatki" ON admin_user_notes FOR SELECT
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
-
-CREATE POLICY "Admin zapisuje notatki" ON admin_user_notes FOR INSERT
-  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
-
-CREATE POLICY "Admin aktualizuje notatki" ON admin_user_notes FOR UPDATE
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
-
-CREATE POLICY "Admin usuwa notatki" ON admin_user_notes FOR DELETE
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- Migracja: data wpłaty przy lekcji (uruchom jeśli tabela lessons już istnieje)
 -- ALTER TABLE lessons ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ;
