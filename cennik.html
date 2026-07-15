@@ -382,6 +382,21 @@
     .faq-item.open .faq-a {
       display: block;
     }
+
+    /* ── MOBILE: karty zamiast przewijanej tabeli ── */
+    @media(max-width:640px) {
+      .price-cards {
+        display: flex;
+      }
+
+      .price-table-wrap {
+        display: none;
+      }
+
+      .pricing-block h3 {
+        font-size: 1.1rem;
+      }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 

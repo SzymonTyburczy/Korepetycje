@@ -58,6 +58,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center top;
       display: none;
       /* pokaże się gdy dodasz src */
     }
@@ -299,6 +300,24 @@
 
       .photo-card {
         position: static;
+        max-width: 320px;
+        margin: 0 auto;
+      }
+
+      .photo-wrap {
+        aspect-ratio: 4/5;
+      }
+    }
+
+    @media(max-width: 600px) {
+      .tl-item {
+        grid-template-columns: 64px 1fr;
+        gap: 1rem;
+      }
+
+      .bio-lead {
+        font-size: 1.08rem;
+        padding-left: 1.1rem;
       }
     }
   </style>
