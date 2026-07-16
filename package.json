@@ -1,0 +1,12 @@
+{
+  "name": "korepetycje-tyburczy",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "check": "node scripts/check-project.js",
+    "test": "npm run check"
+  },
+  "engines": {
+    "node": ">=22.6"
+  }
+}
