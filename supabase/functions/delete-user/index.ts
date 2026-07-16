@@ -14,22 +14,39 @@
 //    SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 // ═══════════════════════════════════════════════════════════════
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+const ALLOWED_ORIGINS = new Set([
+  "https://korepetycje-tyburczy.pl",
+  "https://www.korepetycje-tyburczy.pl",
+]);
+
+function corsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get("Origin") ?? "";
+  const allowOrigin = ALLOWED_ORIGINS.has(origin) ? origin : [...ALLOWED_ORIGINS][0];
+  return {
+    "Access-Control-Allow-Origin": allowOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Vary": "Origin",
+  };
+}
 
 Deno.serve(async (req) => {
+  const CORS = corsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
   try {
+    const origin = req.headers.get("Origin") ?? "";
+    // Przegladarka zawsze wysyla Origin przy cross-origin; odrzuc obce domeny.
+    if (origin && !ALLOWED_ORIGINS.has(origin)) {
+      return json({ error: "Origin niedozwolony." }, 403, CORS);
+    }
+
     const authHeader = req.headers.get("Authorization") ?? "";
     const token = authHeader.replace("Bearer ", "");
     if (!token) {
-      return json({ error: "Brak tokenu autoryzacji." }, 401);
+      return json({ error: "Brak tokenu autoryzacji." }, 401, CORS);
     }
 
     const url = Deno.env.get("SUPABASE_URL")!;
@@ -43,7 +60,7 @@ Deno.serve(async (req) => {
     // 1. Kim jest wywolujacy? (weryfikacja tokenu)
     const { data: userData, error: userErr } = await admin.auth.getUser(token);
     if (userErr || !userData?.user) {
-      return json({ error: "Nieprawidlowa sesja." }, 401);
+      return json({ error: "Nieprawidlowa sesja." }, 401, CORS);
     }
     const callerId = userData.user.id;
 
@@ -54,14 +71,14 @@ Deno.serve(async (req) => {
       .eq("id", callerId)
       .single();
     if (callerProfile?.role !== "admin") {
-      return json({ error: "Tylko administrator moze usuwac konta." }, 403);
+      return json({ error: "Tylko administrator moze usuwac konta." }, 403, CORS);
     }
 
     // 3. Kogo usuwamy?
     const { userId } = await req.json().catch(() => ({ userId: null }));
-    if (!userId) return json({ error: "Brak userId." }, 400);
+    if (!userId) return json({ error: "Brak userId." }, 400, CORS);
     if (userId === callerId) {
-      return json({ error: "Nie mozesz usunac wlasnego konta." }, 400);
+      return json({ error: "Nie mozesz usunac wlasnego konta." }, 400, CORS);
     }
 
     // 4. Usun powiazane dane (RLS omijany przez service_role).
@@ -77,17 +94,17 @@ Deno.serve(async (req) => {
 
     // 5. Usun z auth.users (to jest to, czego frontend nie potrafi).
     const { error: delErr } = await admin.auth.admin.deleteUser(userId);
-    if (delErr) return json({ error: "Blad usuwania z Auth: " + delErr.message }, 500);
+    if (delErr) return json({ error: "Blad usuwania z Auth: " + delErr.message }, 500, CORS);
 
-    return json({ success: true });
+    return json({ success: true }, 200, CORS);
   } catch (e) {
-    return json({ error: String(e?.message ?? e) }, 500);
+    return json({ error: String(e?.message ?? e) }, 500, corsHeaders(req));
   }
 });
 
-function json(body: unknown, status = 200) {
+function json(body: unknown, status = 200, cors: Record<string, string> = {}) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...CORS, "Content-Type": "application/json" },
+    headers: { ...cors, "Content-Type": "application/json" },
   });
 }

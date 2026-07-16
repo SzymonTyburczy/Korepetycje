@@ -492,7 +492,7 @@
 		}
 	</style>
 
-	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8/dist/umd/supabase.min.js" integrity="sha384-z2hqtpr/vSDZ8zSjLOiNgnR/mpU799AD93s6rvkNJLI6Hl0YlKXEhDtREzNT749S" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -731,6 +731,8 @@
 						<label>Wiadomość</label><textarea name="message" placeholder="Napisz, czego potrzebujesz..."
 							required></textarea>
 					</div>
+					<input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"
+						style="position:absolute;left:-9999px;height:0;width:0;opacity:0;" />
 					<label class="consent-label">
 						<input type="checkbox" name="consent" required />
 						<span>Wyrażam zgodę na przetwarzanie moich danych osobowych w celu obsługi zapytania zgodnie z

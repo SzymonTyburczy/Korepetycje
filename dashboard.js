@@ -706,9 +706,9 @@ ${appData.materials.length
 				const next = nextLessonFor(s.id, currentProfile.id);
 				return `
         <tr>
-          <td><strong>${s.full_name || s.email}</strong></td>
-          <td>${s.email || "—"}</td>
-          <td>${next ? `${fmtDate(next.date)} · ${next.subject}` : "Brak zaplanowanych"}</td>
+          <td><strong>${esc(s.full_name || s.email)}</strong></td>
+          <td>${esc(s.email || "—")}</td>
+          <td>${next ? `${fmtDate(next.date)} · ${esc(next.subject)}` : "Brak zaplanowanych"}</td>
           <td>${lessons.length}</td>
           <td><button type="button" class="btn btn-primary" style="padding:.3rem .7rem;font-size:.78rem;" onclick="openStudentLessons('${s.id}')">Lekcje →</button></td>
         </tr>`;
@@ -842,7 +842,7 @@ ${appData.materials.length
 					.map(
 						(u) => `
     <div class="pay-user-item" onclick="openUserPayments('${u.id}')">
-      <strong>${u.full_name}</strong>
+      <strong>${esc(u.full_name)}</strong>
     </div>`,
 					)
 					.join("")}
@@ -940,8 +940,8 @@ ${appData.materials.length
 			return `
 <div class="panel-header">
   <button type="button" style="margin-bottom:.8rem;padding:.3rem 0;background:none;border:none;color:var(--navy);cursor:pointer;font-family:inherit;font-size:.9rem;" onclick="showPaymentsList()">← Wroc</button>
-  <h1>${student.full_name || student.email}</h1>
-  <p>${tutor.full_name || tutor.email} · <strong>Do zaplaty:</strong> <span style="color:${debt > 0 ? "#e74c3c" : "#2ecc71"}">${debt} zl</span></p>
+  <h1>${esc(student.full_name || student.email)}</h1>
+  <p>${esc(tutor.full_name || tutor.email)} · <strong>Do zaplaty:</strong> <span style="color:${debt > 0 ? "#e74c3c" : "#2ecc71"}">${debt} zl</span></p>
 </div>
 <div class="data-wrap">
   <div class="data-head"><h3>Lekcje i rozliczenia</h3></div>
@@ -969,7 +969,7 @@ ${appData.materials.length
       <tbody>
         ${userLessons.map((l) => `
         <tr>
-          <td><input type="text" id="pay-subject-${l.id}" value="${l.subject || ""}" style="width:7rem;padding:.25rem .4rem;font-size:.8rem;"/></td>
+          <td><input type="text" id="pay-subject-${l.id}" value="${esc(l.subject || "")}" style="width:7rem;padding:.25rem .4rem;font-size:.8rem;"/></td>
           <td><input type="date" id="pay-date-${l.id}" value="${toInputDate(l.date)}" style="padding:.25rem .4rem;font-size:.8rem;"/></td>
           <td><input type="time" id="pay-time-${l.id}" value="${toInputTime(l.date)}" style="padding:.25rem .4rem;font-size:.8rem;"/></td>
           <td><input type="number" id="pay-price-${l.id}" value="${esc(l.price)}" min="0" step="1" style="width:4.5rem;padding:.25rem .4rem;font-size:.8rem;"/></td>
@@ -995,7 +995,7 @@ ${appData.materials.length
 			return `
 <div class="panel-header">
   <button type="button" style="margin-bottom:.8rem;padding:.3rem 0;background:none;border:none;color:var(--navy);cursor:pointer;font-family:inherit;font-size:.9rem;" onclick="showPaymentsList()">← Wróć</button>
-  <h1>${u.full_name || "—"}</h1>
+  <h1>${esc(u.full_name || "—")}</h1>
   <p style="font-size:1rem;margin-top:.4rem;"><strong>Do zapłaty:</strong> <span style="color:${debt > 0 ? "#e74c3c" : "#2ecc71"}">${debt} zł</span></p>
 </div>
 
@@ -1040,10 +1040,10 @@ ${appData.materials.length
       <tbody>
         ${userLessons.map((l) => `
         <tr>
-          <td><input type="text" id="pay-subject-${l.id}" value="${l.subject || ""}" style="width:7rem;padding:.25rem .4rem;font-size:.8rem;"/></td>
+          <td><input type="text" id="pay-subject-${l.id}" value="${esc(l.subject || "")}" style="width:7rem;padding:.25rem .4rem;font-size:.8rem;"/></td>
           <td><input type="date" id="pay-date-${l.id}" value="${toInputDate(l.date)}" style="padding:.25rem .4rem;font-size:.8rem;"/></td>
           <td><input type="time" id="pay-time-${l.id}" value="${toInputTime(l.date)}" style="padding:.25rem .4rem;font-size:.8rem;"/></td>
-          <td><input type="number" id="pay-price-${l.id}" value="${l.price}" min="0" step="1" style="width:4.5rem;padding:.25rem .4rem;font-size:.8rem;"/></td>
+          <td><input type="number" id="pay-price-${l.id}" value="${esc(l.price)}" min="0" step="1" style="width:4.5rem;padding:.25rem .4rem;font-size:.8rem;"/></td>
           <td>
             <select id="pay-paid-${l.id}" onchange="togglePayPaidAt('${l.id}')" style="padding:.2rem;font-size:.78rem;">
               <option value="false" ${!l.paid ? "selected" : ""}>Nie</option>
@@ -1507,7 +1507,7 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
   <div class="form-group"><label>Imię i nazwisko</label><input type="text" value="${esc(u.full_name || "—")}" disabled style="opacity:.7"/></div>
   <div class="form-group"><label>E-mail</label><input type="email" value="${esc(u.email || "—")}" disabled style="opacity:.7"/></div>
   <div class="form-group"><label>Telefon</label><input type="tel" value="${esc(u.phone || "—")}" disabled style="opacity:.7"/></div>
-  <div class="form-group"><label>Rola</label><input type="text" value="${u.role || "—"}" disabled style="opacity:.7"/></div>
+  <div class="form-group"><label>Rola</label><input type="text" value="${esc(u.role || "—")}" disabled style="opacity:.7"/></div>
   <div class="form-group"><label>Data rejestracji</label><input type="text" value="${fmtDate(u.created_at)}" disabled style="opacity:.7"/></div>
   <div class="form-group"><label>Liczba lekcji na koncie</label><input type="text" value="${userLessons.length}" disabled style="opacity:.7"/></div>
 </div>
@@ -1785,11 +1785,21 @@ ${u.id !== currentProfile.id ? `
 					btn.textContent = "Dodaj lekcję do grafiku →";
 					btn.disabled = false; return;
 				}
+				if (!isAssigned(finalStudentId, finalTutorId)) {
+					alert("Możesz dodawać lekcje tylko dla przypisanych uczniów.");
+					btn.textContent = "Dodaj lekcję do grafiku →";
+					btn.disabled = false; return;
+				}
 			} else if (role === 'uczen') {
 				finalStudentId = currentProfile.id;
 				finalTutorId = document.getElementById("bTutorId")?.value;
 				if (!finalTutorId) {
 					alert("Musisz wybrać korepetytora z listy!");
+					btn.textContent = "Wyślij prośbę o lekcję →";
+					btn.disabled = false; return;
+				}
+				if (!isAssigned(finalStudentId, finalTutorId)) {
+					alert("Możesz rezerwować tylko u przypisanego korepetytora.");
 					btn.textContent = "Wyślij prośbę o lekcję →";
 					btn.disabled = false; return;
 				}
@@ -1810,7 +1820,9 @@ ${u.id !== currentProfile.id ? `
 				duration_minutes: dur,
 				status: status,
 				notes: notes,
-				price: price
+				price: price,
+				paid: false,
+				paid_at: null,
 			});
 
 			if (error) {

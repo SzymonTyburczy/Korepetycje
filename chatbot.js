@@ -206,10 +206,15 @@
     if (win.classList.contains('open')) { input.focus(); }
   });
 
-  function addMsg(from, html) {
+  function addMsg(from, htmlOrText) {
     const div = document.createElement('div');
     div.className = `cb-msg ${from}`;
-    div.innerHTML = html;
+    // User input: tylko textContent (XSS). Bot FAQ: zaufany HTML ze stałych odpowiedzi.
+    if (from === 'user') {
+      div.textContent = htmlOrText;
+    } else {
+      div.innerHTML = htmlOrText;
+    }
     msgs.appendChild(div);
     msgs.scrollTop = msgs.scrollHeight;
     return div;

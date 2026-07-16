@@ -135,7 +135,8 @@ SET search_path = public
 AS $$
   SELECT EXISTS (SELECT 1 FROM public.profiles WHERE lower(email) = lower(lookup_email));
 $$;
-GRANT EXECUTE ON FUNCTION public.public_profile_exists(TEXT) TO anon, authenticated;
+-- NIE dawaj GRANT anon — umożliwia enumerację e-maili.
+GRANT EXECUTE ON FUNCTION public.public_profile_exists(TEXT) TO authenticated;
 
 -- ══════════════════════════════════════════════════════════════
 --  ROW LEVEL SECURITY
@@ -212,13 +213,54 @@ CREATE TRIGGER trg_protect_profile_role
 -- ── LESSONS ──
 CREATE POLICY "lessons_select" ON lessons FOR SELECT
   USING (student_id = auth.uid() OR tutor_id = auth.uid() OR public.is_admin());
+-- INSERT: uczeń tylko prośba (oczekuje, nieopłacona) do przypisanego tutora;
+--         korepetytor tylko swoich uczniów; admin — pełny dostęp.
 CREATE POLICY "lessons_insert" ON lessons FOR INSERT
-  WITH CHECK (student_id = auth.uid() OR tutor_id = auth.uid() OR public.is_admin());
+  WITH CHECK (
+    public.is_admin()
+    OR (
+      student_id = auth.uid()
+      AND tutor_id IS NOT NULL
+      AND public.is_my_tutor(tutor_id)
+      AND status = 'oczekuje'
+      AND COALESCE(paid, false) = false
+      AND paid_at IS NULL
+    )
+    OR (
+      tutor_id = auth.uid()
+      AND student_id IS NOT NULL
+      AND public.is_my_student(student_id)
+      AND status IN ('zaplanowana', 'odbyta', 'odwolana')
+      AND COALESCE(paid, false) = false
+      AND paid_at IS NULL
+    )
+  );
 CREATE POLICY "lessons_update" ON lessons FOR UPDATE
   USING (tutor_id = auth.uid() OR public.is_admin())
   WITH CHECK (tutor_id = auth.uid() OR public.is_admin());
 CREATE POLICY "lessons_delete" ON lessons FOR DELETE
   USING (tutor_id = auth.uid() OR public.is_admin());
+
+-- Blokada podmiany student_id / tutor_id przez nie-admina
+CREATE OR REPLACE FUNCTION public.protect_lesson_parties()
+RETURNS TRIGGER
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NOT public.is_admin() THEN
+    IF NEW.student_id IS DISTINCT FROM OLD.student_id
+       OR NEW.tutor_id IS DISTINCT FROM OLD.tutor_id THEN
+      RAISE EXCEPTION 'Nie wolno zmieniac ucznia ani korepetytora lekcji.';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+DROP TRIGGER IF EXISTS trg_protect_lesson_parties ON lessons;
+CREATE TRIGGER trg_protect_lesson_parties
+  BEFORE UPDATE ON lessons
+  FOR EACH ROW EXECUTE FUNCTION public.protect_lesson_parties();
 
 -- ── MATERIALS ──
 CREATE POLICY "materials_select" ON materials FOR SELECT
@@ -261,14 +303,18 @@ CREATE POLICY "admin_notes_all" ON admin_user_notes FOR ALL
   WITH CHECK (public.is_admin());
 
 -- Trigger: automatyczny profil po rejestracji
-CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
-  INSERT INTO profiles (id, email, full_name)
+  INSERT INTO public.profiles (id, email, full_name)
   VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->>'full_name');
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
@@ -310,7 +356,7 @@ let supabaseInitPromise;
 //  - odznaczony  → sessionStorage (znika po zamknięciu przeglądarki/karty)
 const REMEMBER_FLAG_KEY  = 'korepetycje-remember';
 const REMEMBER_UNTIL_KEY = 'korepetycje-remember-until';
-const REMEMBER_DAYS      = 30;
+const REMEMBER_DAYS      = 14;
 const AUTH_STORAGE_KEY   = 'korepetycje-auth';
 
 function setRememberMe(remember) {
@@ -350,7 +396,7 @@ const rememberAwareStorage = {
   },
 };
 
-// Wymusza limit 30 dni dla sesji "Zapamiętaj mnie".
+// Wymusza limit REMEMBER_DAYS dla sesji "Zapamiętaj mnie".
 async function enforceRememberExpiry() {
   const flag = localStorage.getItem(REMEMBER_FLAG_KEY);
   const hasLocalSession = !!localStorage.getItem(AUTH_STORAGE_KEY);

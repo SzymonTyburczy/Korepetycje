@@ -417,7 +417,7 @@
       text-decoration: underline;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8/dist/umd/supabase.min.js" integrity="sha384-z2hqtpr/vSDZ8zSjLOiNgnR/mpU799AD93s6rvkNJLI6Hl0YlKXEhDtREzNT749S" crossorigin="anonymous"></script>
 
 
 </head>
@@ -457,7 +457,7 @@
             <div class="remember-row">
               <label class="remember-label">
                 <input type="checkbox" id="rememberMe" checked />
-                Zapamiętaj mnie (30 dni)
+                Zapamiętaj mnie (14 dni)
               </label>
               <div class="forgot-link"><a href="#" onclick="switchTab('reset');return false;">Zapomniałeś hasła?</a>
               </div>
@@ -689,37 +689,20 @@
 
       const resetEmail = document.getElementById('resetEmail').value.trim().toLowerCase();
 
-      const { data: profileExists, error: profileCheckError } = await supabaseClient
-        .rpc('public_profile_exists', { lookup_email: resetEmail });
-
-      if (profileCheckError) {
-        errEl.textContent = 'Reset hasla wymaga aktualizacji bazy danych. Brakuje funkcji public_profile_exists.';
-        errEl.style.display = 'block';
-        btn.textContent = 'Wyslij link resetujacy ->'; btn.disabled = false;
-        return;
-      }
-
-      if (!profileExists) {
-        errEl.textContent = 'Nie ma konta z takim adresem e-mail.';
-        errEl.style.display = 'block';
-        btn.textContent = 'Wyslij link resetujacy ->'; btn.disabled = false;
-        return;
-      }
-
+      // Zawsze ta sama odpowiedź sukcesu — bez enumeracji kont (nie sprawdzamy czy e-mail istnieje).
       const { error } = await supabaseClient.auth.resetPasswordForEmail(
         resetEmail,
         { redirectTo: window.location.origin + '/login.html' }
       );
 
       if (error) {
-        errEl.textContent = 'Błąd: ' + error.message;
-        errEl.style.display = 'block';
-        btn.textContent = 'Wyślij link resetujący →'; btn.disabled = false;
-      } else {
-        sucEl.textContent = '✅ Link został wysłany! Sprawdź skrzynkę e-mail.';
-        sucEl.style.display = 'block';
-        btn.textContent = 'Wysłano ✓';
+        // Nie ujawniaj szczegółów (np. rate limit / brak konta) — komunikat neutralny.
+        console.warn('resetPasswordForEmail:', error.message);
       }
+      sucEl.textContent = 'Jeśli konto z tym adresem istnieje, wysłaliśmy link resetujący. Sprawdź skrzynkę e-mail (również spam).';
+      sucEl.style.display = 'block';
+      btn.textContent = 'Wysłano ✓';
+      btn.disabled = false;
     });
 
     // ── NOWE HASŁO — po kliknięciu linku ──
