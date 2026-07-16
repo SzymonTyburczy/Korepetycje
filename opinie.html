@@ -2,7 +2,7 @@
 <html lang="pl">
 
 <head>
-  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="icon" href="/favicon.png" type="image/png" sizes="256x256">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Opinie — Korepetycje Szymon Tyburczy</title>
@@ -343,7 +343,7 @@
       }
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8/dist/umd/supabase.min.js" integrity="sha384-z2hqtpr/vSDZ8zSjLOiNgnR/mpU799AD93s6rvkNJLI6Hl0YlKXEhDtREzNT749S" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/dist/umd/supabase.min.js" integrity="sha384-BmlQlKlDvXvKoxkn5OQuUo/aJQCTXeB+Kls6EccBmG4Kf8AXvp89RtO9MtPxP/r5" crossorigin="anonymous"></script>
 
 </head>
 
@@ -485,35 +485,35 @@
           <form class="review-form" id="reviewForm" action="https://formspree.io/f/xjgqrndz" method="POST">
             <input type="hidden" name="_subject" value="Nowa opinia od ucznia" />
             <div class="form-group">
-              <label>Twoja ocena</label>
-              <div class="stars-select" id="starsSelect">
-                <button type="button" class="star-btn" data-val="1">⭐</button>
-                <button type="button" class="star-btn" data-val="2">⭐</button>
-                <button type="button" class="star-btn" data-val="3">⭐</button>
-                <button type="button" class="star-btn" data-val="4">⭐</button>
-                <button type="button" class="star-btn" data-val="5">⭐</button>
+              <label id="ratingLabel">Twoja ocena</label>
+              <div class="stars-select" id="starsSelect" role="radiogroup" aria-labelledby="ratingLabel">
+                <button type="button" class="star-btn" data-val="1" role="radio" aria-checked="false" aria-label="1 gwiazdka">⭐</button>
+                <button type="button" class="star-btn" data-val="2" role="radio" aria-checked="false" aria-label="2 gwiazdki">⭐</button>
+                <button type="button" class="star-btn" data-val="3" role="radio" aria-checked="false" aria-label="3 gwiazdki">⭐</button>
+                <button type="button" class="star-btn" data-val="4" role="radio" aria-checked="false" aria-label="4 gwiazdki">⭐</button>
+                <button type="button" class="star-btn" data-val="5" role="radio" aria-checked="false" aria-label="5 gwiazdek">⭐</button>
               </div>
               <input type="hidden" name="rating" id="ratingInput" value="" required />
             </div>
             <div class="form-group">
-              <label>Imię (lub inicjały)</label>
-              <input type="text" name="name" placeholder="Anna K." required />
+              <label for="reviewName">Imię (lub inicjały)</label>
+              <input type="text" id="reviewName" name="name" maxlength="120" autocomplete="name" placeholder="Anna K." required />
             </div>
             <div class="form-group">
-              <label>Korepetytor</label>
-              <select name="tutor">
+              <label for="reviewTutor">Korepetytor</label>
+              <select id="reviewTutor" name="tutor">
                 <option value="">Wybierz korepetytora</option>
                 <option>Szymon Tyburczy</option>
                 <option>Adam Szymanek</option>
               </select>
             </div>
             <div class="form-group">
-              <label>Przedmiot</label>
-              <input type="text" name="subject" placeholder="np. Matematyka — matura rozszerzona" required />
+              <label for="reviewSubject">Przedmiot</label>
+              <input type="text" id="reviewSubject" name="subject" maxlength="120" placeholder="np. Matematyka — matura rozszerzona" required />
             </div>
             <div class="form-group">
-              <label>Twoja opinia</label>
-              <textarea name="review" placeholder="Napisz kilka słów o swojej współpracy z korepetytorem..."
+              <label for="reviewText">Twoja opinia</label>
+              <textarea id="reviewText" name="review" maxlength="4000" placeholder="Napisz kilka słów o swojej współpracy z korepetytorem..."
                 required></textarea>
             </div>
             <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"
@@ -548,7 +548,10 @@
       btn.addEventListener('click', () => {
         const val = parseInt(btn.dataset.val);
         ratingInput.value = val;
-        stars.forEach((s, i) => s.classList.toggle('active', i < val));
+        stars.forEach((s, i) => {
+          s.classList.toggle('active', i < val);
+          s.setAttribute('aria-checked', String(i + 1 === val));
+        });
       });
     });
 
@@ -557,10 +560,15 @@
     reviewForm.addEventListener('submit', async e => {
       e.preventDefault();
       const btn = reviewForm.querySelector('button[type="submit"]');
+      if (!ratingInput.value) {
+        alert('Wybierz ocenę od 1 do 5 gwiazdek.');
+        stars[0]?.focus();
+        return;
+      }
       btn.textContent = 'Wysyłanie…'; btn.disabled = true;
       try {
         const r = await fetch(reviewForm.action, { method: 'POST', body: new FormData(reviewForm), headers: { 'Accept': 'application/json' } });
-        if (r.ok) { reviewForm.reset(); stars.forEach(s => s.classList.remove('active')); ratingInput.value = ''; document.getElementById('reviewSuccess').style.display = 'block'; btn.textContent = 'Wysłano ✓'; }
+        if (r.ok) { reviewForm.reset(); stars.forEach(s => { s.classList.remove('active'); s.setAttribute('aria-checked', 'false'); }); ratingInput.value = ''; document.getElementById('reviewSuccess').style.display = 'block'; btn.textContent = 'Wysłano ✓'; }
         else { btn.textContent = 'Błąd — spróbuj ponownie'; btn.disabled = false; }
       } catch { btn.textContent = 'Błąd sieci'; btn.disabled = false; }
     });

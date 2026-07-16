@@ -156,16 +156,16 @@
 			return { lessons, total, paid, debt };
 		}
 		function firstDayOfMonth(date = new Date()) {
-			return new Date(date.getFullYear(), date.getMonth(), 1).toISOString().slice(0, 10);
+			return toInputDate(new Date(date.getFullYear(), date.getMonth(), 1));
 		}
 		function lastDayOfMonth(date = new Date()) {
-			return new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().slice(0, 10);
+			return toInputDate(new Date(date.getFullYear(), date.getMonth() + 1, 0));
 		}
 		function firstDayOfYear(date = new Date()) {
-			return new Date(date.getFullYear(), 0, 1).toISOString().slice(0, 10);
+			return toInputDate(new Date(date.getFullYear(), 0, 1));
 		}
 		function lastDayOfYear(date = new Date()) {
-			return new Date(date.getFullYear(), 11, 31).toISOString().slice(0, 10);
+			return toInputDate(new Date(date.getFullYear(), 11, 31));
 		}
 		function moneySummaryHtml(summary) {
 			return `
@@ -236,68 +236,59 @@
 			return "#";
 		}
 
-		// ── POBIERANIE PRAWDZIWYCH DANYCH Z BAZY ──
+		// ── POBIERANIE DANYCH Z BAZY ──
+		async function queryData(query, label) {
+			const { data, error } = await query;
+			if (error) throw new Error(`${label}: ${error.message}`);
+			return data || [];
+		}
+
 		async function loadRealData() {
-			// 1. Pobieranie lekcji
-			const { data: lessons } = await supabaseClient
-				.from("lessons")
-				.select("*, tutor:profiles!tutor_id(full_name), student:profiles!student_id(full_name)")
-				.order("date", { ascending: true });
+			// Status kończonych lekcji jest liczony według czasu bazy (UTC), a nie
+			// według potencjalnie błędnego zegara urządzenia.
+			const { error: finishError } = await supabaseClient.rpc("mark_finished_lessons");
+			if (finishError) throw new Error(`Aktualizacja zakończonych lekcji: ${finishError.message}`);
 
-			// --- NOWY KOD: AUTOMATYCZNE ZAKAŃCZANIE LEKCJI ---
-			const now = new Date();
-			// Szukamy lekcji, które są "zaplanowane", ale ich data + czas trwania już minęły
-			const pastLessonsIds = (lessons || [])
-				.filter(l => {
-					if (l.status !== 'zaplanowana') return false;
-					const lessonEnd = new Date(new Date(l.date).getTime() + (l.duration_minutes || 60) * 60000);
-					return lessonEnd < now;
-				})
-				.map(l => l.id);
+			let profilesQuery = supabaseClient
+				.from("profiles")
+				.select("id, email, full_name, phone, role, avatar_url, created_at")
+				.order("full_name", { ascending: true });
+			if (currentProfile.role === "korepetytor") profilesQuery = profilesQuery.eq("role", "uczen");
+			if (currentProfile.role === "uczen") profilesQuery = profilesQuery.in("role", ["korepetytor", "admin"]);
 
-			// Jeśli znaleziono takie lekcje, aktualizujemy je w bazie jednym zapytaniem
-			if (pastLessonsIds.length > 0) {
-				await supabaseClient.from('lessons').update({ status: 'odbyta' }).in('id', pastLessonsIds);
-				// Aktualizujemy też lokalnie, żeby od razu wyświetliły się poprawnie
-				lessons.forEach(l => {
-					if (pastLessonsIds.includes(l.id)) l.status = 'odbyta';
-				});
-			}
-			// ------------------------------------------------
+			const [lessons, materials, assignments, tutorNotes, profiles, adminNotes] = await Promise.all([
+				queryData(
+					supabaseClient
+						.from("lessons")
+						.select("*, tutor:profiles!tutor_id(full_name), student:profiles!student_id(full_name)")
+						.order("date", { ascending: true }),
+					"Lekcje",
+				),
+				queryData(
+					supabaseClient
+						.from("materials")
+						.select("*, tutor:profiles!tutor_id(full_name)")
+						.order("created_at", { ascending: false }),
+					"Materiały",
+				),
+				queryData(
+					supabaseClient.from("student_tutor_assignments").select("student_id, tutor_id"),
+					"Przypisania",
+				),
+				queryData(
+					supabaseClient
+						.from("tutor_student_notes")
+						.select("student_id, tutor_id, note, updated_at, tutor:profiles!tutor_id(full_name), student:profiles!student_id(full_name)"),
+					"Notatki korepetytorów",
+				),
+				queryData(profilesQuery, "Profile"),
+				currentProfile.role === "admin"
+					? queryData(supabaseClient.from("admin_user_notes").select("user_id, note"), "Notatki administratora")
+					: Promise.resolve([]),
+			]);
 
-			// 2. Pobieranie materiałów
-			const { data: materials } = await supabaseClient
-				.from("materials")
-				.select("*, tutor:profiles!tutor_id(full_name)")
-				.order("created_at", { ascending: false });
-
-			const { data: assignments, error: assignmentsError } = await supabaseClient
-				.from("student_tutor_assignments")
-				.select("student_id, tutor_id");
-			if (assignmentsError) {
-				console.warn("Brak tabeli student_tutor_assignments lub uprawnien RLS:", assignmentsError.message);
-			}
-
-			const { data: tutorNotes, error: tutorNotesError } = await supabaseClient
-				.from("tutor_student_notes")
-				.select("student_id, tutor_id, note, updated_at, tutor:profiles!tutor_id(full_name), student:profiles!student_id(full_name)");
-			if (tutorNotesError) {
-				console.warn("Brak tabeli tutor_student_notes lub uprawnien RLS:", tutorNotesError.message);
-			}
-
-			// 3. Pobieranie profili z uwzględnieniem ról i prywatności
-			if (currentProfile.role === "admin") {
-				const { data: profiles } = await supabaseClient.from("profiles").select("*").order("full_name", { ascending: true });
-				appData.users = profiles || [];
-				const { data: notes } = await supabaseClient.from("admin_user_notes").select("user_id, note");
-				appData.adminNotes = Object.fromEntries((notes || []).map((n) => [n.user_id, n.note]));
-			} else if (currentProfile.role === "korepetytor") {
-				const { data: profiles } = await supabaseClient.from("profiles").select("*").eq("role", "uczen").order("full_name", { ascending: true });
-				appData.users = profiles || [];
-			} else {
-				const { data: profiles } = await supabaseClient.from("profiles").select("*").in("role", ["korepetytor", "admin"]).order("full_name", { ascending: true });
-				appData.users = profiles || [];
-			}
+			appData.users = profiles;
+			appData.adminNotes = Object.fromEntries(adminNotes.map((note) => [note.user_id, note.note]));
 
 			// Mapowanie danych dla interfejsu
 			appData.lessons = (lessons || []).map((l) => ({
@@ -310,7 +301,7 @@
 				date: l.date,
 				duration: l.duration_minutes || 60,
 				status: l.status,
-				price: l.price || "100",
+				price: l.price ?? "100",
 				paid: l.paid === true || String(l.paid) === "true",
 				paidAt: l.paid_at || null,
 			}));
@@ -937,129 +928,6 @@ ${appData.materials.length
 		}).join("")}
   </div>` : `<div class="empty-state"><p>Brak lekcji dla tej pary. Dodaj pierwsza pozycje powyzej.</p></div>`}
 </div>`;
-			return `
-<div class="panel-header">
-  <button type="button" style="margin-bottom:.8rem;padding:.3rem 0;background:none;border:none;color:var(--navy);cursor:pointer;font-family:inherit;font-size:.9rem;" onclick="showPaymentsList()">← Wroc</button>
-  <h1>${esc(student.full_name || student.email)}</h1>
-  <p>${esc(tutor.full_name || tutor.email)} · <strong>Do zaplaty:</strong> <span style="color:${debt > 0 ? "#e74c3c" : "#2ecc71"}">${debt} zl</span></p>
-</div>
-<div class="data-wrap">
-  <div class="data-head"><h3>Lekcje i rozliczenia</h3></div>
-  <div class="res-form" style="margin:0;border:none;box-shadow:none;padding:0 0 1rem;border-bottom:1px solid var(--border);">
-    <div class="form-row-2">
-      <div class="form-group"><label>Przedmiot</label><input type="text" id="newPaySubject" value="Lekcja"/></div>
-      <div class="form-group"><label>Kwota (zl)</label><input type="number" id="newPayPrice" min="0" step="1" value="100"/></div>
-    </div>
-    <div class="form-row-2">
-      <div class="form-group"><label>Data</label><input type="date" id="newPayDate" value="${today}"/></div>
-      <div class="form-group"><label>Godzina</label><input type="time" id="newPayTime" value="10:00"/></div>
-    </div>
-    <div class="form-row-2">
-      <div class="form-group"><label>Czy lekcja sie odbyla?</label><select id="newPayHeld"><option value="odbyta">Tak</option><option value="odwolana">Nie</option><option value="zaplanowana">Jeszcze nie</option></select></div>
-      <div class="form-group"><label>Zapłacono</label><select id="newPayPaid" onchange="toggleNewPayPaidAt()"><option value="false">Nie</option><option value="true">Tak</option></select></div>
-    </div>
-    <div class="form-group"><label>Data wplaty</label><input type="date" id="newPayPaidAt" disabled/></div>
-    <button type="button" class="btn btn-gold" style="font-size:.85rem;padding:.45rem 1rem;" onclick="addPaymentLesson()">+ Dodaj lekcje</button>
-    <div id="newPayMsg" style="margin-top:.5rem;font-size:.85rem;color:var(--text-muted);"></div>
-  </div>
-  ${userLessons.length ? `
-  <div class="lesson-table-wrap" style="display:block;overflow-x:auto;margin-top:1rem;">
-    <table>
-      <thead><tr><th>Przedmiot</th><th>Data</th><th>Godzina</th><th>Koszt</th><th>Odbyla sie</th><th>Zapłacono</th><th>Data wplaty</th><th></th></tr></thead>
-      <tbody>
-        ${userLessons.map((l) => `
-        <tr>
-          <td><input type="text" id="pay-subject-${l.id}" value="${esc(l.subject || "")}" style="width:7rem;padding:.25rem .4rem;font-size:.8rem;"/></td>
-          <td><input type="date" id="pay-date-${l.id}" value="${toInputDate(l.date)}" style="padding:.25rem .4rem;font-size:.8rem;"/></td>
-          <td><input type="time" id="pay-time-${l.id}" value="${toInputTime(l.date)}" style="padding:.25rem .4rem;font-size:.8rem;"/></td>
-          <td><input type="number" id="pay-price-${l.id}" value="${esc(l.price)}" min="0" step="1" style="width:4.5rem;padding:.25rem .4rem;font-size:.8rem;"/></td>
-          <td><select id="pay-status-${l.id}" style="padding:.2rem;font-size:.78rem;"><option value="odbyta" ${l.status === "odbyta" ? "selected" : ""}>Tak</option><option value="odwolana" ${l.status === "odwolana" ? "selected" : ""}>Nie</option><option value="zaplanowana" ${l.status === "zaplanowana" ? "selected" : ""}>Jeszcze nie</option></select></td>
-          <td><select id="pay-paid-${l.id}" onchange="togglePayPaidAt('${l.id}')" style="padding:.2rem;font-size:.78rem;"><option value="false" ${!l.paid ? "selected" : ""}>Nie</option><option value="true" ${l.paid ? "selected" : ""}>Tak</option></select></td>
-          <td><input type="date" id="pay-paidat-${l.id}" value="${l.paidAt ? toInputDateOnly(l.paidAt) : ""}" ${!l.paid ? "disabled" : ""} style="padding:.25rem .4rem;font-size:.8rem;"/></td>
-          <td style="white-space:nowrap;"><button type="button" class="btn btn-gold" style="padding:.25rem .5rem;font-size:.75rem;" onclick="savePaymentLesson('${l.id}')">Zapisz</button><button type="button" class="btn btn-outline" style="padding:.25rem .5rem;font-size:.75rem;color:red;border-color:red;margin-left:.3rem;" onclick="deletePaymentLesson('${l.id}')">Usun</button></td>
-        </tr>`).join("")}
-      </tbody>
-    </table>
-  </div>` : `<div class="empty-state" style="margin-top:1rem;"><p>Brak lekcji dla tej pary.</p></div>`}
-</div>`;
-			const u = (appData.users || []).find((x) => x.id === viewingPaymentUserId);
-			if (!u) {
-				return `<div class="empty-state"><p>Nie znaleziono użytkownika.</p><button class="btn btn-primary" onclick="showPaymentsList()">← Wróć</button></div>`;
-			}
-			const legacyUserLessons = appData.lessons
-				.filter((l) => l.studentId === u.id && l.status === "odbyta")
-				.sort((a, b) => new Date(b.date) - new Date(a.date));
-			const legacyDebt = calcUserDebt(u.id);
-			const legacyToday = toInputDate(new Date().toISOString());
-
-			return `
-<div class="panel-header">
-  <button type="button" style="margin-bottom:.8rem;padding:.3rem 0;background:none;border:none;color:var(--navy);cursor:pointer;font-family:inherit;font-size:.9rem;" onclick="showPaymentsList()">← Wróć</button>
-  <h1>${esc(u.full_name || "—")}</h1>
-  <p style="font-size:1rem;margin-top:.4rem;"><strong>Do zapłaty:</strong> <span style="color:${debt > 0 ? "#e74c3c" : "#2ecc71"}">${debt} zł</span></p>
-</div>
-
-<div class="data-wrap">
-  <div class="data-head"><h3>Zajęcia</h3></div>
-  <div class="res-form" style="margin:0;border:none;box-shadow:none;padding:0 0 1rem;border-bottom:1px solid var(--border);">
-    <div class="form-row-2">
-      <div class="form-group"><label>Przedmiot</label><input type="text" id="newPaySubject" placeholder="Matematyka" value="Lekcja"/></div>
-      <div class="form-group"><label>Kwota (zł)</label><input type="number" id="newPayPrice" min="0" step="1" value="100"/></div>
-    </div>
-    <div class="form-row-2">
-      <div class="form-group"><label>Data</label><input type="date" id="newPayDate" value="${today}"/></div>
-      <div class="form-group"><label>Godzina</label><input type="time" id="newPayTime" value="10:00"/></div>
-    </div>
-    <div class="form-row-2">
-      <div class="form-group">
-        <label>Zapłacono</label>
-        <select id="newPayPaid" onchange="toggleNewPayPaidAt()">
-          <option value="false">Nie</option>
-          <option value="true">Tak</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Data wpłaty</label><input type="date" id="newPayPaidAt" disabled/></div>
-    </div>
-    <button type="button" class="btn btn-gold" style="font-size:.85rem;padding:.45rem 1rem;" onclick="addPaymentLesson()">+ Dodaj zajęcia</button>
-    <div id="newPayMsg" style="margin-top:.5rem;font-size:.85rem;color:var(--text-muted);"></div>
-  </div>
-  ${userLessons.length ? `
-  <div class="lesson-table-wrap" style="display:block;overflow-x:auto;margin-top:1rem;">
-    <table>
-      <thead>
-        <tr>
-          <th>Przedmiot</th>
-          <th>Data</th>
-          <th>Godzina</th>
-          <th>Kwota</th>
-          <th>Zapłacono</th>
-          <th>Data wpłaty</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        ${userLessons.map((l) => `
-        <tr>
-          <td><input type="text" id="pay-subject-${l.id}" value="${esc(l.subject || "")}" style="width:7rem;padding:.25rem .4rem;font-size:.8rem;"/></td>
-          <td><input type="date" id="pay-date-${l.id}" value="${toInputDate(l.date)}" style="padding:.25rem .4rem;font-size:.8rem;"/></td>
-          <td><input type="time" id="pay-time-${l.id}" value="${toInputTime(l.date)}" style="padding:.25rem .4rem;font-size:.8rem;"/></td>
-          <td><input type="number" id="pay-price-${l.id}" value="${esc(l.price)}" min="0" step="1" style="width:4.5rem;padding:.25rem .4rem;font-size:.8rem;"/></td>
-          <td>
-            <select id="pay-paid-${l.id}" onchange="togglePayPaidAt('${l.id}')" style="padding:.2rem;font-size:.78rem;">
-              <option value="false" ${!l.paid ? "selected" : ""}>Nie</option>
-              <option value="true" ${l.paid ? "selected" : ""}>Tak</option>
-            </select>
-          </td>
-          <td><input type="date" id="pay-paidat-${l.id}" value="${l.paidAt ? toInputDateOnly(l.paidAt) : ""}" ${!l.paid ? "disabled" : ""} style="padding:.25rem .4rem;font-size:.8rem;"/></td>
-          <td style="white-space:nowrap;">
-            <button type="button" class="btn btn-gold" style="padding:.25rem .5rem;font-size:.75rem;" onclick="savePaymentLesson('${l.id}')">Zapisz</button>
-            <button type="button" class="btn btn-outline" style="padding:.25rem .5rem;font-size:.75rem;color:red;border-color:red;margin-left:.3rem;" onclick="deletePaymentLesson('${l.id}')">Usuń</button>
-          </td>
-        </tr>`).join("")}
-      </tbody>
-    </table>
-  </div>` : `<div class="empty-state" style="margin-top:1rem;"><p>Brak zajęć. Dodaj pierwszą pozycję powyżej.</p></div>`}
-</div>`;
 		}
 
 		function panelStudentPayments() {
@@ -1178,7 +1046,7 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
     </div>
 
     <div class="form-row-2">
-      <div class="form-group"><label>Przedmiot</label><input type="text" id="bSubject" placeholder="np. Matematyka"></div>
+      <div class="form-group"><label for="bSubject">Przedmiot</label><input type="text" id="bSubject" maxlength="120" autocomplete="off" placeholder="np. Matematyka"></div>
       <div class="form-group">
           <label>Czas trwania</label>
           <select id="bDur">
@@ -1190,13 +1058,13 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
     </div>
 
     <div class="form-row-2">
-      <div class="form-group"><label>Data</label><input type="date" id="bDate" min="${new Date().toISOString().split("T")[0]}"/></div>
-      <div class="form-group"><label>Godzina</label><select id="bTime">${hours.map((h) => `<option>${h}</option>`).join("")}</select></div>
+      <div class="form-group"><label for="bDate">Data</label><input type="date" id="bDate" min="${toInputDate(new Date())}"/></div>
+      <div class="form-group"><label for="bTime">Godzina</label><select id="bTime">${hours.map((h) => `<option>${h}</option>`).join("")}</select></div>
     </div>
     
     <div class="form-group">
         <label>Dodatkowe informacje (np. zagadnienia, dział)</label>
-        <textarea id="bNotes" class="chat-input" placeholder="O czym chcesz porozmawiać na zajęciach?..." style="width: 100%; border-radius: 6px;"></textarea>
+        <textarea id="bNotes" class="chat-input" maxlength="2000" placeholder="O czym chcesz porozmawiać na zajęciach?..." style="width: 100%; border-radius: 6px;"></textarea>
     </div>
 
     <button class="btn btn-gold btn-full" onclick="submitBooking()" id="bBtn">
@@ -1216,12 +1084,12 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
 <div class="panel-header"><h1>Mój profil</h1><p>Zarządzaj swoimi danymi.</p></div>
 <div class="profile-wrap">
 <div class="profile-avatar-row">
-  <div class="profile-avatar-big">${init}</div>
+  <div class="profile-avatar-big">${esc(init)}</div>
   <div><strong style="color:var(--navy)">${esc(p.full_name || "—")}</strong><br><span style="font-size:.85rem;color:var(--text-muted)">${esc(p.email || "")}</span><br><span class="status status-${esc(p.role)}" style="margin-top:.3rem;display:inline-block;">${esc(p.role)}</span></div>
 </div>
-<div class="form-group"><label>Imię i nazwisko</label><input type="text" id="profName" value="${esc(p.full_name || "")}"/></div>
+<div class="form-group"><label for="profName">Imię i nazwisko</label><input type="text" id="profName" maxlength="120" autocomplete="name" value="${esc(p.full_name || "")}"/></div>
 <div class="form-group"><label>E-mail (nie można zmienić)</label><input type="email" value="${esc(p.email || "")}" disabled style="opacity:.6"/></div>
-<div class="form-group"><label>Telefon</label><input type="tel" id="profPhone" value="${esc(p.phone || "")}" placeholder="+48 600 000 000"/></div>
+<div class="form-group"><label for="profPhone">Telefon</label><input type="tel" id="profPhone" maxlength="30" autocomplete="tel" value="${esc(p.phone || "")}" placeholder="+48 600 000 000"/></div>
 <button class="btn btn-primary" onclick="saveProfile()" style="margin-top: 1rem;">Zapisz zmiany</button>
 <div id="profileMsg" style="margin-top:.8rem;font-size:.88rem;color:var(--text-muted);"></div>
 </div>`;
@@ -1411,12 +1279,6 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
 			}).join("")}
   </div>` : `<div class="empty-state"><p>Dodaj konta uczniow i korepetytorow, aby tworzyc przypisania.</p></div>`}
 </div>`;
-			return `<div class="panel-header"><h1>Panel Admina 🔑</h1><p>Zarządzaj platformą.</p></div>
-<div class="stats-row">
-<div class="stat-card"><div class="s-label">Wszystkie lekcje</div><div class="s-val">${appData.lessons.length}</div></div>
-<div class="stat-card"><div class="s-label">Opłaty (suma)</div><div class="s-val">${appData.payments.reduce((s, i) => s + i.amount, 0)} zł</div></div>
-</div>
-<div class="empty-state"><p>Przejdź do innych zakładek po lewej stronie, aby zarządzać bazą.</p></div>`;
 		}
 
 		function panelAllUsers() {
@@ -1524,7 +1386,7 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
 ${u.id !== currentProfile.id ? `
 <div class="profile-wrap" style="margin-top:1rem;border:1px solid rgba(192,57,43,.35);background:rgba(192,57,43,.04);">
   <h3 style="font-family:'Playfair Display',serif;color:#c0392b;margin-bottom:.3rem;">Usuwanie konta</h3>
-  <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem;">Usuwa profil oraz powiazane lekcje, przypisania i notatki widoczne w panelu. Pelne usuniecie uzytkownika z Supabase Auth moze wymagac operacji po stronie backendu.</p>
+  <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem;">Trwale usuwa konto z Supabase Auth oraz powiązany profil, lekcje, przypisania i notatki.</p>
   <button type="button" class="btn btn-outline" style="color:red;border-color:red;" onclick="deleteUserAccount('${u.id}')">Usun konto</button>
 </div>` : ""}`;
 		}
@@ -1546,7 +1408,7 @@ ${u.id !== currentProfile.id ? `
 			if (error) {
 				msg.textContent = "❌ Błąd zapisu: " + error.message;
 				if (error.message.includes("admin_user_notes")) {
-					msg.textContent += " — uruchom SQL z supabase-config.js w Supabase (tabela admin_user_notes).";
+					msg.textContent += " — zastosuj migrację opisaną w BAZA_DANYCH.md.";
 				}
 			} else {
 				appData.adminNotes[viewingUserId] = note;
@@ -1611,7 +1473,7 @@ ${u.id !== currentProfile.id ? `
 			if (error) {
 				if (msg) msg.textContent = "Blad zapisu: " + error.message;
 				if (error.message.includes("tutor_student_notes")) {
-					alert("Brakuje tabeli tutor_student_notes. Dodaj SQL z lokalnego pliku ZMIANY_BAZY_DANYCH.md.");
+					alert("Brakuje tabeli tutor_student_notes. Zastosuj migrację opisaną w BAZA_DANYCH.md.");
 				}
 				return;
 			}
@@ -1635,40 +1497,8 @@ ${u.id !== currentProfile.id ? `
 
 		// ── AKCJE ──
 
-		window.assignAndApprove = async function (lessonId) {
-			const tutorSelect = document.getElementById(`tutor-select-${lessonId}`);
-			const selectedTutorId = tutorSelect.value;
-
-			if (!selectedTutorId) {
-				alert("⚠️ Najpierw wybierz korepetytora z listy!");
-				return;
-			}
-
-			if (
-				!confirm(
-					"Czy przypisać tę lekcję do wybranego nauczyciela i ją zatwierdzić?",
-				)
-			)
-				return;
-
-			const { error } = await supabaseClient
-				.from("lessons")
-				.update({
-					tutor_id: selectedTutorId,
-					status: "zaplanowana",
-				})
-				.eq("id", lessonId);
-
-			if (error) {
-				alert("❌ Błąd: " + error.message);
-			} else {
-				alert("✅ Lekcja przypisana i zatwierdzona!");
-				await loadRealData(); // Odśwież dane
-				showPanel("all-lessons"); // Odśwież widok
-			}
-		};
-
 		window.changeUserRole = async function (userId, newRole) {
+			if (!["uczen", "korepetytor", "admin"].includes(newRole)) return;
 			if (
 				!confirm(
 					`Czy na pewno chcesz zmienić rolę tego użytkownika na: ${newRole}?`,
@@ -1726,39 +1556,41 @@ ${u.id !== currentProfile.id ? `
 
 		async function saveProfile() {
 			const msg = document.getElementById("profileMsg");
+			const fullName = document.getElementById("profName").value.trim();
+			const phone = document.getElementById("profPhone").value.trim();
+			if (!fullName || fullName.length > 120 || phone.length > 30) {
+				msg.textContent = "❌ Sprawdź imię i nazwisko oraz numer telefonu.";
+				return;
+			}
 			msg.textContent = "Zapisywanie...";
 			const { error } = await supabaseClient
 				.from("profiles")
-				.update({
-					full_name: document.getElementById("profName").value,
-					phone: document.getElementById("profPhone").value,
-				})
+				.update({ full_name: fullName, phone: phone || null })
 				.eq("id", currentProfile.id);
-			msg.textContent = error
-				? "❌ Błąd zapisu: " + error.message
-				: "✅ Zapisano pomyślnie!";
+			if (!error) {
+				currentProfile.full_name = fullName;
+				currentProfile.phone = phone || null;
+			}
+			if (error) console.error("Zapis profilu:", error);
+			msg.textContent = error ? "❌ Nie udało się zapisać profilu." : "✅ Zapisano pomyślnie!";
 		}
 
 		async function submitBooking() {
 			const dateVal = document.getElementById("bDate").value;
 			const timeVal = document.getElementById("bTime").value;
-			const subject = document.getElementById("bSubject").value;
+			const subject = document.getElementById("bSubject").value.trim();
+			const notes = document.getElementById("bNotes")?.value.trim() || "";
+			const dur = Number.parseInt(document.getElementById("bDur")?.value || "60", 10);
 
-			if (!dateVal || !subject) {
-				alert("Wybierz datę i określ przedmiot lekcji!");
+			if (!dateVal || !timeVal || !subject || subject.length > 120 || notes.length > 2000) {
+				alert("Uzupełnij poprawnie datę, godzinę, przedmiot i dodatkowe informacje.");
 				return;
 			}
-
-			// --- NOWA WALIDACJA DATY ---
-			const selectedDate = new Date(dateVal);
-			const today = new Date();
-			today.setHours(0, 0, 0, 0); // Zerujemy godziny, minuty i sekundy, by porównać same dni
-
-			if (selectedDate < today) {
-				alert("⚠️ Nie możesz zaplanować lekcji z datą w przeszłości!");
+			const lessonDate = new Date(`${dateVal}T${timeVal}:00`);
+			if (Number.isNaN(lessonDate.getTime()) || lessonDate <= new Date()) {
+				alert("⚠️ Termin lekcji musi przypadać w przyszłości.");
 				return;
 			}
-			// ---------------------------
 
 			const btn = document.getElementById("bBtn");
 			btn.textContent = "Przetwarzanie...";
@@ -1805,28 +1637,34 @@ ${u.id !== currentProfile.id ? `
 				}
 			}
 
-			const dur = parseInt(document.getElementById("bDur")?.value || 60);
-			const notes = document.getElementById("bNotes")?.value || "";
-			const datetimeString = `${dateVal}T${timeVal}:00`;
+			const status = role === "uczen" ? "oczekuje" : "zaplanowana";
+			const price = dur === 60 ? 100 : dur === 90 ? 140 : 180;
+			const request = role === "uczen"
+				? supabaseClient.rpc("request_lesson", {
+					p_tutor_id: finalTutorId,
+					p_subject: subject,
+					p_date: lessonDate.toISOString(),
+					p_duration_minutes: dur,
+					p_notes: notes || null,
+				})
+				: supabaseClient.from("lessons").insert({
+					student_id: finalStudentId,
+					tutor_id: finalTutorId,
+					subject,
+					date: lessonDate.toISOString(),
+					duration_minutes: dur,
+					status,
+					notes: notes || null,
+					price,
+					paid: false,
+					paid_at: null,
+				});
 
-			const status = (role === 'admin' || role === 'korepetytor') ? "zaplanowana" : "oczekuje";
-			const price = dur === 60 ? 100 : (dur === 90 ? 140 : 180);
-
-			const { error } = await supabaseClient.from("lessons").insert({
-				student_id: finalStudentId,
-				tutor_id: finalTutorId,
-				subject: subject,
-				date: datetimeString,
-				duration_minutes: dur,
-				status: status,
-				notes: notes,
-				price: price,
-				paid: false,
-				paid_at: null,
-			});
+			const { error } = await request;
 
 			if (error) {
-				alert("❌ Błąd rezerwacji: " + error.message);
+				console.error("Rezerwacja lekcji:", error);
+				alert("❌ Nie udało się zapisać rezerwacji. Sprawdź termin i spróbuj ponownie.");
 				btn.textContent = role === 'uczen' ? "Wyślij prośbę o lekcję →" : "Dodaj lekcję do grafiku →";
 				btn.disabled = false;
 			} else {
@@ -1965,7 +1803,7 @@ ${u.id !== currentProfile.id ? `
 					.eq("tutor_id", tutorId));
 			}
 			if (error) {
-				alert("Blad zapisu przypisania: " + error.message + "\nUruchom SQL z supabase-config.js, jesli tabela jeszcze nie istnieje.");
+				alert("Błąd zapisu przypisania: " + error.message + "\nZastosuj migrację opisaną w BAZA_DANYCH.md.");
 			}
 			await loadRealData();
 			showPanel("overview");
@@ -1975,7 +1813,7 @@ ${u.id !== currentProfile.id ? `
 			const paid = document.getElementById("newPayPaid").value === "true";
 			const el = document.getElementById("newPayPaidAt");
 			el.disabled = !paid;
-			if (paid && !el.value) el.value = toInputDate(new Date().toISOString());
+			if (paid && !el.value) el.value = toInputDate(new Date());
 			if (!paid) el.value = "";
 		};
 
@@ -1983,7 +1821,7 @@ ${u.id !== currentProfile.id ? `
 			const paid = document.getElementById(`pay-paid-${lessonId}`).value === "true";
 			const el = document.getElementById(`pay-paidat-${lessonId}`);
 			el.disabled = !paid;
-			if (paid && !el.value) el.value = toInputDate(new Date().toISOString());
+			if (paid && !el.value) el.value = toInputDate(new Date());
 			if (!paid) el.value = "";
 		};
 
@@ -1998,8 +1836,13 @@ ${u.id !== currentProfile.id ? `
 			const paidAtVal = document.getElementById("newPayPaidAt").value;
 			const status = document.getElementById("newPayHeld")?.value || "odbyta";
 
-			if (!date || !time || isNaN(price)) {
+			if (!date || !time || !Number.isFinite(price) || price < 0 || price > 100000 || subject.length > 120) {
 				msg.textContent = "⚠️ Uzupełnij datę, godzinę i kwotę.";
+				return;
+			}
+			const lessonDate = new Date(`${date}T${time}:00`);
+			if (Number.isNaN(lessonDate.getTime())) {
+				msg.textContent = "⚠️ Podaj poprawną datę i godzinę.";
 				return;
 			}
 
@@ -2009,12 +1852,12 @@ ${u.id !== currentProfile.id ? `
 				student_id: viewingPaymentUserId,
 				tutor_id: defaultTutor,
 				subject,
-				date: `${date}T${time}:00`,
+				date: lessonDate.toISOString(),
 				duration_minutes: 60,
 				status,
 				price,
 				paid,
-				paid_at: paid && paidAtVal ? new Date(paidAtVal).toISOString() : null,
+				paid_at: paid && paidAtVal ? new Date(`${paidAtVal}T12:00:00`).toISOString() : null,
 			};
 
 			const { error } = await supabaseClient.from("lessons").insert(payload);
@@ -2036,8 +1879,13 @@ ${u.id !== currentProfile.id ? `
 			const paidAtVal = document.getElementById(`pay-paidat-${lessonId}`).value;
 			const status = document.getElementById(`pay-status-${lessonId}`)?.value || "odbyta";
 
-			if (!date || !time || isNaN(price)) {
+			if (!date || !time || !Number.isFinite(price) || price < 0 || price > 100000 || subject.length > 120) {
 				alert("⚠️ Uzupełnij datę, godzinę i kwotę.");
+				return;
+			}
+			const lessonDate = new Date(`${date}T${time}:00`);
+			if (Number.isNaN(lessonDate.getTime())) {
+				alert("⚠️ Podaj poprawną datę i godzinę.");
 				return;
 			}
 
@@ -2045,11 +1893,11 @@ ${u.id !== currentProfile.id ? `
 				.from("lessons")
 				.update({
 					subject,
-					date: `${date}T${time}:00`,
+					date: lessonDate.toISOString(),
 					price,
 					status,
 					paid,
-					paid_at: paid && paidAtVal ? new Date(paidAtVal).toISOString() : null,
+					paid_at: paid && paidAtVal ? new Date(`${paidAtVal}T12:00:00`).toISOString() : null,
 				})
 				.eq("id", lessonId);
 
@@ -2077,9 +1925,10 @@ ${u.id !== currentProfile.id ? `
 			const isPaid = (selectElement.value === 'true');
 			selectElement.disabled = true;
 
+			const paidAt = isPaid ? new Date().toISOString() : null;
 			const { data, error } = await supabaseClient
 				.from("lessons")
-				.update({ paid: isPaid })
+				.update({ paid: isPaid, paid_at: paidAt })
 				.eq("id", lessonId)
 				.select();
 
@@ -2095,6 +1944,7 @@ ${u.id !== currentProfile.id ? `
 				const lessonIndex = appData.lessons.findIndex((l) => l.id === lessonId);
 				if (lessonIndex !== -1) {
 					appData.lessons[lessonIndex].paid = isPaid;
+					appData.lessons[lessonIndex].paidAt = paidAt;
 				}
 				refreshPayments();
 			}
@@ -2145,4 +1995,10 @@ ${u.id !== currentProfile.id ? `
 			}
 		};
 		// Uruchomienie
-		init();
+		init().catch((error) => {
+			console.error("Nie udało się uruchomić panelu:", error);
+			const target = document.getElementById("dashMain");
+			if (target) {
+				target.innerHTML = `<div class="empty-state"><h2>Nie udało się pobrać danych</h2><p>Sprawdź połączenie i spróbuj ponownie.</p><button type="button" class="btn btn-primary" onclick="window.location.reload()">Odśwież stronę</button></div>`;
+			}
+		});

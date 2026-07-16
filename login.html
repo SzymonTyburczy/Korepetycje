@@ -2,7 +2,7 @@
 <html lang="pl">
 
 <head>
-  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="icon" href="/favicon.png" type="image/png" sizes="256x256">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Logowanie — Korepetycje Szymon Tyburczy</title>
@@ -417,7 +417,7 @@
       text-decoration: underline;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8/dist/umd/supabase.min.js" integrity="sha384-z2hqtpr/vSDZ8zSjLOiNgnR/mpU799AD93s6rvkNJLI6Hl0YlKXEhDtREzNT749S" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/dist/umd/supabase.min.js" integrity="sha384-BmlQlKlDvXvKoxkn5OQuUo/aJQCTXeB+Kls6EccBmG4Kf8AXvp89RtO9MtPxP/r5" crossorigin="anonymous"></script>
 
 
 </head>
@@ -442,13 +442,13 @@
           <div class="auth-error" id="loginError"></div>
           <form class="auth-form" id="loginForm">
             <div class="form-group">
-              <label>Adres e-mail</label>
-              <input type="email" id="loginEmail" placeholder="twoj@email.com" required />
+              <label for="loginEmail">Adres e-mail</label>
+              <input type="email" id="loginEmail" maxlength="320" autocomplete="email" placeholder="twoj@email.com" required />
             </div>
             <div class="form-group">
-              <label>Hasło</label>
+              <label for="loginPassword">Hasło</label>
               <div class="password-wrapper">
-                <input type="password" id="loginPassword" placeholder="••••••••" required />
+                <input type="password" id="loginPassword" maxlength="128" autocomplete="current-password" placeholder="••••••••" required />
                 <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)"
                   title="Pokaż/Ukryj hasło">Pokaż</button>
               </div>
@@ -474,17 +474,17 @@
           <div class="auth-success" id="registerSuccess"></div>
           <form class="auth-form" id="registerForm">
             <div class="form-group">
-              <label>Imię i nazwisko</label>
-              <input type="text" id="regName" placeholder="Anna Nowak" required />
+              <label for="regName">Imię i nazwisko</label>
+              <input type="text" id="regName" maxlength="120" autocomplete="name" placeholder="Anna Nowak" required />
             </div>
             <div class="form-group">
-              <label>Adres e-mail</label>
-              <input type="email" id="regEmail" placeholder="twoj@email.com" required />
+              <label for="regEmail">Adres e-mail</label>
+              <input type="email" id="regEmail" maxlength="320" autocomplete="email" placeholder="twoj@email.com" required />
             </div>
             <div class="form-group">
-              <label>Hasło (min. 8 znaków)</label>
+              <label for="regPassword">Hasło (min. 8 znaków)</label>
               <div class="password-wrapper">
-                <input type="password" id="regPassword" placeholder="••••••••" minlength="8" required />
+                <input type="password" id="regPassword" minlength="8" maxlength="128" autocomplete="new-password" placeholder="••••••••" required />
                 <button type="button" class="password-toggle" onclick="togglePassword('regPassword', this)"
                   title="Pokaż/Ukryj hasło">Pokaż</button>
               </div>
@@ -506,8 +506,8 @@
           <div class="auth-success" id="resetSuccess"></div>
           <form class="auth-form" id="resetForm">
             <div class="form-group">
-              <label>Adres e-mail</label>
-              <input type="email" id="resetEmail" placeholder="twoj@email.com" required />
+              <label for="resetEmail">Adres e-mail</label>
+              <input type="email" id="resetEmail" maxlength="320" autocomplete="email" placeholder="twoj@email.com" required />
             </div>
             <button type="submit" class="auth-submit" id="resetBtn">Wyślij link resetujący →</button>
           </form>
@@ -522,17 +522,17 @@
           <div class="auth-success" id="newPwSuccess"></div>
           <form class="auth-form" id="newPasswordForm">
             <div class="form-group">
-              <label>Nowe hasło (min. 8 znaków)</label>
+              <label for="newPassword">Nowe hasło (min. 8 znaków)</label>
               <div class="password-wrapper">
-                <input type="password" id="newPassword" placeholder="••••••••" minlength="8" required />
+                <input type="password" id="newPassword" minlength="8" maxlength="128" autocomplete="new-password" placeholder="••••••••" required />
                 <button type="button" class="password-toggle" onclick="togglePassword('newPassword', this)"
                   title="Pokaż/Ukryj hasło">Pokaż</button>
               </div>
             </div>
             <div class="form-group">
-              <label>Powtórz hasło</label>
+              <label for="newPasswordConfirm">Powtórz hasło</label>
               <div class="password-wrapper">
-                <input type="password" id="newPasswordConfirm" placeholder="••••••••" minlength="8" required />
+                <input type="password" id="newPasswordConfirm" minlength="8" maxlength="128" autocomplete="new-password" placeholder="••••••••" required />
                 <button type="button" class="password-toggle" onclick="togglePassword('newPasswordConfirm', this)"
                   title="Pokaż/Ukryj hasło">Pokaż</button>
               </div>
@@ -563,7 +563,7 @@
       // Jeśli już zalogowany → dashboard
       const user = await getCurrentUser();
       if (user) window.location.href = 'dashboard.html';
-    });
+    }).catch(error => console.error('Nie udało się uruchomić logowania:', error));
 
 
     // Ukryj zakładki gdy pokazujemy panel resetowania
@@ -616,7 +616,8 @@
           'Email not confirmed': 'Potwierdź swój e-mail przed zalogowaniem.',
           'Too many requests': 'Za dużo prób — poczekaj chwilę i spróbuj ponownie.',
         };
-        errEl.textContent = msgs[error.message] || 'Błąd logowania: ' + error.message;
+        console.warn('Logowanie nie powiodło się:', error.message);
+        errEl.textContent = msgs[error.message] || 'Nie udało się zalogować. Sprawdź dane i spróbuj ponownie.';
         errEl.style.display = 'block';
         btn.textContent = 'Zaloguj się →'; btn.disabled = false;
       } else {
@@ -649,29 +650,37 @@
       errEl.style.display = 'none'; sucEl.style.display = 'none';
 
       const regEmail = document.getElementById('regEmail').value.trim().toLowerCase();
-      const { data, error } = await supabaseClient.auth.signUp({
-        email: regEmail,
-        password: document.getElementById('regPassword').value,
-        options: { data: { full_name: document.getElementById('regName').value } }
-      });
-
-      if (!error && data?.user?.identities && data.user.identities.length === 0) {
-        errEl.textContent = 'To konto nadal istnieje w systemie logowania. Usun je takze w Supabase Authentication albo przywroc profil w bazie.';
+      const fullName = document.getElementById('regName').value.trim();
+      if (!fullName) {
+        errEl.textContent = 'Podaj imię i nazwisko.';
         errEl.style.display = 'block';
-        btn.textContent = 'Zarejestruj sie ->'; btn.disabled = false;
+        btn.textContent = 'Zarejestruj się →'; btn.disabled = false;
         return;
       }
+      const { error } = await supabaseClient.auth.signUp({
+        email: regEmail,
+        password: document.getElementById('regPassword').value,
+        options: {
+          data: {
+            full_name: fullName,
+            terms_accepted: true,
+            terms_version: '2026-07-16'
+          }
+        }
+      });
 
       if (error) {
+        console.warn('Rejestracja nie powiodła się:', error.message);
         const msgs = {
-          'User already registered': 'Konto z tym e-mailem już istnieje.',
-          'Password should be at least 6 characters': 'Hasło musi mieć min. 6 znaków.',
+          'Password should be at least 6 characters': 'Hasło nie spełnia wymagań bezpieczeństwa.',
         };
-        errEl.textContent = msgs[error.message] || error.message;
+        errEl.textContent = error.message === 'User already registered'
+          ? 'Jeśli rejestracja jest możliwa, wysłaliśmy wiadomość z dalszymi instrukcjami.'
+          : (msgs[error.message] || 'Nie udało się ukończyć rejestracji. Spróbuj ponownie później.');
         errEl.style.display = 'block';
         btn.textContent = 'Zarejestruj się →'; btn.disabled = false;
       } else {
-        sucEl.textContent = '✅ Sprawdź skrzynkę e-mail i potwierdź rejestrację!';
+        sucEl.textContent = 'Jeśli rejestracja jest możliwa, wysłaliśmy wiadomość z dalszymi instrukcjami. Sprawdź również spam.';
         sucEl.style.display = 'block';
         btn.textContent = 'Wysłano e-mail ✓';
       }
@@ -727,7 +736,8 @@
       const { error } = await supabaseClient.auth.updateUser({ password: pw });
 
       if (error) {
-        errEl.textContent = 'Błąd: ' + error.message;
+        console.warn('Zmiana hasła nie powiodła się:', error.message);
+        errEl.textContent = 'Nie udało się zmienić hasła. Link mógł wygasnąć — poproś o nowy.';
         errEl.style.display = 'block';
         btn.textContent = 'Ustaw nowe hasło →'; btn.disabled = false;
       } else {

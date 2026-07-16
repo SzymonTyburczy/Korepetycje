@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════
    chatbot.js — Widget chatbota FAQ
    Dołącz do każdej strony: <script src="chatbot.js"></script>
-   Wymaga: klucza API Claude (proxy przez Netlify/Vercel Functions)
+   Działa lokalnie na podstawie stałej bazy odpowiedzi FAQ.
    ═══════════════════════════════════════════════════════ */
 
 (function () {
@@ -34,11 +34,11 @@
     },
     {
       keywords: ['odwołanie', 'odwołać', 'przełożyć', 'zmienić termin', 'rezygnacja'],
-      answer: '📋 Odwołanie lub zmiana terminu jest **bezpłatna** przy 24-godzinnym wyprzedzeniu. Przy krótszym terminie lekcja jest traktowana jako odbyta. Skontaktuj się jak najszybciej, a postaramy się znaleźć inne wyjście!'
+      answer: '📋 Odwołanie lub zmiana terminu jest <strong>bezpłatna</strong> przy 24-godzinnym wyprzedzeniu. Przy krótszym terminie lekcja jest traktowana jako odbyta. Skontaktuj się jak najszybciej, a postaramy się znaleźć inne wyjście!'
     },
     {
       keywords: ['płatność', 'płacić', 'przelew', 'blik', 'faktura', 'rachunek'],
-      answer: '💳 Przyjmujemy płatności **przelewem bankowym** i przez **BLIK**. Na życzenie wystawiamy fakturę. Przy pakietach możliwa jest płatność zaliczkowa lub jednorazowa — ustalamy indywidualnie.'
+      answer: '💳 Przyjmujemy płatności <strong>przelewem bankowym</strong> i przez <strong>BLIK</strong>. Na życzenie wystawiamy fakturę. Przy pakietach możliwa jest płatność zaliczkowa lub jednorazowa — ustalamy indywidualnie.'
     },
     {
       keywords: ['rejestracja', 'konto', 'logowanie', 'zalogować', 'panel', 'dashboard'],
@@ -46,7 +46,7 @@
     },
     {
       keywords: ['pierwsza lekcja', 'zacząć', 'jak zacząć', 'start', 'konsultacja', 'gratis'],
-      answer: '🎁 Pierwsza **15-minutowa konsultacja jest gratis** — bez żadnych zobowiązań! Pogadamy o Twoich celach i dopasujemy plan nauki. Napisz do nas lub użyj formularza kontaktowego. Czekamy!'
+      answer: '🎁 Pierwsza <strong>15-minutowa konsultacja jest gratis</strong> — bez żadnych zobowiązań! Pogadamy o Twoich celach i dopasujemy plan nauki. Napisz do nas lub użyj formularza kontaktowego. Czekamy!'
     },
   ];
 
@@ -162,11 +162,11 @@
   // ── INJECT HTML ──
   const wrap = document.createElement('div');
   wrap.innerHTML = `
-    <button class="chatbot-btn" id="cbBtn" title="Czat z asystentem">
+    <button type="button" class="chatbot-btn" id="cbBtn" title="Czat z asystentem" aria-label="Otwórz czat z asystentem" aria-controls="cbWindow" aria-expanded="false">
       <span class="cb-icon">💬</span>
       <span class="cb-close">✕</span>
     </button>
-    <div class="chatbot-window" id="cbWindow">
+    <div class="chatbot-window" id="cbWindow" role="dialog" aria-label="Czat z asystentem" aria-hidden="true">
       <div class="cb-header">
         <div class="cb-avatar">🤖</div>
         <div class="cb-header-text">
@@ -183,8 +183,8 @@
         <button class="cb-q-btn" onclick="cbAsk('Kim są korepetytorzy?')">👥 Korepetytorzy</button>
       </div>
       <div class="cb-input-row">
-        <input class="cb-input" id="cbInput" placeholder="Zadaj pytanie…" />
-        <button class="cb-send" id="cbSend">➤</button>
+        <input class="cb-input" id="cbInput" maxlength="500" autocomplete="off" aria-label="Treść pytania" placeholder="Zadaj pytanie…" />
+        <button type="button" class="cb-send" id="cbSend" aria-label="Wyślij pytanie">➤</button>
       </div>
     </div>
   `;
@@ -200,6 +200,10 @@
   btn.addEventListener('click', () => {
     btn.classList.toggle('open');
     win.classList.toggle('open');
+    const isOpen = win.classList.contains('open');
+    btn.setAttribute('aria-expanded', String(isOpen));
+    btn.setAttribute('aria-label', isOpen ? 'Zamknij czat z asystentem' : 'Otwórz czat z asystentem');
+    win.setAttribute('aria-hidden', String(!isOpen));
     if (win.classList.contains('open') && msgs.children.length === 0) {
       addMsg('bot', 'Cześć! 👋 Jestem asystentem Korepetycji Szymon Tyburczy. Mogę odpowiedzieć na pytania o <strong>ceny, przedmioty, korepetytorów i rezerwacje</strong>. O co chcesz zapytać?');
     }

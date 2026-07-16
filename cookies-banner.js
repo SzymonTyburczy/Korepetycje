@@ -57,6 +57,20 @@
   // ── Globalna funkcja do resetowania zgody (link w stopce) ──
   window.resetCookieConsent = function () {
     localStorage.removeItem(CONSENT_KEY);
+
+    // Cofnięcie zgody musi także usunąć istniejące cookies Google Analytics.
+    const hostParts = window.location.hostname.split('.');
+    const baseDomain = hostParts.length >= 2 ? `.${hostParts.slice(-2).join('.')}` : null;
+    document.cookie.split(';').forEach(function (item) {
+      const name = item.split('=')[0].trim();
+      if (name === '_ga' || name.startsWith('_ga_')) {
+        document.cookie = `${name}=; Max-Age=0; Path=/; SameSite=Lax`;
+        if (baseDomain) {
+          document.cookie = `${name}=; Max-Age=0; Path=/; Domain=${baseDomain}; SameSite=Lax`;
+        }
+      }
+    });
+
     location.reload();
   };
 

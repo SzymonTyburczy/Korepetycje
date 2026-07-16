@@ -2,7 +2,7 @@
 <html lang="pl">
 
 <head>
-  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="icon" href="/favicon.png" type="image/png" sizes="256x256">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Polityka Prywatności — Korepetycje Szymon Tyburczy</title>
@@ -110,7 +110,7 @@
       vertical-align: top;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8/dist/umd/supabase.min.js" integrity="sha384-z2hqtpr/vSDZ8zSjLOiNgnR/mpU799AD93s6rvkNJLI6Hl0YlKXEhDtREzNT749S" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/dist/umd/supabase.min.js" integrity="sha384-BmlQlKlDvXvKoxkn5OQuUo/aJQCTXeB+Kls6EccBmG4Kf8AXvp89RtO9MtPxP/r5" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -127,7 +127,7 @@
   <section class="legal-page section">
     <div class="legal-content">
       <div class="legal-update">
-        📅 <strong>Ostatnia aktualizacja:</strong> 28 czerwca 2026 r.<br>
+        📅 <strong>Ostatnia aktualizacja:</strong> 16 lipca 2026 r.<br>
         Niniejsza Polityka Prywatności obowiązuje od dnia jej publikacji na stronie.
       </div>
 
@@ -160,7 +160,8 @@
       <ul>
         <li>Imię i nazwisko</li>
         <li>Adres e-mail</li>
-        <li>Hasło (przechowywane w formie zaszyfrowanej)</li>
+        <li>Hasło (przetwarzane i hashowane przez Supabase Auth; nie przechowujemy go w postaci jawnej)</li>
+        <li>Data i wersja zaakceptowanego Regulaminu oraz Polityki Prywatności</li>
       </ul>
 
       <h3>c) Korzystanie z serwisu (panel ucznia)</h3>
@@ -260,9 +261,19 @@
             <td>USA / UE (Standard Contractual Clauses)</td>
           </tr>
           <tr>
-            <td><strong>Google LLC</strong> (planowane)</td>
+            <td><strong>Google LLC</strong></td>
             <td>Analityka ruchu na stronie (Google Analytics)</td>
             <td>USA / UE (Data Processing Amendment)</td>
+          </tr>
+          <tr>
+            <td><strong>jsDelivr / Prospect One</strong></td>
+            <td>Dostarczenie biblioteki technicznej Supabase używanej przez serwis</td>
+            <td>Globalna sieć CDN</td>
+          </tr>
+          <tr>
+            <td><strong>Google Fonts</strong></td>
+            <td>Dostarczenie krojów pisma używanych na stronie</td>
+            <td>USA / globalna sieć CDN</td>
           </tr>
         </tbody>
       </table>
@@ -344,20 +355,21 @@
           <tr>
             <td><code>_ga</code>, <code>_ga_*</code></td>
             <td>Cookie</td>
-            <td>Google Analytics — statystyki odwiedzin (planowane)</td>
+            <td>Google Analytics — statystyki odwiedzin, uruchamiane wyłącznie po zgodzie</td>
             <td>Do 2 lat</td>
           </tr>
         </tbody>
       </table>
-      <p>Możesz zmienić ustawienia dotyczące cookies w dowolnym momencie, klikając link „Ustawienia cookies" w stopce
-        strony lub usuwając cookies w ustawieniach swojej przeglądarki.</p>
+      <p>Możesz zmienić ustawienia dotyczące cookies w dowolnym momencie, klikając link „Ustawienia cookies" w stopce.
+        Cofnięcie zgody usuwa zapis preferencji oraz dostępne dla strony cookies Google Analytics; możesz też usunąć
+        cookies w ustawieniach swojej przeglądarki.</p>
 
       <!-- §7 -->
       <h2>§7. Bezpieczeństwo danych</h2>
       <p>Stosujemy odpowiednie środki techniczne i organizacyjne w celu ochrony Twoich danych, w tym:</p>
       <ul>
         <li>Szyfrowanie połączeń (HTTPS/SSL)</li>
-        <li>Hashowanie haseł użytkowników (bcrypt, realizowane przez Supabase Auth)</li>
+        <li>Bezpieczne hashowanie haseł realizowane przez Supabase Auth — serwis nie przechowuje haseł w postaci jawnej</li>
         <li>Polityki dostępu Row Level Security (RLS) w bazie danych</li>
         <li>Regularne aktualizacje oprogramowania</li>
       </ul>
