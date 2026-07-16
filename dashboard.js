@@ -242,6 +242,12 @@
 			if (error) throw new Error(`${label}: ${error.message}`);
 			return data || [];
 		}
+		function formatPrice(value) {
+			if (value === null || value === undefined || value === "") return "Do ustalenia";
+			const amount = Number(value);
+			if (!Number.isFinite(amount)) return "Do ustalenia";
+			return `${amount.toLocaleString("pl-PL", { maximumFractionDigits: 2 })} zł`;
+		}
 
 		async function loadRealData() {
 			// Status kończonych lekcji jest liczony według czasu bazy (UTC), a nie
@@ -301,7 +307,7 @@
 				date: l.date,
 				duration: l.duration_minutes || 60,
 				status: l.status,
-				price: l.price ?? "100",
+				price: l.price ?? null,
 				paid: l.paid === true || String(l.paid) === "true",
 				paidAt: l.paid_at || null,
 			}));
@@ -366,7 +372,7 @@
 <div class="data-head"><h3>Najbliższe lekcje</h3><button class="btn btn-gold" onclick="showPanel('book')" style="font-size:.8rem;padding:.4rem .9rem;">+ Zarezerwuj</button></div>
 ${up.length
 					? `
-<div class="lesson-cards">${up.map((l) => `<div class="lesson-card"><div class="lesson-card-top"><div class="lesson-card-subject">${esc(l.subject)}</div>${badge(l.status)}</div><div class="lesson-card-meta"><span>👨‍🏫 ${esc(l.tutor)}</span><span>📅 ${fmtDate(l.date)} · ${l.duration} min</span><span>💰 ${esc(l.price)} zł</span></div></div>`).join("")}</div>
+<div class="lesson-cards">${up.map((l) => `<div class="lesson-card"><div class="lesson-card-top"><div class="lesson-card-subject">${esc(l.subject)}</div>${badge(l.status)}</div><div class="lesson-card-meta"><span>👨‍🏫 ${esc(l.tutor)}</span><span>📅 ${fmtDate(l.date)} · ${l.duration} min</span><span>💰 ${formatPrice(l.price)}</span></div></div>`).join("")}</div>
 <div class="lesson-table-wrap"><table><thead><tr><th>Przedmiot</th><th>Korepetytor</th><th>Data</th><th>Czas</th><th>Status</th></tr></thead><tbody>${up.map((l) => `<tr><td><strong>${esc(l.subject)}</strong></td><td>${esc(l.tutor)}</td><td>${fmtDate(l.date)}</td><td>${l.duration} min</td><td>${badge(l.status)}</td></tr>`).join("")}</tbody></table></div>
 `
 					: `<div class="empty-state"><div class="icon">📅</div><p>Brak zaplanowanych lekcji.<br><br><button class="btn btn-primary" onclick="showPanel('book')">Zarezerwuj lekcję</button></p></div>`
@@ -457,9 +463,12 @@ ${up.length
           <td>${esc(l.subject)}</td>
           <td>${fmtDate(l.date)}</td>
           <td>${l.duration} min</td>
-          <td>${esc(l.price)} zl</td>
+          <td>${l.status === "oczekuje"
+					? `<input type="number" id="approve-price-${l.id}" value="${esc(l.price ?? "")}" min="0" max="100000" step="0.01" placeholder="Wpisz stawkę" style="width:8rem;padding:.35rem .5rem;"/>`
+					: formatPrice(l.price)}</td>
           <td>${badge(l.status)}</td>
           <td style="white-space:nowrap;">
+            ${l.status === "oczekuje" ? `<button class="btn btn-gold" style="padding:.3rem .7rem;font-size:.8rem;" onclick="approveLesson('${l.id}')">Zatwierdź ze stawką</button><button class="btn btn-outline" style="padding:.3rem .7rem;font-size:.8rem;margin-left:.3rem;" onclick="rejectLesson('${l.id}')">Odrzuć</button>` : ""}
             ${l.status === "zaplanowana" ? `<button class="btn btn-gold" style="padding:.3rem .7rem;font-size:.8rem;background:#2ecc71;border-color:#2ecc71;color:white;" onclick="markAsDone('${l.id}')">Odbyla sie</button>` : ""}
             <button class="btn btn-outline" style="color:red;border-color:red;padding:.3rem .7rem;font-size:.8rem;margin-left:.3rem;" onclick="deleteLesson('${l.id}')">Usun</button>
           </td>
@@ -496,7 +505,7 @@ ${up.length
 					? `
     <div class="lesson-table-wrap" style="display:block">
         <table>
-            <thead><tr><th>Uczeń</th><th>Korepetytor</th><th>Przedmiot</th><th>Data</th><th>Status / Akcja</th></tr></thead>
+            <thead><tr><th>Uczeń</th><th>Korepetytor</th><th>Przedmiot</th><th>Data</th><th>Stawka</th><th>Status / Akcja</th></tr></thead>
             <tbody>
                 ${pending.map((l) => `
                     <tr>
@@ -504,6 +513,9 @@ ${up.length
                         <td>${esc(l.tutor)}</td>
                         <td>${esc(l.subject)}</td>
                         <td>${fmtDate(l.date)}</td>
+                        <td>${canManage
+							? `<input type="number" id="approve-price-${l.id}" value="${esc(l.price ?? "")}" min="0" max="100000" step="0.01" placeholder="Wpisz stawkę" style="width:8rem;padding:.35rem .5rem;"/>`
+							: formatPrice(l.price)}</td>
                         <td>
                             ${canManage ? `
                                 <button class="btn btn-gold" style="padding: .3rem .7rem; font-size: .8rem;" onclick="approveLesson('${l.id}')">Potwierdź</button>
@@ -531,7 +543,7 @@ ${up.length
         <table>
             <thead>
                 <tr>
-                    <th>Uczeń</th><th>Korepetytor</th><th>Przedmiot</th><th>Data</th><th>Status</th>
+                    <th>Uczeń</th><th>Korepetytor</th><th>Przedmiot</th><th>Data</th><th>Stawka</th><th>Status</th>
                     ${isAdmin ? '<th>Akcja</th>' : ''} </tr>
             </thead>
             <tbody>
@@ -541,6 +553,7 @@ ${up.length
                         <td>${esc(l.tutor)}</td>
                         <td>${esc(l.subject)}</td>
                         <td>${fmtDate(l.date)}</td>
+                        <td>${formatPrice(l.price)}</td>
                         <td>${badge(l.status)}</td>
                         ${isAdmin ? ` <td>
                             <button class="btn btn-gold" style="padding:.3rem .7rem; font-size:.8rem; background:#2ecc71; border-color:#2ecc71; color:white;" onclick="markAsDone('${l.id}')">Zakończ</button>
@@ -565,7 +578,7 @@ ${up.length
         <table>
             <thead>
                 <tr>
-                    <th>Uczeń</th><th>Korepetytor</th><th>Przedmiot</th><th>Data</th><th>Status</th>
+                    <th>Uczeń</th><th>Korepetytor</th><th>Przedmiot</th><th>Data</th><th>Stawka</th><th>Status</th>
                     ${isAdmin ? '<th>Akcja</th>' : ''}
                 </tr>
             </thead>
@@ -576,6 +589,7 @@ ${up.length
                         <td>${esc(l.tutor)}</td>
                         <td>${esc(l.subject)}</td>
                         <td>${fmtDate(l.date)}</td>
+                        <td>${formatPrice(l.price)}</td>
                         <td>${badge(l.status)}</td>
                         ${isAdmin ? `
                         <td>
@@ -603,8 +617,8 @@ ${up.length
 <div class="data-head"><h3>Historia</h3></div>
 ${done.length
 					? `
-<div class="lesson-cards">${done.map((l) => `<div class="lesson-card"><div class="lesson-card-top"><div class="lesson-card-subject">${esc(l.subject)}</div>${badge(l.status)}</div><div class="lesson-card-meta"><span>👨‍🏫 ${esc(l.tutor)}</span><span>📅 ${fmtDate(l.date)}</span><span>💰 ${esc(l.price)} zł</span></div></div>`).join("")}</div>
-<div class="lesson-table-wrap"><table><thead><tr><th>Przedmiot</th><th>Korepetytor</th><th>Data</th><th>Czas</th><th>Cena</th><th>Status</th></tr></thead><tbody>${done.map((l) => `<tr><td>${esc(l.subject)}</td><td>${esc(l.tutor)}</td><td>${fmtDate(l.date)}</td><td>${l.duration} min</td><td>${esc(l.price)} zł</td><td>${badge(l.status)}</td></tr>`).join("")}</tbody></table></div>
+<div class="lesson-cards">${done.map((l) => `<div class="lesson-card"><div class="lesson-card-top"><div class="lesson-card-subject">${esc(l.subject)}</div>${badge(l.status)}</div><div class="lesson-card-meta"><span>👨‍🏫 ${esc(l.tutor)}</span><span>📅 ${fmtDate(l.date)}</span><span>💰 ${formatPrice(l.price)}</span></div></div>`).join("")}</div>
+<div class="lesson-table-wrap"><table><thead><tr><th>Przedmiot</th><th>Korepetytor</th><th>Data</th><th>Czas</th><th>Cena</th><th>Status</th></tr></thead><tbody>${done.map((l) => `<tr><td>${esc(l.subject)}</td><td>${esc(l.tutor)}</td><td>${fmtDate(l.date)}</td><td>${l.duration} min</td><td>${formatPrice(l.price)}</td><td>${badge(l.status)}</td></tr>`).join("")}</tbody></table></div>
 `
 					: `<div class="empty-state"><div class="icon">📖</div><p>Historia lekcji jest jeszcze pusta.</p></div>`
 				}
@@ -885,7 +899,7 @@ ${appData.materials.length
     <div class="form-group"><label>Przedmiot</label><input type="text" id="newPaySubject" value="Lekcja"/></div>
     <div class="form-group"><label>Data</label><input type="date" id="newPayDate" value="${today}"/></div>
     <div class="form-group"><label>Godzina</label><input type="time" id="newPayTime" value="10:00"/></div>
-    <div class="form-group"><label>Koszt</label><input type="number" id="newPayPrice" min="0" step="1" value="100"/></div>
+    <div class="form-group"><label>Koszt</label><input type="number" id="newPayPrice" min="0" max="100000" step="0.01" placeholder="Wpisz stawkę"/></div>
     <div class="form-group"><label>Odbyla sie</label><select id="newPayHeld"><option value="odbyta">Tak</option><option value="odwolana">Nie</option><option value="zaplanowana">Jeszcze nie</option></select></div>
     <div class="form-group"><label>Zaplacono</label><select id="newPayPaid" onchange="toggleNewPayPaidAt()"><option value="false">Nie</option><option value="true">Tak</option></select></div>
     <div class="form-group"><label>Data wplaty</label><input type="date" id="newPayPaidAt" disabled/></div>
@@ -905,7 +919,7 @@ ${appData.materials.length
       <div class="pay-lesson-head">
         <div>
           <div class="pay-lesson-title">${esc(l.subject || "Lekcja")}</div>
-          <div class="pay-lesson-meta">${fmtDate(l.date)} · ${l.duration} min · ${esc(l.price)} zl</div>
+          <div class="pay-lesson-meta">${fmtDate(l.date)} · ${l.duration} min · ${formatPrice(l.price)}</div>
         </div>
         <div>${badge(l.status)} ${l.paid ? `<span style="background:#2ecc71;color:white;padding:2px 8px;border-radius:4px;font-size:.75rem;margin-left:.3rem;">Oplacona</span>` : `<span style="background:#e74c3c;color:white;padding:2px 8px;border-radius:4px;font-size:.75rem;margin-left:.3rem;">Do zaplaty</span>`}</div>
       </div>
@@ -914,7 +928,7 @@ ${appData.materials.length
         <div class="form-group"><label>Przedmiot</label><input type="text" id="pay-subject-${l.id}" value="${esc(l.subject || "")}"/></div>
         <div class="form-group"><label>Data</label><input type="date" id="pay-date-${l.id}" value="${toInputDate(l.date)}"/></div>
         <div class="form-group"><label>Godzina</label><input type="time" id="pay-time-${l.id}" value="${toInputTime(l.date)}"/></div>
-        <div class="form-group"><label>Koszt</label><input type="number" id="pay-price-${l.id}" value="${esc(l.price)}" min="0" step="1"/></div>
+        <div class="form-group"><label>Koszt</label><input type="number" id="pay-price-${l.id}" value="${esc(l.price ?? "")}" min="0" max="100000" step="0.01"/></div>
         <div class="form-group"><label>Odbyla sie</label><select id="pay-status-${l.id}"><option value="odbyta" ${l.status === "odbyta" ? "selected" : ""}>Tak</option><option value="odwolana" ${l.status === "odwolana" ? "selected" : ""}>Nie</option><option value="zaplanowana" ${l.status === "zaplanowana" ? "selected" : ""}>Jeszcze nie</option></select></div>
         <div class="form-group"><label>Zaplacono</label><select id="pay-paid-${l.id}" onchange="togglePayPaidAt('${l.id}')"><option value="false" ${!l.paid ? "selected" : ""}>Nie</option><option value="true" ${l.paid ? "selected" : ""}>Tak</option></select></div>
         <div class="form-group"><label>Data wplaty</label><input type="date" id="pay-paidat-${l.id}" value="${l.paidAt ? toInputDateOnly(l.paidAt) : ""}" ${!l.paid ? "disabled" : ""}/></div>
@@ -959,7 +973,7 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
                     <td><strong>${esc(l.subject)}</strong></td>
                     ${isTutor ? `<td>${esc(l.student)}</td>` : `<td>${esc(l.tutor)}</td>`}
                     <td>${fmtDate(l.date)}</td>
-                    <td><strong>${esc(l.price)} zł</strong></td>
+                    <td><strong>${formatPrice(l.price)}</strong></td>
                     <td>
                         ${l.paid
 							? `<span style="background:#2ecc71;color:white;padding:2px 8px;border-radius:4px;font-size:0.75rem;">Opłacona</span>`
@@ -1061,6 +1075,10 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
       <div class="form-group"><label for="bDate">Data</label><input type="date" id="bDate" min="${toInputDate(new Date())}"/></div>
       <div class="form-group"><label for="bTime">Godzina</label><select id="bTime">${hours.map((h) => `<option>${h}</option>`).join("")}</select></div>
     </div>
+
+    ${role === "uczen"
+				? `<p style="margin:.2rem 0 1rem;color:var(--text-muted);font-size:.88rem;">Stawkę wpisze korepetytor lub administrator podczas zatwierdzania prośby. Zobaczysz ją przy lekcji po zatwierdzeniu.</p>`
+				: `<div class="form-group"><label for="bPrice">Stawka za lekcję (zł)</label><input type="number" id="bPrice" min="0" max="100000" step="0.01" placeholder="Wpisz uzgodnioną stawkę" required/></div>`}
     
     <div class="form-group">
         <label>Dodatkowe informacje (np. zagadnienia, dział)</label>
@@ -1521,11 +1539,18 @@ ${u.id !== currentProfile.id ? `
 		};
 
 		window.approveLesson = async function (lessonId) {
+			const priceInput = document.getElementById(`approve-price-${lessonId}`);
+			const price = Number.parseFloat(priceInput?.value || "");
+			if (!Number.isFinite(price) || price < 0 || price > 100000) {
+				alert("Wpisz poprawną stawkę przed zatwierdzeniem lekcji.");
+				priceInput?.focus();
+				return;
+			}
 			if (!confirm("Czy na pewno chcesz POTWIERDZIĆ tę lekcję?")) return;
 
 			const { error } = await supabaseClient
 				.from("lessons")
-				.update({ status: "zaplanowana" })
+				.update({ status: "zaplanowana", price })
 				.eq("id", lessonId);
 
 			if (error) {
@@ -1581,9 +1606,15 @@ ${u.id !== currentProfile.id ? `
 			const subject = document.getElementById("bSubject").value.trim();
 			const notes = document.getElementById("bNotes")?.value.trim() || "";
 			const dur = Number.parseInt(document.getElementById("bDur")?.value || "60", 10);
+			const role = currentProfile.role;
+			const price = role === "uczen" ? null : Number.parseFloat(document.getElementById("bPrice")?.value || "");
 
 			if (!dateVal || !timeVal || !subject || subject.length > 120 || notes.length > 2000) {
 				alert("Uzupełnij poprawnie datę, godzinę, przedmiot i dodatkowe informacje.");
+				return;
+			}
+			if (role !== "uczen" && (!Number.isFinite(price) || price < 0 || price > 100000)) {
+				alert("Podaj poprawną stawkę za lekcję.");
 				return;
 			}
 			const lessonDate = new Date(`${dateVal}T${timeVal}:00`);
@@ -1596,7 +1627,6 @@ ${u.id !== currentProfile.id ? `
 			btn.textContent = "Przetwarzanie...";
 			btn.disabled = true;
 
-			const role = currentProfile.role;
 			let finalStudentId = currentProfile.id;
 			let finalTutorId = null;
 
@@ -1638,7 +1668,6 @@ ${u.id !== currentProfile.id ? `
 			}
 
 			const status = role === "uczen" ? "oczekuje" : "zaplanowana";
-			const price = dur === 60 ? 100 : dur === 90 ? 140 : 180;
 			const request = role === "uczen"
 				? supabaseClient.rpc("request_lesson", {
 					p_tutor_id: finalTutorId,
