@@ -549,7 +549,7 @@
     </div>
   </div>
 
-  <script src="supabase-config.js"></script>
+  <script src="supabase-config.js?v=20260716-2"></script>
   <script>
     // INIT - uproszczony i bezpieczny
     initSupabase().then(async () => {
@@ -628,7 +628,16 @@
           return;
         }
 
-        const profile = await getCurrentProfile();
+        let profile;
+        try {
+          profile = await getCurrentProfile();
+        } catch (profileError) {
+          console.error('Odczyt profilu po logowaniu:', profileError);
+          errEl.textContent = 'Logowanie powiodło się, ale baza odrzuciła odczyt profilu. Odśwież stronę i spróbuj ponownie.';
+          errEl.style.display = 'block';
+          btn.textContent = 'Zaloguj się →'; btn.disabled = false;
+          return;
+        }
         if (!profile) {
           errEl.textContent = 'Konto istnieje, ale nie ma profilu w bazie. Skontaktuj sie z administratorem.';
           errEl.style.display = 'block';

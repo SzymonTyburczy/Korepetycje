@@ -535,6 +535,8 @@ CREATE POLICY admin_notes_all ON public.admin_user_notes FOR ALL TO authenticate
 -- Least-privilege grants
 -- ---------------------------------------------------------------------------
 
+GRANT USAGE ON SCHEMA public TO authenticated;
+
 REVOKE ALL PRIVILEGES ON TABLE
   public.profiles,
   public.lessons,

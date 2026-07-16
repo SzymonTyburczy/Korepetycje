@@ -12,3 +12,9 @@
 
 /dashboard.html
   Cache-Control: no-store
+
+/supabase-config.js
+  Cache-Control: no-store
+
+/dashboard.js
+  Cache-Control: no-store
