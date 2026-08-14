@@ -18,7 +18,7 @@
     },
     {
       keywords: ['korepetytor', 'nauczyciel', 'kto uczy', 'team', 'zespół'],
-      answer: '👨‍🏫 Mamy świetny zespół! Szymon Tyburczy (matematyka, informatyka, matura) oraz Adam Szymanek (matematyka, fizyka). Szczegóły na stronie <a href="/korepetytorzy" style="color:var(--gold)">Korepetytorzy</a>.'
+      answer: '👨‍🏫 Mamy świetny zespół! Szymon Tyburczy (matematyka, informatyka, matura), Adam Szymanek (matematyka, fizyka) oraz Mikołaj Gaweł (matematyka, matura, olimpiady). Szczegóły na stronie <a href="/korepetytorzy" style="color:var(--gold)">Korepetytorzy</a>.'
     },
     {
       keywords: ['przedmiot', 'czego', 'co uczysz', 'matematyka', 'informatyka', 'programowanie', 'python', 'java', 'fizyka'],
