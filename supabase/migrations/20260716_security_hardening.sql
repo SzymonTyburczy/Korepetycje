@@ -482,9 +482,9 @@ CREATE POLICY materials_write ON public.materials FOR ALL TO authenticated
       AND public.is_my_student(student_id)
       AND EXISTS (
         SELECT 1 FROM public.lessons lesson
-        WHERE lesson.id = lesson_id
-          AND lesson.student_id = student_id
-          AND lesson.tutor_id = tutor_id
+        WHERE lesson.id = materials.lesson_id
+          AND lesson.student_id = materials.student_id
+          AND lesson.tutor_id = materials.tutor_id
       )
     )
   )
@@ -495,9 +495,9 @@ CREATE POLICY materials_write ON public.materials FOR ALL TO authenticated
       AND public.is_my_student(student_id)
       AND EXISTS (
         SELECT 1 FROM public.lessons lesson
-        WHERE lesson.id = lesson_id
-          AND lesson.student_id = student_id
-          AND lesson.tutor_id = tutor_id
+        WHERE lesson.id = materials.lesson_id
+          AND lesson.student_id = materials.student_id
+          AND lesson.tutor_id = materials.tutor_id
       )
     )
   );

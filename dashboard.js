@@ -63,16 +63,6 @@
 			if (!iso) return "";
 			return toInputDate(iso);
 		}
-		function calcUserDebt(userId) {
-			return appData.lessons
-				.filter((l) => l.studentId === userId && l.status === "odbyta" && !l.paid)
-				.reduce((s, l) => s + Number(l.price || 0), 0);
-		}
-		function calcUserPaidTotal(userId) {
-			return appData.lessons
-				.filter((l) => l.studentId === userId && l.status === "odbyta" && l.paid)
-				.reduce((s, l) => s + Number(l.price || 0), 0);
-		}
 		function getStudents() {
 			return (appData.users || []).filter((u) => u.role === "uczen");
 		}
@@ -178,9 +168,6 @@
 		}
 		function getTutorStudentNote(studentId, tutorId) {
 			return (appData.tutorStudentNotes || []).find((n) => n.studentId === studentId && n.tutorId === tutorId);
-		}
-		function getStudentTutorNotes(studentId) {
-			return (appData.tutorStudentNotes || []).filter((n) => n.studentId === studentId);
 		}
 
 		// ── FORMATOWANIE ──
@@ -691,37 +678,6 @@ ${appData.materials.length
 			}).join("")}
   </div>` : `<div class="empty-state"><p>Nie masz jeszcze przypisanych uczniow. Administrator moze przypisac ich w panelu Przeglad.</p></div>`}
 </div>`;
-			const assignedIds = currentProfile.role === "admin"
-				? getAssignedStudentIds(currentProfile.id)
-				: getAssignedStudentIds(currentProfile.id);
-			const students = getStudents()
-				.filter((s) => assignedIds.includes(s.id))
-				.sort((a, b) => (a.full_name || a.email || "").localeCompare(b.full_name || b.email || "", "pl"));
-			return `
-<div class="panel-header"><h1>Uczniowie</h1><p>Uczniowie przypisani do Twojego konta.</p></div>
-<div class="data-wrap">
-  <div class="data-head"><h3>Moi uczniowie (${students.length})</h3></div>
-  ${students.length ? `
-  <div class="lesson-table-wrap" style="display:block;overflow-x:auto;">
-    <table>
-      <thead><tr><th>Uczen</th><th>E-mail</th><th>Najblizsza lekcja</th><th>Liczba lekcji</th><th></th></tr></thead>
-      <tbody>
-        ${students.map((s) => {
-				const lessons = pairLessons(s.id, currentProfile.id);
-				const next = nextLessonFor(s.id, currentProfile.id);
-				return `
-        <tr>
-          <td><strong>${esc(s.full_name || s.email)}</strong></td>
-          <td>${esc(s.email || "—")}</td>
-          <td>${next ? `${fmtDate(next.date)} · ${esc(next.subject)}` : "Brak zaplanowanych"}</td>
-          <td>${lessons.length}</td>
-          <td><button type="button" class="btn btn-primary" style="padding:.3rem .7rem;font-size:.78rem;" onclick="openStudentLessons('${s.id}')">Lekcje →</button></td>
-        </tr>`;
-			}).join("")}
-      </tbody>
-    </table>
-  </div>` : `<div class="empty-state"><p>Nie masz jeszcze przypisanych uczniow. Administrator moze przypisac ich w panelu Przeglad.</p></div>`}
-</div>`;
 		}
 
 		function panelAdminStudents() {
@@ -834,24 +790,6 @@ ${appData.materials.length
     </div>`;
 			}).join("")}
   </div>` : `<div class="empty-state"><p>Brak przypisanych par uczen-korepetytor. Dodaj przypisania w panelu Przeglad.</p></div>`}
-</div>`;
-			const users = [...(appData.users || [])]
-				.filter((u) => u.full_name)
-				.sort((a, b) => a.full_name.localeCompare(b.full_name, "pl"));
-			return `
-<div class="panel-header"><h1>Opłaty</h1></div>
-<div class="data-wrap">
-  ${users.length ? `
-  <div class="pay-user-list">
-    ${users
-					.map(
-						(u) => `
-    <div class="pay-user-item" onclick="openUserPayments('${u.id}')">
-      <strong>${esc(u.full_name)}</strong>
-    </div>`,
-					)
-					.join("")}
-  </div>` : `<div class="empty-state"><p>Brak użytkowników z uzupełnionym imieniem i nazwiskiem.</p></div>`}
 </div>`;
 		}
 
@@ -1377,7 +1315,7 @@ ${!isTutor ? `<div class="stats-row"><div class="stat-card"><div class="s-label"
 </div>
 <div class="profile-wrap">
   <div class="profile-avatar-row">
-    <div class="profile-avatar-big">${init}</div>
+    <div class="profile-avatar-big">${esc(init)}</div>
     <div>
       <strong style="color:var(--navy)">${esc(u.full_name || "—")}</strong><br>
       <span style="font-size:.85rem;color:var(--text-muted)">${esc(u.email || "—")}</span><br>
@@ -1875,11 +1813,16 @@ ${u.id !== currentProfile.id ? `
 				return;
 			}
 
+			const tutorId = viewingPaymentPair?.tutorId;
+			if (!tutorId) {
+				msg.textContent = "⚠️ Otwórz rozliczenie konkretnej pary uczeń–korepetytor, aby dodać pozycję.";
+				return;
+			}
+
 			msg.textContent = "Dodawanie…";
-			const defaultTutor = viewingPaymentPair?.tutorId || (appData.users || []).find((u) => u.role === "korepetytor")?.id || null;
 			const payload = {
 				student_id: viewingPaymentUserId,
-				tutor_id: defaultTutor,
+				tutor_id: tutorId,
 				subject,
 				date: lessonDate.toISOString(),
 				duration_minutes: 60,

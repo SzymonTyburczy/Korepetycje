@@ -189,8 +189,8 @@
         <a href="/polityka-prywatnosci">Polityce Prywatności</a>.
       </div>
       <div class="cookie-buttons">
-        <button class="cookie-btn cookie-btn-accept" id="cookieAcceptAll">Akceptuję wszystkie</button>
-        <button class="cookie-btn cookie-btn-necessary" id="cookieNecessary">Tylko niezbędne</button>
+        <button type="button" class="cookie-btn cookie-btn-accept" id="cookieAcceptAll">Akceptuję wszystkie</button>
+        <button type="button" class="cookie-btn cookie-btn-necessary" id="cookieNecessary">Tylko niezbędne</button>
       </div>
     </div>
   `;

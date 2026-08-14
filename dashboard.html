@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pl">
 
 <head>
@@ -14,18 +14,18 @@
 
 <body>
 	<!-- TOP NAV -->
-	<nav class="dash-nav">
+	<nav class="dash-nav" aria-label="Nawigacja panelu">
 		<a class="dash-logo" href="/"><span>Korepetycje</span> Szymon Tyburczy</a>
 		<div class="user-chip">
 			<div class="user-avatar" id="userAvatar">?</div>
 			<div class="user-name" id="userName">Ładowanie…</div>
 			<div class="role-badge" id="userRole">—</div>
 		</div>
-		<button class="btn-signout" onclick="signOut()">Wyloguj</button>
+		<button type="button" class="btn-signout" onclick="signOut()">Wyloguj</button>
 	</nav>
 
 	<!-- BOTTOM NAV (mobile) -->
-	<nav class="bottom-nav" id="bottomNav"></nav>
+	<nav class="bottom-nav" id="bottomNav" aria-label="Nawigacja mobilna"></nav>
 
 	<div class="dash-layout">
 		<!-- SIDEBAR (desktop) -->
