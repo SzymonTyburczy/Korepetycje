@@ -176,11 +176,11 @@
       </div>
       <div class="cb-messages" id="cbMessages"></div>
       <div class="cb-quick" id="cbQuick">
-        <button class="cb-q-btn" onclick="cbAsk('Ile kosztują korepetycje?')">💰 Cennik</button>
-        <button class="cb-q-btn" onclick="cbAsk('Jakie przedmioty oferujecie?')">📚 Przedmioty</button>
-        <button class="cb-q-btn" onclick="cbAsk('Jak umówić pierwszą lekcję?')">🎁 Pierwsza lekcja</button>
-        <button class="cb-q-btn" onclick="cbAsk('Czy lekcje są online?')">💻 Online/stacjonarnie</button>
-        <button class="cb-q-btn" onclick="cbAsk('Kim są korepetytorzy?')">👥 Korepetytorzy</button>
+        <button type="button" class="cb-q-btn" onclick="cbAsk('Ile kosztują korepetycje?')">💰 Cennik</button>
+        <button type="button" class="cb-q-btn" onclick="cbAsk('Jakie przedmioty oferujecie?')">📚 Przedmioty</button>
+        <button type="button" class="cb-q-btn" onclick="cbAsk('Jak umówić pierwszą lekcję?')">🎁 Pierwsza lekcja</button>
+        <button type="button" class="cb-q-btn" onclick="cbAsk('Czy lekcje są online?')">💻 Online/stacjonarnie</button>
+        <button type="button" class="cb-q-btn" onclick="cbAsk('Kim są korepetytorzy?')">👥 Korepetytorzy</button>
       </div>
       <div class="cb-input-row">
         <input class="cb-input" id="cbInput" maxlength="500" autocomplete="off" aria-label="Treść pytania" placeholder="Zadaj pytanie…" />

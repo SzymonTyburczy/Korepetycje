@@ -474,14 +474,14 @@
     <div class="container">
       <!-- FILTER -->
       <div class="filter-bar reveal" id="filterBar">
-        <button class="filter-btn active" data-filter="all">Wszyscy</button>
-        <button class="filter-btn" data-filter="matematyka">Matematyka</button>
-        <button class="filter-btn" data-filter="informatyka">Informatyka</button>
-        <button class="filter-btn" data-filter="matura">Matura</button>
-        <button class="filter-btn" data-filter="studia">Studia</button>
-        <button class="filter-btn" data-filter="online">Online</button>
-        <button class="filter-btn" data-filter="fizyka">Fizyka</button>
-        <button class="filter-btn" data-filter="olimpiada">Olimpiady</button>
+        <button type="button" class="filter-btn active" data-filter="all">Wszyscy</button>
+        <button type="button" class="filter-btn" data-filter="matematyka">Matematyka</button>
+        <button type="button" class="filter-btn" data-filter="informatyka">Informatyka</button>
+        <button type="button" class="filter-btn" data-filter="matura">Matura</button>
+        <button type="button" class="filter-btn" data-filter="studia">Studia</button>
+        <button type="button" class="filter-btn" data-filter="online">Online</button>
+        <button type="button" class="filter-btn" data-filter="fizyka">Fizyka</button>
+        <button type="button" class="filter-btn" data-filter="olimpiada">Olimpiady</button>
       </div>
 
       <!-- GRID -->
@@ -512,7 +512,7 @@
 
             </div>
             <div class="tutor-actions">
-              <button class="btn btn-primary" onclick="openModal('Szymon')">Zobacz profil</button>
+              <button type="button" class="btn btn-primary" onclick="openModal('Szymon')">Zobacz profil</button>
               <a href="/#contact" class="btn btn-outline-gold">Kontakt</a>
             </div>
           </div>
@@ -542,7 +542,7 @@
               <span>👥 50+ uczniów</span>
             </div>
             <div class="tutor-actions">
-              <button class="btn btn-primary" onclick="openModal('Adam')">Zobacz profil</button>
+              <button type="button" class="btn btn-primary" onclick="openModal('Adam')">Zobacz profil</button>
               <a href="/#contact" class="btn btn-outline-gold">Kontakt</a>
             </div>
           </div>
@@ -570,7 +570,7 @@
               <span>96% rozszerzenie</span>
             </div>
             <div class="tutor-actions">
-              <button class="btn btn-primary" onclick="openModal('Gawel')">Zobacz profil</button>
+              <button type="button" class="btn btn-primary" onclick="openModal('Gawel')">Zobacz profil</button>
               <a href="/#contact" class="btn btn-outline-gold">Kontakt</a>
             </div>
           </div>
@@ -598,7 +598,7 @@
             <span>👥 80+ uczniów</span>
           </div>
           <div class="tutor-actions">
-            <button class="btn btn-primary" onclick="openModal('piotr')">Zobacz profil</button>
+            <button type="button" class="btn btn-primary" onclick="openModal('piotr')">Zobacz profil</button>
             <a href="/#contact" class="btn btn-outline-gold">Kontakt</a>
           </div>
         </div>
@@ -626,7 +626,7 @@
             <span>👥 60+ uczniów</span>
           </div>
           <div class="tutor-actions">
-            <button class="btn btn-primary" onclick="openModal('marta')">Zobacz profil</button>
+            <button type="button" class="btn btn-primary" onclick="openModal('marta')">Zobacz profil</button>
             <a href="/#contact" class="btn btn-outline-gold">Kontakt</a>
           </div>
         </div>
@@ -655,7 +655,7 @@
   <!-- Szymon -->
   <div class="modal-overlay" id="modal-Szymon">
     <div class="modal">
-      <button class="modal-close" onclick="closeModal('Szymon')">✕</button>
+      <button type="button" class="modal-close" onclick="closeModal('Szymon')">✕</button>
       <div class="modal-header">
         <div class="modal-photo"><span><img src="Szymon.jpg" alt="Szymon Tyburczy"> </span></div>
         <div class="modal-info">
@@ -673,8 +673,8 @@
       <div class="modal-body">
         <h4>O mnie</h4>
         <p>Student Informatyki na AGH. Ponad 4-letnie doświadczenie w korepetycjach z matematyki i informatyki.</p>
-        <p>Uzyskałem 96% z matematyki rozszerzonej oraz 100% z podstawowej.
-        <p>W 2023 byłem finalistą olimpiady matematycznej na PW. </p>
+        <p>Uzyskałem 96% z matematyki rozszerzonej oraz 100% z podstawowej.</p>
+        <p>W 2023 byłem finalistą olimpiady matematycznej na PW.</p>
         <p> <a href="https://www.e-korepetycje.net/szymontyburczy/matematyka">Przeczytaj opinie na e-korepetycje.net</a>
         </p>
         <h4>Specjalizacje</h4>
@@ -686,11 +686,11 @@
           <li>Przygotowanie do olimpiad w szkole podstawowej (Bez OMJ)</li>
         </ul>
         <h4>Wykształcenie i doświadczenie</h4>
-        <p>Student Informatyki AGH. 4+ lat korepetycji, 40+ uczniów.
-        <p>Na co dzień zajmuję się programowaniem, ale od zawsze pasjonowała mnie matematyka. </p>
+        <p>Student Informatyki AGH. 4+ lat korepetycji, 40+ uczniów.</p>
+        <p>Na co dzień zajmuję się programowaniem, ale od zawsze pasjonowała mnie matematyka.</p>
         <div class="modal-cta">
           <a href="/#contact" class="btn btn-gold">Umów lekcję z Szymonem</a>
-          <button class="btn btn-outline" onclick="closeModal('Szymon')">Zamknij</button>
+          <button type="button" class="btn btn-outline" onclick="closeModal('Szymon')">Zamknij</button>
         </div>
       </div>
     </div>
@@ -699,7 +699,7 @@
   <!-- Adam-->
   <div class="modal-overlay" id="modal-Adam">
     <div class="modal">
-      <button class="modal-close" onclick="closeModal('Adam')">✕</button>
+      <button type="button" class="modal-close" onclick="closeModal('Adam')">✕</button>
       <div class="modal-header" style="background:linear-gradient(135deg,#1e3a5f,#2d5f8a)">
         <div class="modal-photo" style="background:rgba(0,0,0,.2)"><span><img src="adam.jpg" alt="Adam Szymanek">
           </span></div>
@@ -732,7 +732,7 @@
         <p>Student Informatyki 3 roku na wydziale informatyki AGH.</p>
         <div class="modal-cta">
           <a href="/#contact" class="btn btn-gold">Umów lekcję z Adamem</a>
-          <button class="btn btn-outline" onclick="closeModal('Adam')">Zamknij</button>
+          <button type="button" class="btn btn-outline" onclick="closeModal('Adam')">Zamknij</button>
         </div>
       </div>
     </div>
@@ -741,7 +741,7 @@
   <!-- Gawel -->
   <div class="modal-overlay" id="modal-Gawel">
     <div class="modal">
-      <button class="modal-close" onclick="closeModal('Gawel')">&times;</button>
+      <button type="button" class="modal-close" onclick="closeModal('Gawel')">&times;</button>
       <div class="modal-header" style="background:linear-gradient(135deg,#263b63,#476a9c)">
         <div class="modal-photo" style="background:rgba(0,0,0,.2)"><span><img src="Gawel.jpg" alt="Miko&#322;aj Gawe&#322;"></span></div>
         <div class="modal-info">
@@ -772,7 +772,7 @@
         <p>Student Informatyki AGH. Laureat olimpiad indeksowych AGH i Politechniki Krakowskiej z matematyki.</p>
         <div class="modal-cta">
           <a href="/#contact" class="btn btn-gold">Um&oacute;w lekcj&#281; z Miko&#322;ajem</a>
-          <button class="btn btn-outline" onclick="closeModal('Gawel')">Zamknij</button>
+          <button type="button" class="btn btn-outline" onclick="closeModal('Gawel')">Zamknij</button>
         </div>
       </div>
     </div>
@@ -781,7 +781,7 @@
   <!-- Piotr -->
   <!-- <div class="modal-overlay" id="modal-piotr">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('piotr')">✕</button>
+    <button type="button" class="modal-close" onclick="closeModal('piotr')">✕</button>
     <div class="modal-header" style="background:linear-gradient(135deg,#2d4a1e,#3d6629)">
       <div class="modal-photo" style="background:rgba(0,0,0,.2)"><span>👨‍🔬</span></div>
       <div class="modal-info">
@@ -808,7 +808,7 @@
       <p>Mgr Fizyki Teoretycznej (UW, 2022), aktualnie doktorant. Finał olimpiady matematycznej (2017).</p>
       <div class="modal-cta">
         <a href="/#contact" class="btn btn-gold">Umów lekcję z Piotrem</a>
-        <button class="btn btn-outline" onclick="closeModal('piotr')">Zamknij</button>
+        <button type="button" class="btn btn-outline" onclick="closeModal('piotr')">Zamknij</button>
       </div>
     </div>
   </div>
@@ -817,7 +817,7 @@
   <!-- Marta -->
   <!-- <div class="modal-overlay" id="modal-marta">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('marta')">✕</button>
+    <button type="button" class="modal-close" onclick="closeModal('marta')">✕</button>
     <div class="modal-header" style="background:linear-gradient(135deg,#4a1e2d,#662938)">
       <div class="modal-photo" style="background:rgba(0,0,0,.2)"><span>👩‍🎓</span></div>
       <div class="modal-info">
@@ -846,7 +846,7 @@
       <p>Dr nauk matematycznych (UW, 2023). Autorka artykułów naukowych z zakresu algebry.</p>
       <div class="modal-cta">
         <a href="/#contact" class="btn btn-gold">Umów lekcję z Martą</a>
-        <button class="btn btn-outline" onclick="closeModal('marta')">Zamknij</button>
+        <button type="button" class="btn btn-outline" onclick="closeModal('marta')">Zamknij</button>
       </div>
     </div>
   </div>

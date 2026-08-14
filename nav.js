@@ -19,7 +19,7 @@ function injectNav(activePage) {
         <a href="login.html" id="navAuthLink">🔐 Zaloguj się</a>
       </li>
     </ul>
-    <button class="hamburger" id="hamburger" aria-label="Otwórz menu" aria-expanded="false">
+    <button type="button" class="hamburger" id="hamburger" aria-label="Otwórz menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
   `;
